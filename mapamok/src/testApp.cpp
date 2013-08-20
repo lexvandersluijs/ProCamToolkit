@@ -28,10 +28,29 @@ void testApp::setup() {
 	calibrationReady = false;
 	setupMesh();	
 	setupControlPanel();
+
+	
+	fingerMovie.loadMovie("movies/fingers.mov");
+	fingerMovie.update(); // init the first frame to prevent blueness?
+
+	ofSetWindowTitle("mapamok");
 }
 
 void testApp::update() {
-	ofSetWindowTitle("mapamok");
+
+	if(getb("playVideo") && fingerMovie.isPlaying() == false)
+	{
+		fingerMovie.play();
+	}
+	else
+	{
+		if(!getb("playVideo") && fingerMovie.isPlaying() == true)
+		{
+			fingerMovie.stop();
+		}
+	}
+	fingerMovie.update();
+
 	if(getb("randomLighting")) {
 		setf("lightX", ofSignedNoise(ofGetElapsedTimef(), 1, 1) * 1000);
 		setf("lightY", ofSignedNoise(1, ofGetElapsedTimef(), 1) * 1000);
@@ -90,6 +109,8 @@ void testApp::draw() {
 		drawHighlightString(message, center);
 		ofPopStyle();
 	}
+
+	fingerMovie.draw(600,20);
 }
 
 void testApp::keyPressed(int key) {
@@ -148,6 +169,109 @@ void testApp::setupMesh() {
 	}
 }
 
+// LvdS: adapted from ofxAssimpModelLoader
+void testApp::drawModel(ofPolyRenderMode renderType)
+{
+	   ofPushStyle();
+    
+    if(!ofGetGLProgrammableRenderer()){
+	#ifndef TARGET_OPENGLES
+		glPushAttrib(GL_ALL_ATTRIB_BITS);
+		glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
+		glPolygonMode(GL_FRONT_AND_BACK, ofGetGLPolyMode(renderType));
+	#endif
+		glEnable(GL_NORMALIZE);
+    }
+    
+    ofPushMatrix();
+    ofMultMatrix(modelMatrix);
+    
+	for(unsigned int i=0; i<model.getNumMeshes(); i++) {
+		ofxAssimpMeshHelper & mesh = model.getMeshHelper(i);
+        
+        ofPushMatrix();
+        ofMultMatrix(mesh.matrix);
+        
+		bool useVideoTexture = true;
+		ofTexture& videoTexture = fingerMovie.getTextureReference();
+		if(useVideoTexture)
+		{
+			videoTexture.bind();
+		}
+		else
+		{
+			//if(model.bUsingTextures){
+				if(mesh.hasTexture()) {
+					ofTexture * tex = mesh.getTexturePtr();
+					if(tex->isAllocated()) {
+						tex->bind();
+					}
+				}
+			//}
+		}
+
+        //if(bUsingMaterials){
+            mesh.material.begin();
+        //}
+        
+        if(mesh.twoSided) {
+            glEnable(GL_CULL_FACE);
+        }
+        else {
+            glDisable(GL_CULL_FACE);
+        }
+        
+        ofEnableBlendMode(mesh.blendMode);
+#ifndef TARGET_OPENGLES
+        mesh.vbo.drawElements(GL_TRIANGLES,mesh.indices.size());
+#else
+        switch(renderType){
+		    case OF_MESH_FILL:
+		    	mesh.vbo.drawElements(GL_TRIANGLES,mesh.indices.size());
+		    	break;
+		    case OF_MESH_WIREFRAME:
+		    	mesh.vbo.drawElements(GL_LINES,mesh.indices.size());
+		    	break;
+		    case OF_MESH_POINTS:
+		    	mesh.vbo.drawElements(GL_POINTS,mesh.indices.size());
+		    	break;
+        }
+#endif
+        
+		if(useVideoTexture)
+		{
+			videoTexture.unbind();
+		}
+		else
+		{
+        //if(bUsingTextures){
+            if(mesh.hasTexture()) {
+                ofTexture * tex = mesh.getTexturePtr();
+                if(tex->isAllocated()) {
+                    tex->unbind();
+                }
+            }
+        //}
+		}
+
+        //if(bUsingMaterials){
+            mesh.material.end();
+        //}
+        
+        ofPopMatrix();
+    }
+    
+    ofPopMatrix();
+
+    if(!ofGetGLProgrammableRenderer()){
+	#ifndef TARGET_OPENGLES
+		glPopClientAttrib();
+		glPopAttrib();
+	#endif
+    }
+    ofPopStyle();
+}
+
 void testApp::render() {
 	ofPushStyle();
 	ofSetLineWidth(geti("lineWidth"));
@@ -197,14 +321,22 @@ void testApp::render() {
 		shader.setUniform1f("elapsedTime", ofGetElapsedTimef());
 		shader.end();
 	}
+	int nrOfMeshes = 0;
+
 	ofColor transparentBlack(0, 0, 0, 0);
 	switch(geti("drawMode")) {
 		case 0: // faces
-			if(useShader) shader.begin();
+/*			if(useShader) shader.begin();
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_BACK);
 			objectMesh.drawFaces();
-			if(useShader) shader.end();
+			if(useShader) shader.end();*/
+	
+// use the default implementation from ofxAssimpModelLoader
+//			model.drawFaces();
+
+// use our custom version that supports video textures and stuff
+			drawModel(OF_MESH_FILL);
 			break;
 		case 1: // fullWireframe
 			if(useShader) shader.begin();
@@ -371,6 +503,9 @@ void testApp::setupControlPanel() {
 	panel.addToggle("loadCalibration", false);
 	panel.addToggle("saveCalibration", false);
 	
+	panel.addPanel("Show");
+	panel.addToggle("playVideo", false);
+
 	panel.addPanel("Highlight");
 	panel.addToggle("highlight", false);
 	panel.addSlider("highlightPosition", 0, 0, 1);

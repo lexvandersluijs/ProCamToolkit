@@ -30,6 +30,7 @@ public:
 	void drawSelectionMode();
 	void drawRenderMode();
 	void render();
+	void drawModel(ofPolyRenderMode renderType);
     void loadCalibration();
 	void saveCalibration();
 	
@@ -51,4 +52,7 @@ public:
 	
 	Poco::Timestamp lastFragTimestamp, lastVertTimestamp;
 	ofShader shader;
+
+	// the movie we are going to project onto our shapes
+	ofVideoPlayer 		fingerMovie;
 };
