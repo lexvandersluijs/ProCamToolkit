@@ -55,4 +55,7 @@ public:
 
 	// the movie we are going to project onto our shapes
 	ofVideoPlayer 		fingerMovie;
+
+	// custom picture
+	ofImage				customPicture0;
 };
