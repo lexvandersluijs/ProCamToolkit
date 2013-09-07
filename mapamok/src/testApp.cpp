@@ -25,9 +25,17 @@ float testApp::getf(string name) {
 void testApp::setup() {
 	ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD);
 	ofSetVerticalSync(true);
-	calibrationReady = false;
-	setupMesh();	
-	setupControlPanel();
+	
+	proj.calibrationReady = false;
+
+	// load the 3D model
+	setupMesh();
+
+	// let the projecter initialize arrays for calibration from this model
+	proj.initializeFromMesh(objectMesh);
+
+	// then initialize the panel, which also needs to know the number of vertices in the mesh..
+	panel.initialize(proj);
 
 	// does this fix the TC's?
 	// ofEnableNormalizedTexCoords();
@@ -89,11 +97,11 @@ void disableFog() {
 void testApp::draw() {
 	ofBackground(geti("backgroundColor"));
     if(getb("loadCalibration")) {
-		loadCalibration();
+		proj.loadCalibration();
 		setb("loadCalibration", false);
 	}
 	if(getb("saveCalibration")) {
-		saveCalibration();
+		proj.saveCalibration();
 		setb("saveCalibration", false);
 	}
 	if(getb("selectionMode")) {
@@ -124,7 +132,7 @@ void testApp::keyPressed(int key) {
 		int choice = geti("selectionChoice");
 		setb("arrowing", true);
 		if(choice > 0){
-			Point2f& cur = imagePoints[choice];
+			Point2f& cur = proj.imagePoints[choice];
 			switch(key) {
 				case OF_KEY_LEFT: cur.x -= 1; break;
 				case OF_KEY_RIGHT: cur.x += 1; break;
@@ -139,8 +147,8 @@ void testApp::keyPressed(int key) {
 		if(getb("selected")) {
 			setb("selected", false);
 			int choice = geti("selectionChoice");
-			referencePoints[choice] = false;
-			imagePoints[choice] = Point2f();
+			proj.referencePoints[choice] = false;
+			proj.imagePoints[choice] = Point2f();
 		}
 	}
 	if(key == '\n') { // deselect
@@ -169,14 +177,8 @@ void testApp::setupMesh() {
 	//model.loadModel("oefentrap.obj");
 	model.loadModel("oefentrap.dae");
 	
+	// LS: note: stuff breaks down when there is more than one submesh in the model
 	objectMesh = model.getMesh(0);
-	int n = objectMesh.getNumVertices();
-	objectPoints.resize(n);
-	imagePoints.resize(n);
-	referencePoints.resize(n, false);
-	for(int i = 0; i < n; i++) {
-		objectPoints[i] = toCv(objectMesh.getVertex(i));
-	}
 }
 
 // LvdS: adapted from ofxAssimpModelLoader
@@ -385,207 +387,9 @@ void testApp::render() {
 	ofPopStyle();
 }
 
-void testApp::saveCalibration() {
-	string dirName = "calibration-" + ofGetTimestampString() + "/";
-	ofDirectory dir(dirName);
-	dir.create();
-	
-	FileStorage fs(ofToDataPath(dirName + "calibration-advanced.yml"), FileStorage::WRITE);	
-	
-	Mat cameraMatrix = intrinsics.getCameraMatrix();
-	fs << "cameraMatrix" << cameraMatrix;
-	
-	double focalLength = intrinsics.getFocalLength();
-	fs << "focalLength" << focalLength;
-	
-	Point2d fov = intrinsics.getFov();
-	fs << "fov" << fov;
-	
-	Point2d principalPoint = intrinsics.getPrincipalPoint();
-	fs << "principalPoint" << principalPoint;
-	
-	cv::Size imageSize = intrinsics.getImageSize();
-	fs << "imageSize" << imageSize;
-	
-	fs << "translationVector" << tvec;
-	fs << "rotationVector" << rvec;
-
-	Mat rotationMatrix;
-	Rodrigues(rvec, rotationMatrix);
-	fs << "rotationMatrix" << rotationMatrix;
-	
-	double rotationAngleRadians = norm(rvec, NORM_L2);
-	double rotationAngleDegrees = ofRadToDeg(rotationAngleRadians);
-	Mat rotationAxis = rvec / rotationAngleRadians;
-	fs << "rotationAngleRadians" << rotationAngleRadians;
-	fs << "rotationAngleDegrees" << rotationAngleDegrees;
-	fs << "rotationAxis" << rotationAxis;
-	
-	ofVec3f axis(rotationAxis.at<double>(0), rotationAxis.at<double>(1), rotationAxis.at<double>(2));
-	ofVec3f euler = ofQuaternion(rotationAngleDegrees, axis).getEuler();
-	Mat eulerMat = (Mat_<double>(3,1) << euler.x, euler.y, euler.z);
-	fs << "euler" << eulerMat;
-	
-	ofFile basic("calibration-basic.txt", ofFile::WriteOnly);
-	ofVec3f position( tvec.at<double>(1), tvec.at<double>(2));
-	basic << "position (in world units):" << endl;
-	basic << "\tx: " << ofToString(tvec.at<double>(0), 2) << endl;
-	basic << "\ty: " << ofToString(tvec.at<double>(1), 2) << endl;
-	basic << "\tz: " << ofToString(tvec.at<double>(2), 2) << endl;
-	basic << "axis-angle rotation (in degrees):" << endl;
-	basic << "\taxis x: " << ofToString(axis.x, 2) << endl;
-	basic << "\taxis y: " << ofToString(axis.y, 2) << endl;
-	basic << "\taxis z: " << ofToString(axis.z, 2) << endl;
-	basic << "\tangle: " << ofToString(rotationAngleDegrees, 2) << endl;
-	basic << "euler rotation (in degrees):" << endl;
-	basic << "\tx: " << ofToString(euler.x, 2) << endl;
-	basic << "\ty: " << ofToString(euler.y, 2) << endl;
-	basic << "\tz: " << ofToString(euler.z, 2) << endl;
-	basic << "fov (in degrees):" << endl;
-	basic << "\thorizontal: " << ofToString(fov.x, 2) << endl;
-	basic << "\tvertical: " << ofToString(fov.y, 2) << endl;
-	basic << "principal point (in screen units):" << endl;
-	basic << "\tx: " << ofToString(principalPoint.x, 2) << endl;
-	basic << "\ty: " << ofToString(principalPoint.y, 2) << endl;
-	basic << "image size (in pixels):" << endl;
-	basic << "\tx: " << ofToString(principalPoint.x, 2) << endl;
-	basic << "\ty: " << ofToString(principalPoint.y, 2) << endl;
-	
-	saveMat(Mat(objectPoints), dirName + "objectPoints.yml");
-	saveMat(Mat(imagePoints), dirName + "imagePoints.yml");
-}
-
-void testApp::loadCalibration() {
-    
-    // retrieve advanced calibration folder
-    
-    string calibPath;
-    ofFileDialogResult result = ofSystemLoadDialog("Select a calibration folder", true, ofToDataPath("", true));
-    calibPath = result.getPath();
-    
-    // load objectPoints and imagePoints
-    
-    Mat objPointsMat, imgPointsMat;
-    loadMat( objPointsMat, calibPath + "/objectPoints.yml");
-    loadMat( imgPointsMat, calibPath + "/imagePoints.yml");
-    
-    int numVals;
-    float x, y, z;
-    cv::Point3f oP;
-    
-    const float* objVals = objPointsMat.ptr<float>(0);
-    numVals = objPointsMat.cols * objPointsMat.rows;
-    
-    for(int i = 0; i < numVals; i+=3) {
-        oP.x = objVals[i];
-        oP.y = objVals[i+1];
-        oP.z = objVals[i+2];
-        objectPoints[i/3] = oP;
-    }
-    
-    cv::Point2f iP;
-    
-    referencePoints.resize( (imgPointsMat.cols * imgPointsMat.rows ) / 2, false);
-    
-    const float* imgVals = imgPointsMat.ptr<float>(0);
-    numVals = objPointsMat.cols * objPointsMat.rows;
-    
-    for(int i = 0; i < numVals; i+=2) {
-        iP.x = imgVals[i];
-        iP.y = imgVals[i+1];
-        if(iP.x != 0 && iP.y != 0) {
-            referencePoints[i/2] = true;
-        }
-        imagePoints[i/2] = iP;
-    }
-    
-    
-    // load the calibration-advanced yml
-    
-    FileStorage fs(ofToDataPath(calibPath + "/calibration-advanced.yml", true), FileStorage::READ);
-    
-    Mat cameraMatrix;
-    Size2i imageSize;
-    fs["cameraMatrix"] >> cameraMatrix;
-    fs["imageSize"][0] >> imageSize.width;
-    fs["imageSize"][1] >> imageSize.height;
-    fs["rotationVector"] >> rvec;
-    fs["translationVector"] >> tvec;
-    
-    intrinsics.setup(cameraMatrix, imageSize);
-    modelMatrix = makeMatrix(rvec, tvec);
-    
-    calibrationReady = true;
-}
-
-void testApp::setupControlPanel() {
-	panel.setup();
-	panel.msg = "tab hides the panel, space toggles render/selection mode, 'f' toggles fullscreen.";
-	
-	panel.addPanel("Interaction");
-	panel.addToggle("setupMode", true);
-	panel.addSlider("scale", 1, .1, 25);
-	panel.addSlider("backgroundColor", 0, 0, 255, true);
-	panel.addMultiToggle("drawMode", 3, variadic("faces")("fullWireframe")("outlineWireframe")("occludedWireframe")("picture"));
-	panel.addMultiToggle("shading", 0, variadic("none")("lights")("shader"));
-	panel.addToggle("loadCalibration", false);
-	panel.addToggle("saveCalibration", false);
-	
-	panel.addPanel("Show");
-	panel.addToggle("playVideo", false);
-
-	panel.addPanel("Highlight");
-	panel.addToggle("highlight", false);
-	panel.addSlider("highlightPosition", 0, 0, 1);
-	panel.addSlider("highlightOffset", .1, 0, 1);
-	
-	panel.addPanel("Calibration");
-	panel.addSlider("aov", 80, 50, 100);
-	panel.addToggle("CV_CALIB_FIX_ASPECT_RATIO", true);
-	panel.addToggle("CV_CALIB_FIX_K1", true);
-	panel.addToggle("CV_CALIB_FIX_K2", true);
-	panel.addToggle("CV_CALIB_FIX_K3", true);
-	panel.addToggle("CV_CALIB_ZERO_TANGENT_DIST", true);
-	panel.addToggle("CV_CALIB_FIX_PRINCIPAL_POINT", false);
-	
-	panel.addPanel("Rendering");
-	panel.addSlider("lineWidth", 2, 1, 8, true);
-	panel.addToggle("useSmoothing", false);
-	panel.addToggle("useFog", false);
-	panel.addSlider("fogNear", 200, 0, 1000);
-	panel.addSlider("fogFar", 1850, 0, 2500);
-	panel.addSlider("screenPointSize", 2, 1, 16, true);
-	panel.addSlider("selectedPointSize", 8, 1, 16, true);
-	panel.addSlider("selectionRadius", 12, 1, 32);
-	panel.addSlider("lightX", 200, -1000, 1000);
-	panel.addSlider("lightY", 400, -1000, 1000);
-	panel.addSlider("lightZ", 800, -1000, 1000);
-	panel.addToggle("randomLighting", false);
-	
-	panel.addPanel("Internal");
-	panel.addToggle("validShader", true);
-	panel.addToggle("selectionMode", true);
-	panel.addToggle("hoverSelected", false);
-	panel.addSlider("hoverChoice", 0, 0, objectPoints.size(), true);
-	panel.addToggle("selected", false);
-	panel.addToggle("dragging", false);
-	panel.addToggle("arrowing", false);
-	panel.addSlider("selectionChoice", 0, 0, objectPoints.size(), true);
-	panel.addSlider("slowLerpRate", .001, 0, .01);
-	panel.addSlider("fastLerpRate", 1, 0, 1);
-}
-
 void testApp::updateRenderMode() {
-	// generate camera matrix given aov guess
 	float aov = getf("aov");
-	Size2i imageSize(ofGetWidth(), ofGetHeight());
-	float f = imageSize.width * ofDegToRad(aov); // i think this is wrong, but it's optimized out anyway
-	Point2f c = Point2f(imageSize) * (1. / 2);
-	Mat1d cameraMatrix = (Mat1d(3, 3) <<
-		f, 0, c.x,
-		0, f, c.y,
-		0, 0, 1);
-		
+
 	// generate flags
 	#define getFlag(flag) (panel.getValueB((#flag)) ? flag : 0)
 	int flags =
@@ -596,29 +400,9 @@ void testApp::updateRenderMode() {
 		getFlag(CV_CALIB_FIX_K2) |
 		getFlag(CV_CALIB_FIX_K3) |
 		getFlag(CV_CALIB_ZERO_TANGENT_DIST);
-	
-	vector<Mat> rvecs, tvecs;
-	Mat distCoeffs;
-	vector<vector<Point3f> > referenceObjectPoints(1);
-	vector<vector<Point2f> > referenceImagePoints(1);
-	int n = referencePoints.size();
-	for(int i = 0; i < n; i++) {
-		if(referencePoints[i]) {
-			referenceObjectPoints[0].push_back(objectPoints[i]);
-			referenceImagePoints[0].push_back(imagePoints[i]);
-		}
-	}
-	const static int minPoints = 6;
-	if(referenceObjectPoints[0].size() >= minPoints) {
-		calibrateCamera(referenceObjectPoints, referenceImagePoints, imageSize, cameraMatrix, distCoeffs, rvecs, tvecs, flags);
-		rvec = rvecs[0];
-		tvec = tvecs[0];
-		intrinsics.setup(cameraMatrix, imageSize);
-		modelMatrix = makeMatrix(rvec, tvec);
-		calibrationReady = true;
-	} else {
-		calibrationReady = false;
-	}
+
+	proj.updateCalibration(aov, flags);
+
 }
 
 void testApp::drawLabeledPoint(int label, ofVec2f position, ofColor color, ofColor bg, ofColor fg) {
@@ -662,9 +446,9 @@ void testApp::drawSelectionMode() {
 		imageMesh.drawVertices();
 
 		// draw all reference points cyan
-		int n = referencePoints.size();
+		int n = proj.referencePoints.size();
 		for(int i = 0; i < n; i++) {
-			if(referencePoints[i]) {
+			if(proj.referencePoints[i]) {
 				drawLabeledPoint(i, imageMesh.getVertex(i), cyanPrint);
 			}
 		}
@@ -697,9 +481,9 @@ void testApp::drawRenderMode() {
 	glPushMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	
-	if(calibrationReady) {
-		intrinsics.loadProjectionMatrix(10, 2000);
-		applyMatrix(modelMatrix);
+	if(proj.calibrationReady) {
+		proj.intrinsics.loadProjectionMatrix(10, 2000);
+		applyMatrix(proj.modelMatrix);
 		render();
 		if(getb("setupMode")) {
 			imageMesh = getProjectedMesh(objectMesh);	
@@ -713,10 +497,10 @@ void testApp::drawRenderMode() {
 	
 	if(getb("setupMode")) {
 		// draw all reference points cyan
-		int n = referencePoints.size();
+		int n = proj.referencePoints.size();
 		for(int i = 0; i < n; i++) {
-			if(referencePoints[i]) {
-				drawLabeledPoint(i, toOf(imagePoints[i]), cyanPrint);
+			if(proj.referencePoints[i]) {
+				drawLabeledPoint(i, toOf(proj.imagePoints[i]), cyanPrint);
 			}
 		}
 		
@@ -724,10 +508,10 @@ void testApp::drawRenderMode() {
 		// draw selected yellow
 		int choice = geti("selectionChoice");
 		if(getb("selected")) {
-			referencePoints[choice] = true;	
-			Point2f& cur = imagePoints[choice];	
+			proj.referencePoints[choice] = true;	
+			Point2f& cur = proj.imagePoints[choice];	
 			if(cur == Point2f()) {
-				if(calibrationReady) {
+				if(proj.calibrationReady) {
 					cur = toCv(ofVec2f(imageMesh.getVertex(choice)));
 				} else {
 					cur = Point2f(mouseX, mouseY);
@@ -735,14 +519,14 @@ void testApp::drawRenderMode() {
 			}
 		}
 		if(getb("dragging")) {
-			Point2f& cur = imagePoints[choice];
+			Point2f& cur = proj.imagePoints[choice];
 			float rate = ofGetMousePressed(0) ? getf("slowLerpRate") : getf("fastLerpRate");
 			cur = Point2f(ofLerp(cur.x, mouseX, rate), ofLerp(cur.y, mouseY, rate));
 			drawLabeledPoint(choice, toOf(cur), yellowPrint, ofColor::white, ofColor::black);
 			ofSetColor(ofColor::black);
 			ofRect(toOf(cur), 1, 1);
 		} else if(getb("arrowing")) {
-			Point2f& cur = imagePoints[choice];
+			Point2f& cur = proj.imagePoints[choice];
 			drawLabeledPoint(choice, toOf(cur), yellowPrint, ofColor::white, ofColor::black);
 			ofSetColor(ofColor::black);
 			ofRect(toOf(cur), 1, 1);
@@ -750,8 +534,8 @@ void testApp::drawRenderMode() {
 			// check to see if anything is selected
 			// draw hover magenta
 			float distance;
-			ofVec2f selected = toOf(getClosestPoint(imagePoints, mouseX, mouseY, &choice, &distance));
-			if(!ofGetMousePressed() && referencePoints[choice] && distance < getf("selectionRadius")) {
+			ofVec2f selected = toOf(getClosestPoint(proj.imagePoints, mouseX, mouseY, &choice, &distance));
+			if(!ofGetMousePressed() && proj.referencePoints[choice] && distance < getf("selectionRadius")) {
 				seti("hoverChoice", choice);
 				setb("hoverSelected", true);
 				drawLabeledPoint(choice, selected, magentaPrint);

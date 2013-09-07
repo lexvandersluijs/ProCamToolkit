@@ -148,6 +148,9 @@
     <ClCompile Include="..\..\..\addons\ofxAssimpModelLoader\src\ofxAssimpTexture.cpp">
       <Filter>addons\ofxAssimpModelLoader\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\projector.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -661,6 +664,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\addons\ofxAssimpModelLoader\src\ofxAssimpUtils.h">
       <Filter>addons\ofxAssimpModelLoader\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\projector.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mainControlPanel.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

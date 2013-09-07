@@ -6,6 +6,8 @@
 #include "ofxProCamToolkit.h"
 #include "ofxAutoControlPanel.h"
 #include "LineArt.h"
+#include "projector.h"
+#include "mainControlPanel.h"
 
 class testApp : public ofBaseApp {
 public:
@@ -39,16 +41,9 @@ public:
 	ofVboMesh objectMesh;
 	ofMesh imageMesh;
 	ofLight light;
-	ofxAutoControlPanel panel;
+	mainControlPanel panel;
 	
-	vector<cv::Point3f> objectPoints;
-	vector<cv::Point2f> imagePoints;
-	vector<bool> referencePoints;
-	
-	cv::Mat rvec, tvec;
-	ofMatrix4x4 modelMatrix;
-	ofxCv::Intrinsics intrinsics;
-	bool calibrationReady;
+	projector proj;
 	
 	Poco::Timestamp lastFragTimestamp, lastVertTimestamp;
 	ofShader shader;
