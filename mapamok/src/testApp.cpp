@@ -28,35 +28,10 @@ void testApp::setup() {
 	calibrationReady = false;
 	setupMesh();	
 	setupControlPanel();
-
-	// does this fix the TC's?
-	// ofEnableNormalizedTexCoords();
-	// ofDisableNormalizedTexCoords();
-
-
-	fingerMovie.loadMovie("movies/fingers.mov");
-	fingerMovie.update(); // init the first frame to prevent blueness?
-
-	customPicture0.loadImage("pictures/oefentrap-stonesandgrass.png");
-
-	ofSetWindowTitle("mapamok");
 }
 
 void testApp::update() {
-
-	if(getb("playVideo") && fingerMovie.isPlaying() == false)
-	{
-		fingerMovie.play();
-	}
-	else
-	{
-		if(!getb("playVideo") && fingerMovie.isPlaying() == true)
-		{
-			fingerMovie.stop();
-		}
-	}
-	fingerMovie.update();
-
+	ofSetWindowTitle("mapamok");
 	if(getb("randomLighting")) {
 		setf("lightX", ofSignedNoise(ofGetElapsedTimef(), 1, 1) * 1000);
 		setf("lightY", ofSignedNoise(1, ofGetElapsedTimef(), 1) * 1000);
@@ -115,8 +90,6 @@ void testApp::draw() {
 		drawHighlightString(message, center);
 		ofPopStyle();
 	}
-
-	//fingerMovie.draw(600,20);
 }
 
 void testApp::keyPressed(int key) {
@@ -164,11 +137,7 @@ void testApp::mouseReleased(int x, int y, int button) {
 }
 
 void testApp::setupMesh() {
-	//model.loadModel("model.dae");
-	//model.loadModel("movicolon-box.dae");
-	//model.loadModel("oefentrap.obj");
-	model.loadModel("oefentrap.dae");
-	
+	model.loadModel("model.dae");
 	objectMesh = model.getMesh(0);
 	int n = objectMesh.getNumVertices();
 	objectPoints.resize(n);
@@ -177,124 +146,6 @@ void testApp::setupMesh() {
 	for(int i = 0; i < n; i++) {
 		objectPoints[i] = toCv(objectMesh.getVertex(i));
 	}
-}
-
-// LvdS: adapted from ofxAssimpModelLoader
-void testApp::drawModel(ofPolyRenderMode renderType)
-{
-	   ofPushStyle();
-    
-
-    if(!ofGetGLProgrammableRenderer()){
-	#ifndef TARGET_OPENGLES
-		glPushAttrib(GL_ALL_ATTRIB_BITS);
-		glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
-		glPolygonMode(GL_FRONT_AND_BACK, ofGetGLPolyMode(renderType));
-	#endif
-		glEnable(GL_NORMALIZE);
-    }
-    
-	ofEnableNormalizedTexCoords();
-
-    ofPushMatrix();
-    //ofMultMatrix(modelMatrix);
-    
-	for(unsigned int i=0; i<model.getNumMeshes(); i++) {
-		ofxAssimpMeshHelper & mesh = model.getMeshHelper(i);
-        
-        ofPushMatrix();
-        //ofMultMatrix(mesh.matrix);
-
-		ofTexture& videoTexture = fingerMovie.getTextureReference();
-		ofTexture& pictureTexture = customPicture0.getTextureReference();
-		int textureMode = 1;
-		// 0 = texture referenced by mesh
-		// 1 = override picture
-		// 2 = override video
-		switch(textureMode)
-		{
-		case 0:
-			//if(model.bUsingTextures){
-				if(mesh.hasTexture()) {
-					ofTexture * tex = mesh.getTexturePtr();
-					if(tex->isAllocated()) {
-						tex->bind();
-					}
-				}
-			//}
-
-			break;
-		case 1:
-			pictureTexture.bind();
-			break;
-		case 2:
-			videoTexture.bind();
-			break;
-		}
-
-        //if(bUsingMaterials){
-            mesh.material.begin();
-        //}
-        
-        if(mesh.twoSided) {
-            glEnable(GL_CULL_FACE);
-        }
-        else {
-            glDisable(GL_CULL_FACE);
-        }
-        
-        ofEnableBlendMode(mesh.blendMode);
-#ifndef TARGET_OPENGLES
-        mesh.vbo.drawElements(GL_TRIANGLES,mesh.indices.size());
-#else
-        switch(renderType){
-		    case OF_MESH_FILL:
-		    	mesh.vbo.drawElements(GL_TRIANGLES,mesh.indices.size());
-		    	break;
-		    case OF_MESH_WIREFRAME:
-		    	mesh.vbo.drawElements(GL_LINES,mesh.indices.size());
-		    	break;
-		    case OF_MESH_POINTS:
-		    	mesh.vbo.drawElements(GL_POINTS,mesh.indices.size());
-		    	break;
-        }
-#endif
-
-		switch(textureMode)
-		{
-		case 0:
-        //if(bUsingTextures){
-            if(mesh.hasTexture()) {
-                ofTexture * tex = mesh.getTexturePtr();
-                if(tex->isAllocated()) {
-                    tex->unbind();
-                }
-            }
-        //}
-		case 1:
-			pictureTexture.unbind();
-			break;	
-		case 2:
-			videoTexture.unbind();
-			break;
-		}
-
-        //if(bUsingMaterials){
-            mesh.material.end();
-        //}
-        
-        ofPopMatrix();
-    }
-    
-    ofPopMatrix();
-
-    if(!ofGetGLProgrammableRenderer()){
-	#ifndef TARGET_OPENGLES
-		glPopClientAttrib();
-		glPopAttrib();
-	#endif
-    }
-    ofPopStyle();
 }
 
 void testApp::render() {
@@ -346,8 +197,6 @@ void testApp::render() {
 		shader.setUniform1f("elapsedTime", ofGetElapsedTimef());
 		shader.end();
 	}
-	int nrOfMeshes = 0;
-
 	ofColor transparentBlack(0, 0, 0, 0);
 	switch(geti("drawMode")) {
 		case 0: // faces
@@ -356,12 +205,6 @@ void testApp::render() {
 			glCullFace(GL_BACK);
 			objectMesh.drawFaces();
 			if(useShader) shader.end();
-	
-// use the default implementation from ofxAssimpModelLoader
-//			model.drawFaces();
-
-// use our custom version that supports video textures and stuff
-//			drawModel(OF_MESH_FILL);
 			break;
 		case 1: // fullWireframe
 			if(useShader) shader.begin();
@@ -373,9 +216,6 @@ void testApp::render() {
 			break;
 		case 3: // occludedWireframe
 			LineArt::draw(objectMesh, false, transparentBlack, useShader ? &shader : NULL);
-			break;
-		case 4: // picture
-			drawModel(OF_MESH_FILL);
 			break;
 	}
 	glPopAttrib();
@@ -526,14 +366,11 @@ void testApp::setupControlPanel() {
 	panel.addToggle("setupMode", true);
 	panel.addSlider("scale", 1, .1, 25);
 	panel.addSlider("backgroundColor", 0, 0, 255, true);
-	panel.addMultiToggle("drawMode", 3, variadic("faces")("fullWireframe")("outlineWireframe")("occludedWireframe")("picture"));
+	panel.addMultiToggle("drawMode", 3, variadic("faces")("fullWireframe")("outlineWireframe")("occludedWireframe"));
 	panel.addMultiToggle("shading", 0, variadic("none")("lights")("shader"));
 	panel.addToggle("loadCalibration", false);
 	panel.addToggle("saveCalibration", false);
 	
-	panel.addPanel("Show");
-	panel.addToggle("playVideo", false);
-
 	panel.addPanel("Highlight");
 	panel.addToggle("highlight", false);
 	panel.addSlider("highlightPosition", 0, 0, 1);
