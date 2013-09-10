@@ -34,7 +34,8 @@ void testApp::setup() {
 	// ofDisableNormalizedTexCoords();
 
 
-	fingerMovie.loadMovie("movies/fingers.mov");
+	//fingerMovie.loadMovie("movies/fingers.mov");
+	fingerMovie.loadMovie("movies/oefentrap-uvtemplate_2.mov");
 	fingerMovie.update(); // init the first frame to prevent blueness?
 
 	customPicture0.loadImage("pictures/oefentrap-stonesandgrass.png");
@@ -207,7 +208,7 @@ void testApp::drawModel(ofPolyRenderMode renderType)
 
 		ofTexture& videoTexture = fingerMovie.getTextureReference();
 		ofTexture& pictureTexture = customPicture0.getTextureReference();
-		int textureMode = 1;
+		int textureMode = 2;
 		// 0 = texture referenced by mesh
 		// 1 = override picture
 		// 2 = override video
