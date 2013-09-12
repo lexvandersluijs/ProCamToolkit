@@ -25,6 +25,8 @@ public:
 	void mousePressed(int x, int y, int button);
 	void mouseReleased(int x, int y, int button);
 	
+	void drawViewportOutline(const ofRectangle & viewport);
+
 	void setupControlPanel();
 	void setupMesh();
 	void drawLabeledPoint(int label, ofVec2f position, ofColor color, ofColor bg = ofColor::black, ofColor fg = ofColor::white);
@@ -43,6 +45,7 @@ public:
 	ofLight light;
 	mainControlPanel panel;
 	
+	ofRectangle projectorViewport;
 	projector proj;
 	
 	Poco::Timestamp lastFragTimestamp, lastVertTimestamp;

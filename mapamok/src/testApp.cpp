@@ -3,6 +3,13 @@
 using namespace ofxCv;
 using namespace cv;
 
+class ProjectorView
+{
+public:
+	projector* projector;
+	ofRectangle viewport;
+};
+
 void testApp::setb(string name, bool value) {
 	panel.setValueB(name, value);
 }
@@ -23,6 +30,14 @@ float testApp::getf(string name) {
 }
 
 void testApp::setup() {
+
+	// ---------------- init viewport for testing -------------------
+	projectorViewport.x = 400.0f;
+	projectorViewport.y = 100.0f;
+	projectorViewport.width = (float)ofGetWidth() - 500.0f;
+	projectorViewport.height = (float)ofGetHeight() - 200.0f;
+	// ---------------------------------------------------------------
+
 	ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD);
 	ofSetVerticalSync(true);
 	
@@ -94,6 +109,20 @@ void disableFog() {
 	glDisable(GL_FOG);
 }
 
+// copied from viewportsExample
+void testApp::drawViewportOutline(const ofRectangle & viewport){
+	ofPushStyle();
+	ofFill();
+	ofSetColor(50);
+	ofSetLineWidth(0);
+	ofRect(viewport);
+	ofNoFill();
+	ofSetColor(25);
+	ofSetLineWidth(1.0f);
+	ofRect(viewport);
+	ofPopStyle();
+}
+
 void testApp::draw() {
 	ofBackground(geti("backgroundColor"));
     if(getb("loadCalibration")) {
@@ -104,11 +133,38 @@ void testApp::draw() {
 		proj.saveCalibration();
 		setb("saveCalibration", false);
 	}
+
+	// ----------------- test the viewport thing -------------------
+	drawViewportOutline(projectorViewport);
+
+	// keep a copy of your viewport and transform matrices for later
+	ofPushView();
+
+	// tell OpenGL to change your viewport. note that your transform matrices will now need setting up
+	ofViewport(projectorViewport);
+
+	// setup transform matrices for normal oF-style usage, i.e.
+	//  0,0=left,top
+	//  ofGetViewportWidth(),ofGetViewportHeight()=right,bottom
+	ofSetupScreen();
+	// --------------------------------------------------------------
+
+
+
 	if(getb("selectionMode")) {
 		drawSelectionMode();
 	} else {
 		drawRenderMode();
 	}
+
+
+	// ------------------- unwind the viewport thing ---------------
+	// restore the old viewport (now full view and oF coords)
+	ofPopView();
+
+
+	// LS: TODO: this message should be on the main screen, not
+	// stretched all over all viewports
 	if(!getb("validShader")) {
 		ofPushStyle();
 		ofSetColor(magentaPrint);
@@ -125,6 +181,7 @@ void testApp::draw() {
 	}
 
 	//fingerMovie.draw(600,20);
+
 }
 
 void testApp::keyPressed(int key) {
@@ -411,19 +468,48 @@ void testApp::drawLabeledPoint(int label, ofVec2f position, ofColor color, ofCol
 	//glEnable(GL_DEPTH_TEST);
 	ofVec2f tooltipOffset(5, -25);
 	ofSetColor(color);
-	float w = ofGetWidth();
-	float h = ofGetHeight();
+
+	//float w = ofGetWidth();
+	//float h = ofGetHeight();
+
+	// LS: make compatible with multi-viewport operation
+	GLint viewport[4];
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	float w = (float)viewport[2];
+	float h = (float)viewport[3];
+
+	ofVec2f newPos = position;
+	//newPos.x -= (float)viewport[0];
+	//newPos.y -= (float)viewport[1];
+
 	ofSetLineWidth(1.5);
-	ofLine(position - ofVec2f(w,0), position + ofVec2f(w,0));
-	ofLine(position - ofVec2f(0,h), position + ofVec2f(0,h));
-	ofCircle(position, geti("selectedPointSize"));
-	drawHighlightString(ofToString(label), position + tooltipOffset, bg, fg);
+	ofLine(newPos - ofVec2f(w,0), newPos + ofVec2f(w,0));
+	ofLine(newPos - ofVec2f(0,h), newPos + ofVec2f(0,h));
+	ofCircle(newPos, geti("selectedPointSize"));
+	drawHighlightString(ofToString(label), newPos + tooltipOffset, bg, fg);
 	glPopAttrib();
 }
-	
+
+// function that maps a screen coordinate to the current viewport. Returns false
+// if the coordinate is outside the viewport, true if inside
+bool screenToViewport(float mouseX, float mouseY, float& vpX, float& vpY)
+{
+	GLint viewport[4];
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	if((mouseX > viewport[0]) && (mouseX < (viewport[0] + viewport[2])) &&
+		(mouseY > viewport[1]) && (mouseY < (viewport[1] + viewport[3])))
+	{
+		vpX = mouseX - viewport[0];
+		vpY = mouseY - viewport[1];
+		return true;
+	}
+	return false;
+}
+
 void testApp::drawSelectionMode() {
 	ofSetColor(255);
-	cam.begin();
+	//cam.begin();
+	cam.begin(projectorViewport); // LS
 	float scale = getf("scale");
 	ofScale(scale, scale, scale);
 	if(getb("useFog")) {
@@ -434,16 +520,39 @@ void testApp::drawSelectionMode() {
 		disableFog();
 	}
 	if(getb("setupMode")) {
-		imageMesh = getProjectedMesh(objectMesh);
+		//imageMesh = getProjectedMesh(objectMesh);
+		imageMesh = getProjectedInViewportMesh(objectMesh);
 	}
 	cam.end();
-	
+
+
+
+
+
+
+
+
 	if(getb("setupMode")) {
 		// draw all points cyan small
 		glPointSize(geti("screenPointSize"));
 		glEnable(GL_POINT_SMOOTH);
 		ofSetColor(cyanPrint);
+
+		// why vertices not in correct spot?
+		//ofRectangle tempViewport;
+		//tempViewport.x = 0;
+		//tempViewport.y = 0;
+		//tempViewport.width = ofGetWidth();
+		//tempViewport.height = ofGetHeight();
+
+		//ofViewport(tempViewport);
+		//ofSetupScreen();
+
 		imageMesh.drawVertices();
+
+		// switch back..
+		//ofViewport(projectorViewport);
+		//ofSetupScreen();
 
 		// draw all reference points cyan
 		int n = proj.referencePoints.size();
@@ -457,7 +566,12 @@ void testApp::drawSelectionMode() {
 		// draw hover point magenta
 		int choice;
 		float distance;
-		ofVec3f selected = getClosestPointOnMesh(imageMesh, mouseX, mouseY, &choice, &distance);
+
+		float vpX;
+		float vpY;
+		screenToViewport(mouseX, mouseY, vpX, vpY);
+		ofVec3f selected = getClosestPointOnMesh(imageMesh, vpX, vpY, &choice, &distance);
+		//ofVec3f selected = getClosestPointOnMesh(imageMesh, mouseX, mouseY, &choice, &distance);
 		if(!ofGetMousePressed() && distance < getf("selectionRadius")) {
 			seti("hoverChoice", choice);
 			setb("hoverSelected", true);
@@ -473,6 +587,8 @@ void testApp::drawSelectionMode() {
 			drawLabeledPoint(choice, selected, yellowPrint, ofColor::white, ofColor::black);
 		}
 	}
+
+
 }
 
 void testApp::drawRenderMode() {
@@ -486,7 +602,8 @@ void testApp::drawRenderMode() {
 		applyMatrix(proj.modelMatrix);
 		render();
 		if(getb("setupMode")) {
-			imageMesh = getProjectedMesh(objectMesh);	
+//			imageMesh = getProjectedMesh(objectMesh);	
+			imageMesh = getProjectedInViewportMesh(objectMesh);	
 		}
 	}
 	
@@ -496,6 +613,11 @@ void testApp::drawRenderMode() {
 	glMatrixMode(GL_MODELVIEW);
 	
 	if(getb("setupMode")) {
+
+		float vpX;
+		float vpY;
+		screenToViewport(mouseX, mouseY, vpX, vpY);
+
 		// draw all reference points cyan
 		int n = proj.referencePoints.size();
 		for(int i = 0; i < n; i++) {
@@ -514,14 +636,14 @@ void testApp::drawRenderMode() {
 				if(proj.calibrationReady) {
 					cur = toCv(ofVec2f(imageMesh.getVertex(choice)));
 				} else {
-					cur = Point2f(mouseX, mouseY);
+					cur = Point2f(vpX, vpY);
 				}
 			}
 		}
 		if(getb("dragging")) {
 			Point2f& cur = proj.imagePoints[choice];
 			float rate = ofGetMousePressed(0) ? getf("slowLerpRate") : getf("fastLerpRate");
-			cur = Point2f(ofLerp(cur.x, mouseX, rate), ofLerp(cur.y, mouseY, rate));
+			cur = Point2f(ofLerp(cur.x, vpX, rate), ofLerp(cur.y, vpY, rate));
 			drawLabeledPoint(choice, toOf(cur), yellowPrint, ofColor::white, ofColor::black);
 			ofSetColor(ofColor::black);
 			ofRect(toOf(cur), 1, 1);
@@ -534,7 +656,11 @@ void testApp::drawRenderMode() {
 			// check to see if anything is selected
 			// draw hover magenta
 			float distance;
-			ofVec2f selected = toOf(getClosestPoint(proj.imagePoints, mouseX, mouseY, &choice, &distance));
+
+
+
+			//ofVec2f selected = toOf(getClosestPoint(proj.imagePoints, mouseX, mouseY, &choice, &distance));
+			ofVec2f selected = toOf(getClosestPoint(proj.imagePoints, vpX, vpY, &choice, &distance));
 			if(!ofGetMousePressed() && proj.referencePoints[choice] && distance < getf("selectionRadius")) {
 				seti("hoverChoice", choice);
 				setb("hoverSelected", true);
