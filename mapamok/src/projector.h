@@ -18,4 +18,8 @@ public:
 	ofxCv::Intrinsics intrinsics;
 	bool calibrationReady;
 
+	projector()
+	{
+		calibrationReady = false;
+	}
 };

@@ -671,5 +671,8 @@
     <ClInclude Include="src\mainControlPanel.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\projectorView.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

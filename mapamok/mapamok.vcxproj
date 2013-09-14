@@ -204,6 +204,7 @@
     <ClInclude Include="..\src\ofxCv.h" />
     <ClInclude Include="src\mainControlPanel.h" />
     <ClInclude Include="src\projector.h" />
+    <ClInclude Include="src\projectorView.h" />
     <ClInclude Include="src\testApp.h" />
     <ClInclude Include="..\..\..\addons\ofxOpenCv\libs\opencv\include\opencv\cv.h" />
     <ClInclude Include="..\..\..\addons\ofxOpenCv\libs\opencv\include\opencv\cv.hpp" />

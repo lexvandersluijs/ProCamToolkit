@@ -8,6 +8,7 @@
 #include "LineArt.h"
 #include "projector.h"
 #include "mainControlPanel.h"
+#include "projectorView.h"
 
 class testApp : public ofBaseApp {
 public:
@@ -31,22 +32,22 @@ public:
 	void setupMesh();
 	void drawLabeledPoint(int label, ofVec2f position, ofColor color, ofColor bg = ofColor::black, ofColor fg = ofColor::white);
 	void updateRenderMode();
-	void drawSelectionMode();
-	void drawRenderMode();
+	void drawSelectionMode(projectorView* projView);
+	void drawRenderMode(projectorView* projView);
 	void render();
 	void drawModel(ofPolyRenderMode renderType);
     void loadCalibration();
 	void saveCalibration();
 	
 	ofxAssimpModelLoader model;	
-	ofEasyCam cam;
 	ofVboMesh objectMesh;
 	ofMesh imageMesh;
 	ofLight light;
 	mainControlPanel panel;
 	
-	ofRectangle projectorViewport;
-	projector proj;
+	projectorConfiguration projConfig;
+	//ofRectangle projectorViewport;
+	//projector proj;
 	
 	Poco::Timestamp lastFragTimestamp, lastVertTimestamp;
 	ofShader shader;

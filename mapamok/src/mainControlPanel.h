@@ -4,7 +4,7 @@
 class mainControlPanel : public ofxAutoControlPanel 
 {
 public:
-	void initialize(projector& proj)
+	void initialize(int nrOfPoints)
 	{
 		setup();
 		msg = "tab hides the panel, space toggles render/selection mode, 'f' toggles fullscreen.";
@@ -53,11 +53,11 @@ public:
 		addToggle("validShader", true);
 		addToggle("selectionMode", true);
 		addToggle("hoverSelected", false);
-		addSlider("hoverChoice", 0, 0, proj.objectPoints.size(), true);
+		addSlider("hoverChoice", 0, 0, nrOfPoints, true);
 		addToggle("selected", false);
 		addToggle("dragging", false);
 		addToggle("arrowing", false);
-		addSlider("selectionChoice", 0, 0, proj.objectPoints.size(), true);
+		addSlider("selectionChoice", 0, 0, nrOfPoints, true);
 		addSlider("slowLerpRate", .001, 0, .01);
 		addSlider("fastLerpRate", 1, 0, 1);
 
