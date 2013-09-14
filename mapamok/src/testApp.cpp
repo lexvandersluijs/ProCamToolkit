@@ -120,17 +120,15 @@ void testApp::update() {
 
 		if(getb("selectionMode")) 
 		{
-			// only enable mouse input for the view we want to calibrate
-			// if no view is selected for calibration, then mouse input is 
-			// disabled for all views, as it should be
-			if(projView == projConfig.getViewToCalibrate())
-				projView->cam.enableMouseInput();
-			else
-				projView->cam.disableMouseInput();
+			// note: not neccessary to only enable mouse input for the view we want to calibrate
+			// because the ofEasyCam already takes viewports into account
+			// anyway.. TODO: we only want to show the 3D model on the main monitor, not
+			// on the projector..
+			projView->cam.enableMouseInput();
 		} 
 		else 
 		{
-			updateRenderMode();
+			updateRenderMode(projView);
 			projView->cam.disableMouseInput();
 		}
 	}
@@ -500,7 +498,7 @@ void testApp::render() {
 	ofPopStyle();
 }
 
-void testApp::updateRenderMode() {
+void testApp::updateRenderMode(projectorView* projView) {
 
 	// LS: we should have these properties for each projector individually. 
 	// for now: assume equal brand/model projectors
@@ -517,10 +515,7 @@ void testApp::updateRenderMode() {
 		getFlag(CV_CALIB_FIX_K3) |
 		getFlag(CV_CALIB_ZERO_TANGENT_DIST);
 
-	// only the current view needs to update its calibration I'd think
-	if(projConfig.getViewToCalibrate() != NULL)
-		projConfig.getViewToCalibrate()->proj.updateCalibration(aov, flags);
-
+	projView->proj.updateCalibration(aov, flags, projView->viewport);
 }
 
 void testApp::drawLabeledPoint(int label, ofVec2f position, ofColor color, ofColor bg, ofColor fg) {
@@ -680,7 +675,7 @@ void testApp::drawRenderMode(projectorView* projView) {
 	glMatrixMode(GL_MODELVIEW);
 	
 	if(projView->proj.calibrationReady) {
-		projView->proj.intrinsics.loadProjectionMatrix(10, 2000);
+ 		projView->proj.intrinsics.loadProjectionMatrix(10, 2000);
 		applyMatrix(projView->proj.modelMatrix);
 		render();
 		if(getb("setupMode")) {

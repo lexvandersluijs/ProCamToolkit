@@ -7,7 +7,7 @@ public:
 	void loadCalibration();
 	void saveCalibration();
 
-	void updateCalibration(float aov, int flags);
+	void updateCalibration(float aov, int flags, ofRectangle viewport);
 
 	vector<cv::Point3f> objectPoints;
 	vector<cv::Point2f> imagePoints;

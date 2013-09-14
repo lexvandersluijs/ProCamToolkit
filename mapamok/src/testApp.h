@@ -31,7 +31,7 @@ public:
 	void setupControlPanel();
 	void setupMesh();
 	void drawLabeledPoint(int label, ofVec2f position, ofColor color, ofColor bg = ofColor::black, ofColor fg = ofColor::white);
-	void updateRenderMode();
+	void updateRenderMode(projectorView* projView);
 	void drawSelectionMode(projectorView* projView);
 	void drawRenderMode(projectorView* projView);
 	void render();

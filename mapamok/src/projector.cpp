@@ -15,16 +15,17 @@ void projector::initializeFromMesh(ofMesh& objectMesh)
 
 }
 
-void projector::updateCalibration(float aov, int flags)
+void projector::updateCalibration(float aov, int flags, ofRectangle viewport)
 {
 	// generate camera matrix given aov guess
 
 	// LS: NOTE: this gets the WINDOW size, not the VIEWPORT size. Needs to be adapted for multi-projector operation
 	//Size2i imageSize(ofGetWidth(), ofGetHeight());
 
-	GLint viewport[4];
-	glGetIntegerv(GL_VIEWPORT, viewport);
-	Size2i imageSize(viewport[2], viewport[3]);
+//	GLint viewport[4];
+//	glGetIntegerv(GL_VIEWPORT, viewport);
+//	Size2i imageSize(viewport[2], viewport[3]);
+	Size2f imageSize(viewport.width, viewport.height);
 
 	float f = imageSize.width * ofDegToRad(aov); // i think this is wrong, but it's optimized out anyway
 	Point2f c = Point2f(imageSize) * (1. / 2);
