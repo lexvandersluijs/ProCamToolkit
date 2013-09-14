@@ -26,7 +26,7 @@ float testApp::getf(string name) {
 
 void testApp::setup() {
 
-	// default, since monitor configuration: one projector, one screen
+	// default, single monitor configuration: one projector, one screen
 	//projConfig.initialize(1);
 	//projConfig.getProjView(0).viewport.x = 0;
 	//projConfig.getProjView(0).viewport.y = 0;
@@ -128,7 +128,9 @@ void testApp::update() {
 		} 
 		else 
 		{
+			//if(projView == projConfig.getViewToCalibrate())
 			updateRenderMode(projView);
+
 			projView->cam.disableMouseInput();
 		}
 	}
@@ -659,7 +661,7 @@ void testApp::drawSelectionMode(projectorView* projView) {
 void testApp::drawRenderMode(projectorView* projView) {
 
 	// from ofCamera..
-	ofViewport(projView->viewport.x, projView->viewport.y, projView->viewport.width, projView->viewport.height);
+
 	//ofSetOrientation(ofGetOrientation(),vFlip);
 
 	//ofSetMatrixMode(OF_MATRIX_PROJECTION);
@@ -669,25 +671,47 @@ void testApp::drawRenderMode(projectorView* projView) {
 	//ofLoadMatrix( getModelViewMatrix() );
 
 
-	glPushMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	
+
+
 	if(projView->proj.calibrationReady) {
- 		projView->proj.intrinsics.loadProjectionMatrix(10, 2000);
+
+		ofPushView();
+		ofViewport(projView->viewport);
+
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+ 		projView->proj.intrinsics.loadProjectionMatrix(1, 2000);
+
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
 		applyMatrix(projView->proj.modelMatrix);
+		
+
 		render();
 		if(getb("setupMode")) {
 //			imageMesh = getProjectedMesh(objectMesh);	
 			imageMesh = getProjectedInViewportMesh(objectMesh);	
 		}
+
+		glMatrixMode(GL_MODELVIEW);
+		glPopMatrix();
+
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+
+		//projView->cam.begin();
+		//render();
+		//projView->cam.end();
+
+		ofPopView();
 	}
 	
-	glPopMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
+
+
+	ofPushView();
+	ofViewport(projView->viewport.x, projView->viewport.y, projView->viewport.width, projView->viewport.height);
+	ofSetupScreen();
+
 	
 	if(getb("setupMode")) {
 
@@ -750,4 +774,6 @@ void testApp::drawRenderMode(projectorView* projView) {
 			} // not dragging or arrowing
 		} // if inside viewport
 	}
+
+	ofPopView();
 }
