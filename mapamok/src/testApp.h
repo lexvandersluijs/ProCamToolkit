@@ -8,8 +8,9 @@
 #include "ofxThreadedVideo.h"
 #include "LineArt.h"
 #include "projector.h"
-#include "mainControlPanel.h"
 #include "projectorView.h"
+#include "mainControlPanel.h"
+
 
 class testApp : public ofBaseApp {
 public:

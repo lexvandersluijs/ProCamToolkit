@@ -34,8 +34,9 @@ void testApp::setup() {
 	//projConfig.getProjView(0).viewport.height = ofGetHeight();
 	//projConfig.setViewToCalibrate(0);
 
-	// testing: two projector views on a single monitor
+	// testing: four projector views on a single monitor
 	projConfig.initialize(4);
+	projConfig.getProjView(0).name = "Top left";
 	projConfig.getProjView(0).index = 0;
 	projConfig.getProjView(0).viewport.x = 0;
 	projConfig.getProjView(0).viewport.y = 0;
@@ -43,18 +44,21 @@ void testApp::setup() {
 	projConfig.getProjView(0).viewport.height = ofGetHeight()/2;
 
 	projConfig.getProjView(1).index = 1;
+	projConfig.getProjView(1).name = "Top right";
 	projConfig.getProjView(1).viewport.x = ofGetWidth()/2;
 	projConfig.getProjView(1).viewport.y = 0;
 	projConfig.getProjView(1).viewport.width = ofGetWidth()/2;
 	projConfig.getProjView(1).viewport.height = ofGetHeight()/2;
 
 	projConfig.getProjView(2).index = 2;
+	projConfig.getProjView(2).name = "Bottom left";
 	projConfig.getProjView(2).viewport.x = 0;
 	projConfig.getProjView(2).viewport.y = ofGetHeight()/2;
 	projConfig.getProjView(2).viewport.width = ofGetWidth()/2;
 	projConfig.getProjView(2).viewport.height = ofGetHeight()/2;
 
 	projConfig.getProjView(3).index = 3;
+	projConfig.getProjView(3).name = "Bottom right";
 	projConfig.getProjView(3).viewport.x = ofGetWidth()/2;
 	projConfig.getProjView(3).viewport.y = ofGetHeight()/2;
 	projConfig.getProjView(3).viewport.width = ofGetWidth()/2;
@@ -81,7 +85,7 @@ void testApp::setup() {
 	}
 
 	// then initialize the panel, which also needs to know the number of vertices in the mesh..
-	panel.initialize(objectMesh.getNumVertices());
+	panel.initialize(projConfig, objectMesh.getNumVertices());
 
 
 	mappingMovie.loadMovie("movies/oefentrap-uvtemplate_2.mov");
@@ -134,6 +138,29 @@ void testApp::update() {
 			projView->cam.disableMouseInput();
 		}
 	}
+
+	if(getb("loadCalibration")) 
+	{
+		for(int i=0; i<projConfig.numProjectorViews(); i++)
+			projConfig.getProjViewPtr(i)->proj.loadCalibration();
+		setb("loadCalibration", false);
+	}
+	if(getb("saveCalibration")) 
+	{
+		for(int i=0; i<projConfig.numProjectorViews(); i++)
+			projConfig.getProjViewPtr(i)->proj.saveCalibration();
+		setb("saveCalibration", false);
+	}
+
+	// if 'None' is selected in the list of projectors for calibration, we set NULL
+	// as the current pointer
+	// otherwise the index we want to set is equal to the number we got from the GUI
+	// minus 1, since they were added in the same order
+	int projToCalibrateIndex = geti("calibrate");
+	if(projToCalibrateIndex == 0)
+		projConfig.setViewToCalibrate((projectorView*)NULL);
+	else
+		projConfig.setViewToCalibrate(projToCalibrateIndex-1);
 }
 
 void enableFog(float nearFog, float farFog) {
@@ -187,52 +214,68 @@ void testApp::draw() {
 
 	reloadShaderIfNeeded();
 
-	for(int i=0; i<projConfig.numProjectorViews(); i++)
+	// in selectionmode we render the 3D object (TODO: full-screen) using the easyCam of the 
+	// viewport we are calibrating. this is on the main GUI monitor
+	if(getb("selectionMode")) 
 	{
-		projectorView* projView = projConfig.getProjViewPtr(i);
+		if(projConfig.getViewToCalibrate() != NULL)
+		{
+			// ----------------- draw the viewport -------------------
+			drawViewportOutline(projConfig.getViewToCalibrate()->viewport);
 
-		// LS: ok, so why are we loading calibration files in the 'draw' function?
-		// NOTE: this block is INCORRECT. the calibration would only be loaded for
-		// the first projector, after that the flag is cleared. Also, if anywhere,
-		// this needs to be done in the update function. TODO
-		if(getb("loadCalibration")) {
-			projView->proj.loadCalibration();
-			setb("loadCalibration", false);
-		}
-		if(getb("saveCalibration")) {
-			projView->proj.saveCalibration();
-			setb("saveCalibration", false);
-		}
+			// keep a copy of your viewport and transform matrices for later
+			ofPushView();
 
-		// ----------------- draw the viewport -------------------
-		drawViewportOutline(projView->viewport);
+			// tell OpenGL to change your viewport. note that your transform matrices will now need setting up
+			ofViewport(projConfig.getViewToCalibrate()->viewport);
 
-		// keep a copy of your viewport and transform matrices for later
-		ofPushView();
+			// setup transform matrices for normal oF-style usage, i.e.
+			//  0,0=left,top
+			//  ofGetViewportWidth(),ofGetViewportHeight()=right,bottom
+			ofSetupScreen();
+			// --------------------------------------------------------------
 
-		// tell OpenGL to change your viewport. note that your transform matrices will now need setting up
-		ofViewport(projView->viewport);
+			drawSelectionMode(projConfig.getViewToCalibrate());
 
-		// setup transform matrices for normal oF-style usage, i.e.
-		//  0,0=left,top
-		//  ofGetViewportWidth(),ofGetViewportHeight()=right,bottom
-		ofSetupScreen();
-		// --------------------------------------------------------------
-
-
-
-		if(getb("selectionMode")) {
-			drawSelectionMode(projView);
-		} else {
-			drawRenderMode(projView);
+			// ------------------- unwind the viewport thing ---------------
+			// restore the old viewport (now full view and oF coords)
+			ofPopView();
 		}
 
-
-		// ------------------- unwind the viewport thing ---------------
-		// restore the old viewport (now full view and oF coords)
-		ofPopView();
+		// else: if we are not calibrating, we show nothing?
+		// .. TODO
 	}
+	else
+	{
+		// in render-mode we render all the views
 
+		for(int i=0; i<projConfig.numProjectorViews(); i++)
+		{
+			projectorView* projView = projConfig.getProjViewPtr(i);
+
+
+			// ----------------- draw the viewport -------------------
+			drawViewportOutline(projView->viewport);
+
+			// keep a copy of your viewport and transform matrices for later
+			ofPushView();
+
+			// tell OpenGL to change your viewport. note that your transform matrices will now need setting up
+			ofViewport(projView->viewport);
+
+			// setup transform matrices for normal oF-style usage, i.e.
+			//  0,0=left,top
+			//  ofGetViewportWidth(),ofGetViewportHeight()=right,bottom
+			ofSetupScreen();
+			// --------------------------------------------------------------
+
+			drawRenderMode(projView);
+
+			// ------------------- unwind the viewport thing ---------------
+			// restore the old viewport (now full view and oF coords)
+			ofPopView();
+		}
+	}
 
 	// LS: TODO: this message should be on the main screen, not
 	// stretched all over all viewports

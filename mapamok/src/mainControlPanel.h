@@ -4,12 +4,20 @@
 class mainControlPanel : public ofxAutoControlPanel 
 {
 public:
-	void initialize(int nrOfPoints)
+	void initialize(projectorConfiguration& config, int nrOfPoints)
 	{
 		setup();
 		msg = "tab hides the panel, space toggles render/selection mode, 'f' toggles fullscreen.";
 	
 		addPanel("Interaction");
+
+		// dynamic radio button with the list of projectors
+		std::vector<std::string, std::allocator<std::string>>* projectors = new std::vector<std::string, std::allocator<std::string>>();
+		projectors->push_back("None");
+		for(int i=0; i<config.numProjectorViews(); i++)
+			projectors->push_back(config.getProjViewPtr(i)->name);
+		addMultiToggle("calibrate", 0, *projectors);
+
 		addToggle("setupMode", true);
 		addSlider("scale", 1, .1, 25);
 		addSlider("backgroundColor", 0, 0, 255, true);

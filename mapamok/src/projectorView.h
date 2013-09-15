@@ -5,6 +5,7 @@ class projectorConfiguration;
 class projectorView
 {
 public:
+	string name;
 	projector proj;
 	ofRectangle viewport;
 	bool setupMode;
