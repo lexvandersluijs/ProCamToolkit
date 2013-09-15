@@ -5,6 +5,7 @@
 #include "ofxAssimpModelLoader.h"
 #include "ofxProCamToolkit.h"
 #include "ofxAutoControlPanel.h"
+#include "ofxThreadedVideo.h"
 #include "LineArt.h"
 #include "projector.h"
 #include "mainControlPanel.h"
@@ -28,6 +29,7 @@ public:
 	
 	void drawViewportOutline(const ofRectangle & viewport);
 
+	void reloadShaderIfNeeded();
 	void setupControlPanel();
 	void setupMesh();
 	void drawLabeledPoint(int label, ofVec2f position, ofColor color, ofColor bg = ofColor::black, ofColor fg = ofColor::white);
@@ -53,7 +55,8 @@ public:
 	ofShader shader;
 
 	// the movie we are going to project onto our shapes
-	ofVideoPlayer 		fingerMovie;
+	//ofVideoPlayer 		mappingMovie;
+	ofxThreadedVideo		mappingMovie;
 
 	// custom picture
 	ofImage				customPicture0;

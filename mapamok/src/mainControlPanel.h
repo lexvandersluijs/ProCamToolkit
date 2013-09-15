@@ -58,7 +58,7 @@ public:
 		addToggle("dragging", false);
 		addToggle("arrowing", false);
 		addSlider("selectionChoice", 0, 0, nrOfPoints, true);
-		addSlider("slowLerpRate", .001, 0, .01);
+		addSlider("slowLerpRate", .05, 0, 0.5);
 		addSlider("fastLerpRate", 1, 0, 1);
 
 	}

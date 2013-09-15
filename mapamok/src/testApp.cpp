@@ -84,8 +84,8 @@ void testApp::setup() {
 	panel.initialize(objectMesh.getNumVertices());
 
 
-	fingerMovie.loadMovie("movies/fingers.mov");
-	fingerMovie.update(); // init the first frame to prevent blueness?
+	mappingMovie.loadMovie("movies/oefentrap-uvtemplate_2.mov");
+	mappingMovie.update(); // init the first frame to prevent blueness?
 
 	customPicture0.loadImage("pictures/oefentrap-stonesandgrass.png");
 
@@ -94,18 +94,18 @@ void testApp::setup() {
 
 void testApp::update() {
 
-	if(getb("playVideo") && fingerMovie.isPlaying() == false)
+	if(getb("playVideo") && mappingMovie.isPlaying() == false)
 	{
-		fingerMovie.play();
+		mappingMovie.play();
 	}
 	else
 	{
-		if(!getb("playVideo") && fingerMovie.isPlaying() == true)
+		if(!getb("playVideo") && mappingMovie.isPlaying() == true)
 		{
-			fingerMovie.stop();
+			mappingMovie.stop();
 		}
 	}
-	fingerMovie.update();
+	mappingMovie.update();
 
 	if(getb("randomLighting")) {
 		setf("lightX", ofSignedNoise(ofGetElapsedTimef(), 1, 1) * 1000);
@@ -164,9 +164,28 @@ void testApp::drawViewportOutline(const ofRectangle & viewport){
 	ofPopStyle();
 }
 
+void testApp::reloadShaderIfNeeded()
+{
+	int shading = geti("shading");
+	bool useShader = shading == 2;
+	
+	if(useShader) {
+		ofFile fragFile("shader.frag"), vertFile("shader.vert");
+		Poco::Timestamp fragTimestamp = fragFile.getPocoFile().getLastModified();
+		Poco::Timestamp vertTimestamp = vertFile.getPocoFile().getLastModified();
+		if(fragTimestamp != lastFragTimestamp || vertTimestamp != lastVertTimestamp) {
+			bool validShader = shader.load("shader");
+			setb("validShader", validShader);
+		}
+		lastFragTimestamp = fragTimestamp;
+		lastVertTimestamp = vertTimestamp;		
+	}
+
+}
 void testApp::draw() {
 	ofBackground(geti("backgroundColor"));
 
+	reloadShaderIfNeeded();
 
 	for(int i=0; i<projConfig.numProjectorViews(); i++)
 	{
@@ -232,7 +251,7 @@ void testApp::draw() {
 		ofPopStyle();
 	}
 
-	//fingerMovie.draw(600,20);
+	//mappingMovie.draw(600,20);
 
 }
 
@@ -321,9 +340,9 @@ void testApp::drawModel(ofPolyRenderMode renderType)
         ofPushMatrix();
         //ofMultMatrix(mesh.matrix);
 
-		ofTexture& videoTexture = fingerMovie.getTextureReference();
+		ofTexture& videoTexture = mappingMovie.getTextureReference();
 		ofTexture& pictureTexture = customPicture0.getTextureReference();
-		int textureMode = 1;
+		int textureMode = 2;
 		// 0 = texture referenced by mesh
 		// 1 = override picture
 		// 2 = override video
@@ -448,16 +467,6 @@ void testApp::render() {
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
 	glEnable(GL_DEPTH_TEST);
 	if(useShader) {
-		ofFile fragFile("shader.frag"), vertFile("shader.vert");
-		Poco::Timestamp fragTimestamp = fragFile.getPocoFile().getLastModified();
-		Poco::Timestamp vertTimestamp = vertFile.getPocoFile().getLastModified();
-		if(fragTimestamp != lastFragTimestamp || vertTimestamp != lastVertTimestamp) {
-			bool validShader = shader.load("shader");
-			setb("validShader", validShader);
-		}
-		lastFragTimestamp = fragTimestamp;
-		lastVertTimestamp = vertTimestamp;
-		
 		shader.begin();
 		shader.setUniform1f("elapsedTime", ofGetElapsedTimef());
 		shader.end();
@@ -585,7 +594,6 @@ bool screenToViewport(ofRectangle& vpRect, float mouseX, float mouseY, float& vp
 void testApp::drawSelectionMode(projectorView* projView) {
 	ofSetColor(255);
 	projView->cam.begin();
-	//cam.begin(projView->viewport); // LS
 	float scale = getf("scale");
 	ofScale(scale, scale, scale);
 	if(getb("useFog")) {
@@ -645,13 +653,14 @@ void testApp::drawSelectionMode(projectorView* projView) {
 			} else {
 				setb("hoverSelected", false);
 			}
-		}
 
-		// draw selected point yellow
-		if(getb("selected")) {
-			int choice = geti("selectionChoice");
-			ofVec2f selected = imageMesh.getVertex(choice);
-			drawLabeledPoint(choice, selected, yellowPrint, ofColor::white, ofColor::black);
+
+			// draw selected point yellow
+			if(getb("selected")) {
+				int choice = geti("selectionChoice");
+				ofVec2f selected = imageMesh.getVertex(choice);
+				drawLabeledPoint(choice, selected, yellowPrint, ofColor::white, ofColor::black);
+			}
 		}
 	}
 
@@ -660,27 +669,16 @@ void testApp::drawSelectionMode(projectorView* projView) {
 
 void testApp::drawRenderMode(projectorView* projView) {
 
-	// from ofCamera..
-
-	//ofSetOrientation(ofGetOrientation(),vFlip);
-
-	//ofSetMatrixMode(OF_MATRIX_PROJECTION);
-	//ofLoadMatrix( getProjectionMatrix(viewport) );
-
-	//ofSetMatrixMode(OF_MATRIX_MODELVIEW);
-	//ofLoadMatrix( getModelViewMatrix() );
-
-
 
 
 	if(projView->proj.calibrationReady) {
 
 		ofPushView();
-		ofViewport(projView->viewport);
+//		ofViewport(projView->viewport);
 
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
- 		projView->proj.intrinsics.loadProjectionMatrix(1, 2000);
+ 		projView->proj.intrinsics.loadProjectionMatrix_dontSetViewport(1, 2000);
 
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
@@ -708,9 +706,9 @@ void testApp::drawRenderMode(projectorView* projView) {
 	
 
 
-	ofPushView();
-	ofViewport(projView->viewport.x, projView->viewport.y, projView->viewport.width, projView->viewport.height);
-	ofSetupScreen();
+//	ofPushView();
+//	ofViewport(projView->viewport.x, projView->viewport.y, projView->viewport.width, projView->viewport.height);
+//	ofSetupScreen();
 
 	
 	if(getb("setupMode")) {
@@ -775,5 +773,5 @@ void testApp::drawRenderMode(projectorView* projView) {
 		} // if inside viewport
 	}
 
-	ofPopView();
+//	ofPopView();
 }
