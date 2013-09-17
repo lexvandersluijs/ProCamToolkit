@@ -38,7 +38,7 @@ public:
 	void drawSelectionMode(projectorView* projView);
 	void drawRenderMode(projectorView* projView);
 	void render();
-	void drawModel(ofPolyRenderMode renderType);
+	void drawModel(ofPolyRenderMode renderType, ofTexture* textureOverride);
     void loadCalibration();
 	void saveCalibration();
 	

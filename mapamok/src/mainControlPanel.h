@@ -11,17 +11,18 @@ public:
 	
 		addPanel("Interaction");
 
+		addMultiToggle("mode", 0, variadic("setup")("show"));
+
 		// dynamic radio button with the list of projectors
 		std::vector<std::string, std::allocator<std::string>>* projectors = new std::vector<std::string, std::allocator<std::string>>();
-		projectors->push_back("None");
 		for(int i=0; i<config.numProjectorViews(); i++)
 			projectors->push_back(config.getProjViewPtr(i)->name);
 		addMultiToggle("calibrate", 0, *projectors);
 
-		addToggle("setupMode", true);
+//		addToggle("setupMode", true);
 		addSlider("scale", 1, .1, 25);
 		addSlider("backgroundColor", 0, 0, 255, true);
-		addMultiToggle("drawMode", 3, variadic("faces")("fullWireframe")("outlineWireframe")("occludedWireframe")("picture"));
+		addMultiToggle("drawMode", 3, variadic("faces")("fullWireframe")("outlineWireframe")("occludedWireframe")("picture")("video"));
 		addMultiToggle("shading", 0, variadic("none")("lights")("shader"));
 		addToggle("loadCalibration", false);
 		addToggle("saveCalibration", false);

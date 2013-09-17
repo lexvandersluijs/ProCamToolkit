@@ -89,7 +89,6 @@ void testApp::setup() {
 
 
 	mappingMovie.loadMovie("movies/oefentrap-uvtemplate_2.mov");
-	mappingMovie.update(); // init the first frame to prevent blueness?
 
 	customPicture0.loadImage("pictures/oefentrap-stonesandgrass.png");
 
@@ -109,7 +108,9 @@ void testApp::update() {
 			mappingMovie.stop();
 		}
 	}
-	mappingMovie.update();
+
+	if(mappingMovie.isPlaying())
+		mappingMovie.update();
 
 	if(getb("randomLighting")) {
 		setf("lightX", ofSignedNoise(ofGetElapsedTimef(), 1, 1) * 1000);
@@ -157,10 +158,7 @@ void testApp::update() {
 	// otherwise the index we want to set is equal to the number we got from the GUI
 	// minus 1, since they were added in the same order
 	int projToCalibrateIndex = geti("calibrate");
-	if(projToCalibrateIndex == 0)
-		projConfig.setViewToCalibrate((projectorView*)NULL);
-	else
-		projConfig.setViewToCalibrate(projToCalibrateIndex-1);
+	projConfig.setViewToCalibrate(projToCalibrateIndex);
 }
 
 void enableFog(float nearFog, float farFog) {
@@ -358,7 +356,7 @@ void testApp::setupMesh() {
 }
 
 // LvdS: adapted from ofxAssimpModelLoader
-void testApp::drawModel(ofPolyRenderMode renderType)
+void testApp::drawModel(ofPolyRenderMode renderType, ofTexture* textureOverride)
 {
 	   ofPushStyle();
     
@@ -383,15 +381,9 @@ void testApp::drawModel(ofPolyRenderMode renderType)
         ofPushMatrix();
         //ofMultMatrix(mesh.matrix);
 
-		ofTexture& videoTexture = mappingMovie.getTextureReference();
-		ofTexture& pictureTexture = customPicture0.getTextureReference();
-		int textureMode = 2;
-		// 0 = texture referenced by mesh
-		// 1 = override picture
-		// 2 = override video
-		switch(textureMode)
+		// if no texture override is specified then try to use the texture from the mesh definition
+		if(textureOverride == NULL)
 		{
-		case 0:
 			//if(model.bUsingTextures){
 				if(mesh.hasTexture()) {
 					ofTexture * tex = mesh.getTexturePtr();
@@ -400,14 +392,6 @@ void testApp::drawModel(ofPolyRenderMode renderType)
 					}
 				}
 			//}
-
-			break;
-		case 1:
-			pictureTexture.bind();
-			break;
-		case 2:
-			videoTexture.bind();
-			break;
 		}
 
         //if(bUsingMaterials){
@@ -438,23 +422,16 @@ void testApp::drawModel(ofPolyRenderMode renderType)
         }
 #endif
 
-		switch(textureMode)
+		if(textureOverride == NULL)
 		{
-		case 0:
-        //if(bUsingTextures){
-            if(mesh.hasTexture()) {
-                ofTexture * tex = mesh.getTexturePtr();
-                if(tex->isAllocated()) {
-                    tex->unbind();
-                }
-            }
-        //}
-		case 1:
-			pictureTexture.unbind();
-			break;	
-		case 2:
-			videoTexture.unbind();
-			break;
+			//if(bUsingTextures){
+				if(mesh.hasTexture()) {
+					ofTexture * tex = mesh.getTexturePtr();
+					if(tex->isAllocated()) {
+						tex->unbind();
+					}
+				}
+			//}
 		}
 
         //if(bUsingMaterials){
@@ -519,6 +496,7 @@ void testApp::render() {
 	ofColor transparentBlack(0, 0, 0, 0);
 	switch(geti("drawMode")) {
 		case 0: // faces
+			{
 			if(useShader) shader.begin();
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_BACK);
@@ -529,21 +507,42 @@ void testApp::render() {
 //			model.drawFaces();
 
 			break;
+			}
 		case 1: // fullWireframe
+			{
 			if(useShader) shader.begin();
 			objectMesh.drawWireframe();
 			if(useShader) shader.end();
 			break;
+			}
 		case 2: // outlineWireframe
+			{
 			LineArt::draw(objectMesh, true, transparentBlack, useShader ? &shader : NULL);
 			break;
+			}
 		case 3: // occludedWireframe
+			{
 			LineArt::draw(objectMesh, false, transparentBlack, useShader ? &shader : NULL);
 			break;
-		case 4: // picture
-			// use our custom version that supports video textures and stuff
-			drawModel(OF_MESH_FILL);
+			}
+		case 4:
+			{
+				ofTexture& pictureTexture = customPicture0.getTextureReference();
+				pictureTexture.bind();
+				drawModel(OF_MESH_FILL, &pictureTexture);
+				pictureTexture.unbind();
+			}
 			break;
+
+		case 5: // video
+			{
+			// use our custom version that supports video textures and stuff
+			ofTexture& videoTexture = mappingMovie.getTextureReference();
+			videoTexture.bind();
+			drawModel(OF_MESH_FILL, &videoTexture);
+			videoTexture.unbind();
+			break;
+			}
 	}
 	glPopAttrib();
 	if(useLights) {
@@ -646,7 +645,7 @@ void testApp::drawSelectionMode(projectorView* projView) {
 	if(getb("useFog")) {
 		disableFog();
 	}
-	if(getb("setupMode")) {
+	if(geti("mode") == 0) {
 		//imageMesh = getProjectedMesh(objectMesh);
 		imageMesh = getProjectedInViewportMesh(objectMesh);
 	}
@@ -659,7 +658,7 @@ void testApp::drawSelectionMode(projectorView* projView) {
 
 
 
-	if(getb("setupMode")) {
+	if(geti("mode") == 0) {
 		// draw all points cyan small
 		glPointSize(geti("screenPointSize"));
 		glEnable(GL_POINT_SMOOTH);
@@ -729,7 +728,7 @@ void testApp::drawRenderMode(projectorView* projView) {
 		
 
 		render();
-		if(getb("setupMode")) {
+		if(geti("mode") == 0) {
 //			imageMesh = getProjectedMesh(objectMesh);	
 			imageMesh = getProjectedInViewportMesh(objectMesh);	
 		}
@@ -754,7 +753,7 @@ void testApp::drawRenderMode(projectorView* projView) {
 //	ofSetupScreen();
 
 	
-	if(getb("setupMode")) {
+	if(geti("mode") == 0) {
 
 		float vpX;
 		float vpY;
