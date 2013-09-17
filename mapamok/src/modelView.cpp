@@ -59,7 +59,7 @@ void modelView::draw(ofxControlPanel& panel, float mouseX, float mouseY, project
 
 		if(screenToViewport(mouseX, mouseY, vpX, vpY))
 		{
-			ofLogError("mapamok") << "drawSelectionMode() inside viewport " << projView->index;
+			//ofLogError("mapamok") << "drawSelectionMode() inside viewport " << projView->index;
 
 			ofVec3f selected = getClosestPointOnMesh(imageMesh, vpX, vpY, &choice, &distance);
 			//ofVec3f selected = getClosestPointOnMesh(imageMesh, mouseX, mouseY, &choice, &distance);

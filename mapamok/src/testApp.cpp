@@ -80,9 +80,7 @@ void testApp::setup() {
 	// then initialize the panel, which also needs to know the number of vertices in the mesh..
 	panel.initialize(projConfig, objectMesh.getNumVertices());
 
-
 	mappingMovie.loadMovie("movies/oefentrap-uvtemplate_2.mov");
-
 	customPicture0.loadImage("pictures/oefentrap-stonesandgrass.png");
 
 	ofSetWindowTitle("mapamok");
@@ -91,15 +89,20 @@ void testApp::setup() {
 void testApp::update() 
 {
 	// ----------------- update active movie -----------------
-	if(getb("playVideo") && mappingMovie.isPlaying() == false)
+	if(getb("playVideo"))
 	{
-		mappingMovie.play();
+		if(mappingMovie.isPlaying() == false)
+			mappingMovie.play();
+		else
+			if(mappingMovie.isPaused())
+				mappingMovie.setPaused(false); 
 	}
 	else
 	{
 		if(!getb("playVideo") && mappingMovie.isPlaying() == true)
 		{
-			mappingMovie.stop();
+			mappingMovie.setPaused(true); //.stop();
+			//mappingMovie.closeMovie();
 		}
 	}
 
