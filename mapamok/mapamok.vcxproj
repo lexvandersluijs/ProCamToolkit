@@ -147,7 +147,11 @@
     <ClCompile Include="..\..\..\addons\ofxXmlSettings\src\ofxXmlSettings.cpp" />
     <ClCompile Include="..\SharedCode\ofxProCamToolkit.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\mainControlPanel.cpp" />
+    <ClCompile Include="src\meshView.cpp" />
+    <ClCompile Include="src\modelView.cpp" />
     <ClCompile Include="src\projector.cpp" />
+    <ClCompile Include="src\projectorView.cpp" />
     <ClCompile Include="src\testApp.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -205,6 +209,8 @@
     <ClInclude Include="..\SharedCode\ofxProCamToolkit.h" />
     <ClInclude Include="..\src\ofxCv.h" />
     <ClInclude Include="src\mainControlPanel.h" />
+    <ClInclude Include="src\meshView.h" />
+    <ClInclude Include="src\modelView.h" />
     <ClInclude Include="src\projector.h" />
     <ClInclude Include="src\projectorView.h" />
     <ClInclude Include="src\testApp.h" />

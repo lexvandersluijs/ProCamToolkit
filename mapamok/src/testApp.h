@@ -7,9 +7,12 @@
 #include "ofxAutoControlPanel.h"
 #include "ofxThreadedVideo.h"
 #include "LineArt.h"
-#include "projector.h"
-#include "projectorView.h"
 #include "mainControlPanel.h"
+#include "projector.h"
+#include "meshView.h"
+#include "modelView.h"
+#include "projectorView.h"
+
 
 
 class testApp : public ofBaseApp {
@@ -33,25 +36,22 @@ public:
 	void reloadShaderIfNeeded();
 	void setupControlPanel();
 	void setupMesh();
-	void drawLabeledPoint(int label, ofVec2f position, ofColor color, ofColor bg = ofColor::black, ofColor fg = ofColor::white);
-	void updateRenderMode(projectorView* projView);
-	void drawSelectionMode(projectorView* projView);
-	void drawRenderMode(projectorView* projView);
-	void render();
-	void drawModel(ofPolyRenderMode renderType, ofTexture* textureOverride);
-    void loadCalibration();
-	void saveCalibration();
+	//void drawLabeledPoint(int label, ofVec2f position, ofColor color, ofColor bg = ofColor::black, ofColor fg = ofColor::white);
+	//void drawSelectionMode(projectorView* projView);
+	//void drawRenderMode(projectorView* projView);
+	//void render();
+	//void drawModel(ofPolyRenderMode renderType, ofTexture* textureOverride);
+    //void loadCalibration();
+	//void saveCalibration();
 	
 	ofxAssimpModelLoader model;	
 	ofVboMesh objectMesh;
-	ofMesh imageMesh;
 	ofLight light;
 	mainControlPanel panel;
 	
 	projectorConfiguration projConfig;
-	//ofRectangle projectorViewport;
-	//projector proj;
-	
+	modelView selectionView;
+
 	Poco::Timestamp lastFragTimestamp, lastVertTimestamp;
 	ofShader shader;
 

@@ -154,6 +154,18 @@
     <ClCompile Include="..\..\..\addons\ofxThreadedVideo\src\ofxThreadedVideo.cpp">
       <Filter>addons\ofxThreadedVideo\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\mainControlPanel.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\projectorView.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\modelView.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\meshView.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -685,6 +697,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\addons\ofxThreadedVideo\src\ofxThreadedVideo.h">
       <Filter>addons\ofxThreadedVideo\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\modelView.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\meshView.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
