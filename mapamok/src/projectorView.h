@@ -50,6 +50,7 @@ public:
 	}
 
 	virtual void draw(ofxControlPanel& panel, float mouseX, float mouseY, ofLight& light, ofShader& shader, ofImage& customPicture, ofxThreadedVideo& mappingMovie);
+	//virtual void draw(ofxControlPanel& panel, float mouseX, float mouseY, ofLight& light, ofShader& shader, ofImage& customPicture, ofVideoPlayer& mappingMovie);
 };
 
 class projectorConfiguration

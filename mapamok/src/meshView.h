@@ -62,4 +62,6 @@ public:
 	void drawModel(ofPolyRenderMode renderType, ofTexture* textureOverride);
 
 	void render(ofxControlPanel& panel, ofLight& light, ofShader& shader, ofImage& customPicture, ofxThreadedVideo& mappingMovie);
+	//void render(ofxControlPanel& panel, ofLight& light, ofShader& shader, ofImage& customPicture, ofVideoPlayer& mappingMovie);
+	
 };

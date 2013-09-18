@@ -36,6 +36,7 @@ public:
 	void reloadShaderIfNeeded();
 	void setupControlPanel();
 	void setupMesh();
+	void setupScreen_custom(float viewW, float viewH, float fov, float nearDist, float farDist);
 	//void drawLabeledPoint(int label, ofVec2f position, ofColor color, ofColor bg = ofColor::black, ofColor fg = ofColor::white);
 	//void drawSelectionMode(projectorView* projView);
 	//void drawRenderMode(projectorView* projView);

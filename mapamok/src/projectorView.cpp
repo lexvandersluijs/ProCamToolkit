@@ -4,6 +4,7 @@ using namespace ofxCv;
 using namespace cv;
 
 void projectorView::draw(ofxControlPanel& panel, float mouseX, float mouseY, ofLight& light, ofShader& shader, ofImage& customPicture, ofxThreadedVideo& mappingMovie)
+//void projectorView::draw(ofxControlPanel& panel, float mouseX, float mouseY, ofLight& light, ofShader& shader, ofImage& customPicture, ofVideoPlayer& mappingMovie)
 {
 	if(proj.calibrationReady) {
 

@@ -61,8 +61,9 @@ void testApp::setup() {
 
 	// ---------------------------------------------------------------
 
-	ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD);
-	ofSetVerticalSync(true);
+	//ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD);
+	ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL);
+	ofSetVerticalSync(false); //true);
 	
 
 	// load the 3D model
@@ -81,6 +82,7 @@ void testApp::setup() {
 	panel.initialize(projConfig, objectMesh.getNumVertices());
 
 	mappingMovie.loadMovie("movies/oefentrap-uvtemplate_2.mov");
+	//mappingMovie.loadMovie("movies/fingers.mov");
 	customPicture0.loadImage("pictures/oefentrap-stonesandgrass.png");
 
 	ofSetWindowTitle("mapamok");
@@ -193,6 +195,35 @@ void testApp::reloadShaderIfNeeded()
 	}
 
 }
+
+// LvdS: the implementation in ofGLRenderer calls getCurrentViewport and then subsequently doesn't use
+// that information (unless some deep magic happens during these calls).. 
+// Using the VS2012 profiler it appears that this call is a hotspot. Let's try
+// to eliminate it and get some performance improvement
+void testApp::setupScreen_custom(float viewW, float viewH, float fov, float nearDist, float farDist) 
+{
+	float eyeX = viewW / 2;
+	float eyeY = viewH / 2;
+	float halfFov = PI * fov / 360;
+	float theTan = tanf(halfFov);
+	float dist = eyeY / theTan;
+	float aspect = (float) viewW / viewH;
+
+	if(nearDist == 0) nearDist = dist / 10.0f;
+	if(farDist == 0) farDist = dist * 10.0f;
+
+
+	ofGetGLRenderer()->matrixMode(OF_MATRIX_PROJECTION);
+	ofMatrix4x4 persp;
+	persp.makePerspectiveMatrix(fov, aspect, nearDist, farDist);
+	ofGetGLRenderer()->loadMatrix( persp );
+
+	ofGetGLRenderer()->matrixMode(OF_MATRIX_MODELVIEW);
+	ofMatrix4x4 lookAt;
+	lookAt.makeLookAtViewMatrix( ofVec3f(eyeX, eyeY, dist),  ofVec3f(eyeX, eyeY, 0),  ofVec3f(0, 1, 0) );
+	ofGetGLRenderer()->loadMatrix(lookAt);
+}
+
 void testApp::draw() {
 	ofBackground(geti("backgroundColor"));
 
@@ -208,19 +239,21 @@ void testApp::draw() {
 			ofRectangle vp = projConfig.getViewToCalibrate()->getViewport();
 			selectionView.setViewport(vp.x, vp.y, vp.width, vp.height);
 
+			ofRectangle selectionVp = selectionView.getViewport();
 			// ----------------- draw the viewport -------------------
-			drawViewportOutline(selectionView.getViewport());
+			drawViewportOutline(selectionVp);
 
 			// keep a copy of your viewport and transform matrices for later
 			ofPushView();
 
 			// tell OpenGL to change your viewport. note that your transform matrices will now need setting up
-			ofViewport(selectionView.getViewport());
+			ofViewport(selectionVp);
 
 			// setup transform matrices for normal oF-style usage, i.e.
 			//  0,0=left,top
 			//  ofGetViewportWidth(),ofGetViewportHeight()=right,bottom
 			ofSetupScreen();
+			//setupScreen_custom(0, 0, 60, 0, 0); 
 			// --------------------------------------------------------------
 
 			selectionView.draw(panel, mouseX, mouseY, projConfig.getViewToCalibrate(), light, shader, customPicture0, mappingMovie);
@@ -258,6 +291,7 @@ void testApp::draw() {
 			//  0,0=left,top
 			//  ofGetViewportWidth(),ofGetViewportHeight()=right,bottom
 			ofSetupScreen();
+			//setupScreen_custom(0, 0, 60, 0, 0); 
 			// --------------------------------------------------------------
 
 			projView->draw(panel, mouseX, mouseY, light, shader, customPicture0, mappingMovie);

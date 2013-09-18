@@ -4,12 +4,13 @@ using namespace ofxCv;
 using namespace cv;
 
 void modelView::draw(ofxControlPanel& panel, float mouseX, float mouseY, projectorView* projView, ofLight& light, ofShader& shader, ofImage& customPicture, ofxThreadedVideo& mappingMovie) 
+//void modelView::draw(ofxControlPanel& panel, float mouseX, float mouseY, projectorView* projView, ofLight& light, ofShader& shader, ofImage& customPicture, ofVideoPlayer& mappingMovie) 
 {
 	if(objectMesh == NULL)
 		return;
 
 	ofSetColor(255);
-	cam.begin();
+	cam.begin(viewport); // pass along viewport to prevent another getViewport call
 	float scale = panel.getValueF("scale");
 	ofScale(scale, scale, scale);
 	if(panel.getValueB("useFog")) {

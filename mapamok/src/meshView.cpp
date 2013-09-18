@@ -12,10 +12,10 @@ void meshView::drawLabeledPoint(int label, ofVec2f position,  int pointSize, ofC
 
 	// LS: to make compatible with multi-viewport operation, we use the viewport's width
 	// and height, instead of the original ofGetWidth() etc to get the screen's dimensions
-	GLint viewport[4];
-	glGetIntegerv(GL_VIEWPORT, viewport);
-	float w = (float)viewport[2];
-	float h = (float)viewport[3];
+	//GLint vp[4];
+	//glGetIntegerv(GL_VIEWPORT, vp);
+	float w = viewport.width; //(float)vp[2];
+	float h = viewport.height; //(float)vp[3];
 
 	ofSetLineWidth(1.5);
 	ofLine(position - ofVec2f(w,0), position + ofVec2f(w,0));
@@ -122,6 +122,7 @@ void meshView::drawModel(ofPolyRenderMode renderType, ofTexture* textureOverride
 }
 
 void meshView::render(ofxControlPanel& panel, ofLight& light, ofShader& shader, ofImage& customPicture, ofxThreadedVideo& mappingMovie) 
+//void meshView::render(ofxControlPanel& panel, ofLight& light, ofShader& shader, ofImage& customPicture, ofVideoPlayer& mappingMovie) 
 {
 	ofPushStyle();
 	ofSetLineWidth(panel.getValueI("lineWidth"));
