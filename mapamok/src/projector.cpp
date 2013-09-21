@@ -105,7 +105,7 @@ void projector::saveCalibration(string configFolder)
 		Mat eulerMat = (Mat_<double>(3,1) << euler.x, euler.y, euler.z);
 		fs << "euler" << eulerMat;
 	
-		ofFile basic("calibration-basic.txt", ofFile::WriteOnly);
+		ofFile basic(dirName + "calibration-basic.txt", ofFile::WriteOnly);
 		ofVec3f position( tvec.at<double>(1), tvec.at<double>(2));
 		basic << "position (in world units):" << endl;
 		basic << "\tx: " << ofToString(tvec.at<double>(0), 2) << endl;

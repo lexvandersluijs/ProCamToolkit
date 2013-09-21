@@ -157,11 +157,11 @@ void testApp::reloadShaderIfNeeded()
 	bool useShader = shading == 2;
 	
 	if(useShader) {
-		ofFile fragFile("shader.frag"), vertFile("shader.vert");
+		ofFile fragFile("shaders/shader.frag"), vertFile("shaders/shader.vert");
 		Poco::Timestamp fragTimestamp = fragFile.getPocoFile().getLastModified();
 		Poco::Timestamp vertTimestamp = vertFile.getPocoFile().getLastModified();
 		if(fragTimestamp != lastFragTimestamp || vertTimestamp != lastVertTimestamp) {
-			bool validShader = shader.load("shader");
+			bool validShader = shader.load("shaders/shader");
 			setb("validShader", validShader);
 		}
 		lastFragTimestamp = fragTimestamp;
@@ -360,7 +360,7 @@ void testApp::setupMesh() {
 	//model.loadModel("movicolon-box.dae");
 	//model.loadModel("oefentrap.obj");
 	//model.loadModel("oefentrap.dae");
-	model.loadModel("stairs.dae");
+	model.loadModel("models/stairs.dae");
 	
 	// LS: note: stuff breaks down when there is more than one submesh in the model
 	objectMesh = model.getMesh(0);
