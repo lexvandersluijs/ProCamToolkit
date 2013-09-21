@@ -1,0 +1,7 @@
+<projectorConfiguration>
+  <window width="3072" height="768"></window>
+  <viewports>
+  <projectorView x="1024" y="0" width="1024" height="768" name="Left"></projectorView>
+  <projectorView x="2048" y="0" width="1024" height="768" name="Right"></projectorView>
+    </viewports>
+</projectorConfiguration>

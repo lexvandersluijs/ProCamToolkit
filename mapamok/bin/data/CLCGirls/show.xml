@@ -1,0 +1,14 @@
+<show>
+  <model file="models/stairs.dae"></model>
+  <shaders>
+    <shader name="demo" frag="shader.frag" vert="shader.vert"></shader>
+  </shaders>
+  <movies>
+    <movie file="movies/intro.mov" name="intro"></movie>
+    <movie file="movies/dance1.mov" name="dance 1"></movie>
+    <movie file="movies/dance2.mov" name="dance 2"></movie>
+  </movies>
+  <pictures>
+    <picture file="pictures/CLC_TRAP_UV_2048_calibration.png" name="calibration"></picture>
+  </pictures>
+</show>
