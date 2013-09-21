@@ -174,6 +174,7 @@ void testApp::reloadShaderIfNeeded()
 // that information (unless some deep magic happens during these calls).. 
 // Using the VS2012 profiler it appears that this call is a hotspot. Let's try
 // to eliminate it and get some performance improvement
+// UPDATE: method below does not work properly, problem was elsewhere: disabling vsync solved our performance issue
 void testApp::setupScreen_custom(float viewW, float viewH, float fov, float nearDist, float farDist) 
 {
 	float eyeX = viewW / 2;

@@ -56,6 +56,8 @@ public:
 	{
 		name = n;
 	}
+	void loadConfiguration(string name);
+
 	void saveCalibration();
 	void loadCalibration();
 
