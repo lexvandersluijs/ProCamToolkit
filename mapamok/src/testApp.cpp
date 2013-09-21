@@ -26,34 +26,6 @@ float testApp::getf(string name) {
 
 void testApp::setup() {
 
-	// default, single monitor configuration: one projector, one screen
-	//projConfig.initialize(1);
-	//projConfig.getProjView(0).viewport.x = 0;
-	//projConfig.getProjView(0).viewport.y = 0;
-	//projConfig.getProjView(0).viewport.width = ofGetWidth();
-	//projConfig.getProjView(0).viewport.height = ofGetHeight();
-	//projConfig.setViewToCalibrate(0);
-
-	// testing: four projector views on a single monitor
-	float vpWidth = ofGetWidth()/2;
-	float vpHeight = ofGetHeight()/2;
-	projConfig.initialize(4);
-	projConfig.getProjView(0).name = "Top left";
-	projConfig.getProjView(0).index = 0;
-	projConfig.getProjView(0).setViewport(0, 0, vpWidth, vpHeight);
-	projConfig.getProjView(1).index = 1;
-	projConfig.getProjView(1).name = "Top right";
-	projConfig.getProjView(1).setViewport(vpWidth, 0, vpWidth, vpHeight);
-	projConfig.getProjView(2).index = 2;
-	projConfig.getProjView(2).name = "Bottom left";
-	projConfig.getProjView(2).setViewport(0, vpHeight, vpWidth, vpHeight);
-	projConfig.getProjView(3).index = 3;
-	projConfig.getProjView(3).name = "Bottom right";
-	projConfig.getProjView(3).setViewport(vpWidth, vpHeight, vpWidth, vpHeight);
-	projConfig.setViewToCalibrate(0);
-
-	// todo: production:
-	// multiple views laid out on large extended desktop
 
 	// TODO: instead of hardcoding, can we get a the main physical screen's width in OF,
 	// instead of the window size or virtual desktop size?
@@ -83,7 +55,9 @@ void testApp::setup() {
 
 	mappingMovie.loadMovie("movies/oefentrap-uvtemplate_2.mov");
 	//mappingMovie.loadMovie("movies/fingers.mov");
-	customPicture0.loadImage("pictures/oefentrap-stonesandgrass.png");
+	//customPicture0.loadImage("pictures/oefentrap-stonesandgrass.png");
+	customPicture0.loadImage("pictures/CLC_TRAP_UV_2048_calibration.png");
+	
 
 	ofSetWindowTitle("mapamok");
 }
@@ -132,24 +106,24 @@ void testApp::update()
 			// if we're not selecting, then we are working in the render view and the calibration can be updated
 			// TODO: only for the projector being edited, and only if something has actually changed
 			// can save many cycles..
-			for(int i=0; i<projConfig.numProjectorViews(); i++)
-			{
-				projectorView* projView = projConfig.getProjViewPtr(i);
-				projView->updateCalibration(panel);
-			}
+			//for(int i=0; i<projConfig.numProjectorViews(); i++)
+			//{
+			//	projectorView* projView = projConfig.getProjViewPtr(i);
+			//	projView->updateCalibration(panel);
+			//}
+			if(projConfig.getViewToCalibrate() != NULL)
+				projConfig.getViewToCalibrate()->updateCalibration(panel);
 		}
 	}
 	// --------------- check if we should load or save a calibration -----
 	if(getb("loadCalibration")) 
 	{
-		for(int i=0; i<projConfig.numProjectorViews(); i++)
-			projConfig.getProjViewPtr(i)->proj.loadCalibration();
+		projConfig.loadCalibration();
 		setb("loadCalibration", false);
 	}
 	if(getb("saveCalibration")) 
 	{
-		for(int i=0; i<projConfig.numProjectorViews(); i++)
-			projConfig.getProjViewPtr(i)->proj.saveCalibration();
+		projConfig.saveCalibration();
 		setb("saveCalibration", false);
 	}
 
@@ -236,6 +210,8 @@ void testApp::draw() {
 		if(projConfig.getViewToCalibrate() != NULL)
 		{
 			// for testing: put the selection view in the same spot as the projection view (for now..)
+			// .. update: not just for testing.. always do this if -singleScreen is specified, whether we 
+			// have 1 projector or 2, 4, 5, 9, etc. 
 			ofRectangle vp = projConfig.getViewToCalibrate()->getViewport();
 			selectionView.setViewport(vp.x, vp.y, vp.width, vp.height);
 
@@ -273,32 +249,36 @@ void testApp::draw() {
 	else
 	{
 		// in render-mode we render all the views
+		// except in selectionMode, then we only render the selected view
 
+		bool setupMode = (geti("mode") == 0);
 		for(int i=0; i<projConfig.numProjectorViews(); i++)
 		{
 			projectorView* projView = projConfig.getProjViewPtr(i);
 
-			// ----------------- draw the viewport -------------------
-			drawViewportOutline(projView->getViewport());
+			if((setupMode && projView == projConfig.getViewToCalibrate()) || !setupMode)
+			{
+				// ----------------- draw the viewport -------------------
+				drawViewportOutline(projView->getViewport());
 
-			// keep a copy of your viewport and transform matrices for later
-			ofPushView();
+				// keep a copy of your viewport and transform matrices for later
+				ofPushView();
 
-			// tell OpenGL to change your viewport. note that your transform matrices will now need setting up
-			ofViewport(projView->getViewport());
+				// tell OpenGL to change your viewport. note that your transform matrices will now need setting up
+				ofViewport(projView->getViewport());
 
-			// setup transform matrices for normal oF-style usage, i.e.
-			//  0,0=left,top
-			//  ofGetViewportWidth(),ofGetViewportHeight()=right,bottom
-			ofSetupScreen();
-			//setupScreen_custom(0, 0, 60, 0, 0); 
-			// --------------------------------------------------------------
+				// setup transform matrices for normal oF-style usage, i.e.
+				//  0,0=left,top
+				//  ofGetViewportWidth(),ofGetViewportHeight()=right,bottom
+				ofSetupScreen();
+				// --------------------------------------------------------------
 
-			projView->draw(panel, mouseX, mouseY, light, shader, customPicture0, mappingMovie);
+				projView->draw(panel, mouseX, mouseY, light, shader, customPicture0, mappingMovie);
 
-			// ------------------- unwind the viewport thing ---------------
-			// restore the old viewport (now full view and oF coords)
-			ofPopView();
+				// ------------------- unwind the viewport thing ---------------
+				// restore the old viewport (now full view and oF coords)
+				ofPopView();
+			}
 		}
 	}
 
@@ -378,7 +358,8 @@ void testApp::setupMesh() {
 	//model.loadModel("model.dae");
 	//model.loadModel("movicolon-box.dae");
 	//model.loadModel("oefentrap.obj");
-	model.loadModel("oefentrap.dae");
+	//model.loadModel("oefentrap.dae");
+	model.loadModel("stairs.dae");
 	
 	// LS: note: stuff breaks down when there is more than one submesh in the model
 	objectMesh = model.getMesh(0);

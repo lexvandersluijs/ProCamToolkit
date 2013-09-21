@@ -5,7 +5,6 @@ class projectorConfiguration;
 class projectorView : public meshView
 {
 public:
-	string name;
 	projector proj;
 	int index;
 	
@@ -53,61 +52,3 @@ public:
 	//virtual void draw(ofxControlPanel& panel, float mouseX, float mouseY, ofLight& light, ofShader& shader, ofImage& customPicture, ofVideoPlayer& mappingMovie);
 };
 
-class projectorConfiguration
-{
-public:
-
-	projectorConfiguration()
-	{
-		projViews = NULL;
-		nrOfProjViews = 0;
-	}
-	projectorConfiguration(int nrOfViews)
-	{
-		initialize(nrOfViews);
-	}
-	~projectorConfiguration()
-	{
-		delete [] projViews;
-	}
-	void initialize(int nrOfViews)
-	{
-		nrOfProjViews = nrOfViews;
-		projViews = new projectorView[nrOfProjViews];
-		for(int i=0; i<nrOfProjViews; i++)
-			projViews[i].setConfiguration(this);
-
-	}
-	int numProjectorViews()
-	{
-		return nrOfProjViews;
-	}
-	void setViewToCalibrate(int index)
-	{
-		viewToCalibrate = &projViews[index];
-	}
-	void setViewToCalibrate(projectorView* projView)
-	{
-		viewToCalibrate = projView;
-	}
-	projectorView& getProjView(int index)
-	{
-		// if index in range etc
-		return projViews[index];
-	}
-	projectorView* getProjViewPtr(int index)
-	{
-		// if index in range etc
-		return &projViews[index];
-	}
-	projectorView* getViewToCalibrate()
-	{
-		return viewToCalibrate;
-	}
-
-private:
-	projectorView* projViews;
-	int nrOfProjViews;
-	projectorView* viewToCalibrate; // NULL if none, otherwise ptr to view being calibrated
-
-};

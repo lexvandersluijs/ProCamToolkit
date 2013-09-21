@@ -12,11 +12,14 @@
 #include "meshView.h"
 #include "modelView.h"
 #include "projectorView.h"
-
+#include "projectorConfiguration.h"
 
 
 class testApp : public ofBaseApp {
 public:
+	testApp(projectorConfiguration& pconfig) : projConfig(pconfig)
+	{
+	}
 	void setb(string name, bool value);
 	void seti(string name, int value);
 	void setf(string name, float value);
@@ -50,7 +53,7 @@ public:
 	ofLight light;
 	mainControlPanel panel;
 	
-	projectorConfiguration projConfig;
+	projectorConfiguration& projConfig;
 	modelView selectionView;
 
 	Poco::Timestamp lastFragTimestamp, lastVertTimestamp;

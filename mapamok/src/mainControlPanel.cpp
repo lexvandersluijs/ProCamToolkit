@@ -12,7 +12,7 @@ void mainControlPanel::initialize(projectorConfiguration& config, int nrOfPoints
 	// dynamic radio button with the list of projectors
 	std::vector<std::string, std::allocator<std::string>>* projectors = new std::vector<std::string, std::allocator<std::string>>();
 	for(int i=0; i<config.numProjectorViews(); i++)
-		projectors->push_back(config.getProjViewPtr(i)->name);
+		projectors->push_back(config.getProjViewPtr(i)->proj.name);
 	addMultiToggle("calibrate", 0, *projectors);
 
 //		addToggle("setupMode", true);

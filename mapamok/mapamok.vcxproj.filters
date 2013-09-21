@@ -166,6 +166,9 @@
     <ClCompile Include="src\meshView.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\projectorConfiguration.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -702,6 +705,9 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\meshView.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\projectorConfiguration.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

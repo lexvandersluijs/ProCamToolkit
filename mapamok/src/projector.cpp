@@ -60,8 +60,8 @@ void projector::updateCalibration(float aov, int flags, ofRectangle viewport)
 	}
 }
 
-void projector::saveCalibration() {
-	string dirName = "calibration-" + ofGetTimestampString() + "/";
+void projector::saveCalibration(string configFolder) {
+	string dirName = configFolder + name + "/";
 	ofDirectory dir(dirName);
 	dir.create();
 	
@@ -130,19 +130,31 @@ void projector::saveCalibration() {
 	saveMat(Mat(imagePoints), dirName + "imagePoints.yml");
 }
 
-void projector::loadCalibration() {
-    
+void projector::loadCalibration_interactive() 
+{
     // retrieve advanced calibration folder
-    
-    string calibPath;
     ofFileDialogResult result = ofSystemLoadDialog("Select a calibration folder", true, ofToDataPath("", true));
-    calibPath = result.getPath();
+
+	if(result.bSuccess)
+		loadCalibration(result.getPath());
+}
+
+// when loading a multi-projector configuration, the root folder of the project is passed in
+// then the projector will append its own name to use as a subfolder, and store its files there
+void projector::loadCalibration_fromConfigFolder(string configFolder) 
+{
+	string calibFolder = configFolder + name + "/";
+	loadCalibration(calibFolder);
+}
+
+void projector::loadCalibration(string calibFolder) 
+{
     
     // load objectPoints and imagePoints
     
     Mat objPointsMat, imgPointsMat;
-    loadMat( objPointsMat, calibPath + "/objectPoints.yml");
-    loadMat( imgPointsMat, calibPath + "/imagePoints.yml");
+    loadMat( objPointsMat, calibFolder + "objectPoints.yml");
+    loadMat( imgPointsMat, calibFolder + "imagePoints.yml");
     
     int numVals;
     float x, y, z;
@@ -177,7 +189,7 @@ void projector::loadCalibration() {
     
     // load the calibration-advanced yml
     
-    FileStorage fs(ofToDataPath(calibPath + "/calibration-advanced.yml", true), FileStorage::READ);
+    FileStorage fs(ofToDataPath(calibFolder + "calibration-advanced.yml", true), FileStorage::READ);
     
     Mat cameraMatrix;
     Size2i imageSize;
