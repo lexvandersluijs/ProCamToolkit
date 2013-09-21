@@ -104,4 +104,8 @@ void projectorConfiguration::loadConfiguration(string configName)
 			++currentVpIndex;
 		}
 	}
+
+	// after this is loaded, also try to load the calibration for all projectors
+	// if one or more of these aren't there yet, this step will be skipped
+	loadCalibration();
 }

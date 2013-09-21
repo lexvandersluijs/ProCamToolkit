@@ -169,6 +169,9 @@
     <ClCompile Include="src\projectorConfiguration.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\showDefinition.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -708,6 +711,9 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\projectorConfiguration.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\showDefinition.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

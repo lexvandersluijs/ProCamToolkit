@@ -170,7 +170,10 @@ void projector::loadCalibration(string calibFolder)
     
 		const float* objVals = objPointsMat.ptr<float>(0);
 		numVals = objPointsMat.cols * objPointsMat.rows;
-    
+
+		// LS: make sure destination has enough space
+		objectPoints.resize(objPointsMat.rows);
+
 		for(int i = 0; i < numVals; i+=3) {
 			oP.x = objVals[i];
 			oP.y = objVals[i+1];
@@ -185,6 +188,9 @@ void projector::loadCalibration(string calibFolder)
 		const float* imgVals = imgPointsMat.ptr<float>(0);
 		numVals = objPointsMat.cols * objPointsMat.rows;
     
+		// LS: make sure destination has enough space
+		imagePoints.resize(imgPointsMat.rows);
+
 		for(int i = 0; i < numVals; i+=2) {
 			iP.x = imgVals[i];
 			iP.y = imgVals[i+1];

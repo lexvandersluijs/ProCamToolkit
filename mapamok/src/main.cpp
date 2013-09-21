@@ -36,6 +36,7 @@ int main( int argc,      // Number of strings in array argv
 #endif
 
 	projectorConfiguration projConfig;
+	showDefinition show;
 
 	// TODO: make command line parameter for this
 	ofLogLevel(OF_LOG_VERBOSE);
@@ -52,6 +53,9 @@ int main( int argc,      // Number of strings in array argv
 		projConfig.getProjView(0).proj.name = "Single";
 		projConfig.getProjView(0).index = 0;
 		projConfig.getProjView(0).setViewport(0, 0, vpWidth, vpHeight);
+
+		show.addMovie("movies/fingers.mov", "fingers");
+		show.addPicture("pictures/oefentrap-stonesandgrass.png", "stone and grass");
 	}
 	else
 	{
@@ -76,10 +80,14 @@ int main( int argc,      // Number of strings in array argv
 			projConfig.getProjView(3).proj.name = "Bottom right";
 			projConfig.getProjView(3).setViewport(vpWidth, vpHeight, vpWidth, vpHeight);
 			projConfig.setViewToCalibrate(0);
+
+			show.addMovie("movies/fingers.mov", "fingers");
+			show.addPicture("pictures/oefentrap-stonesandgrass.png", "stone and grass");
 		}
 		else
 		{
 			projConfig.loadConfiguration(configName);
+			show.load(configName);
 
 			// Poco::XML::NodeIterator it(pDoc, Poco::XML::NodeFilter::WhatToShow::SHOW_ELEMENT);
 			//Poco::XML::Node* pNode = it.nextNode();
@@ -99,7 +107,6 @@ int main( int argc,      // Number of strings in array argv
 
 			// testing: four projector views on a single monitor
 		}
-
 	}
 
 	// todo: production:
@@ -108,5 +115,5 @@ int main( int argc,      // Number of strings in array argv
 
 	ofSetupOpenGL(&window, 1024, 768, OF_FULLSCREEN);
 	//ofSetupOpenGL(&window, 2048, 768, OF_WINDOW);
-	ofRunApp(new testApp(projConfig));
+	ofRunApp(new testApp(projConfig, show));
 }

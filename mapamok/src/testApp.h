@@ -13,11 +13,11 @@
 #include "modelView.h"
 #include "projectorView.h"
 #include "projectorConfiguration.h"
-
+#include "showDefinition.h"
 
 class testApp : public ofBaseApp {
 public:
-	testApp(projectorConfiguration& pconfig) : projConfig(pconfig)
+	testApp(projectorConfiguration& pconfig, showDefinition& s) : projConfig(pconfig), show(s)
 	{
 	}
 	void setb(string name, bool value);
@@ -54,6 +54,7 @@ public:
 	mainControlPanel panel;
 	
 	projectorConfiguration& projConfig;
+	showDefinition& show;
 	modelView selectionView;
 
 	Poco::Timestamp lastFragTimestamp, lastVertTimestamp;

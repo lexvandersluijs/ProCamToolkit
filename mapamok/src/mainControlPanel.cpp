@@ -1,6 +1,6 @@
 #include "testApp.h"
 
-void mainControlPanel::initialize(projectorConfiguration& config, int nrOfPoints)
+void mainControlPanel::initialize(projectorConfiguration& config, int nrOfPoints, showDefinition& show)
 {
 	setup();
 	msg = "tab hides the panel, space toggles render/selection mode, 'f' toggles fullscreen.";
@@ -14,17 +14,22 @@ void mainControlPanel::initialize(projectorConfiguration& config, int nrOfPoints
 	for(int i=0; i<config.numProjectorViews(); i++)
 		projectors->push_back(config.getProjViewPtr(i)->proj.name);
 	addMultiToggle("calibrate", 0, *projectors);
+	// delete projectors?
 
 //		addToggle("setupMode", true);
 	addSlider("scale", 1, .1, 25);
 	addSlider("backgroundColor", 0, 0, 255, true);
-	addMultiToggle("drawMode", 3, variadic("faces")("fullWireframe")("outlineWireframe")("occludedWireframe")("picture")("video"));
+	addMultiToggle("drawMode", 3, variadic("faces")("fullWireframe")("outlineWireframe")("occludedWireframe")("texture"));
 	addMultiToggle("shading", 0, variadic("none")("lights")("shader"));
+
 	addToggle("loadCalibration", false);
 	addToggle("saveCalibration", false);
 	
 	addPanel("Show");
-	addToggle("playVideo", false);
+	for(int i=0; i<show.movies.size(); i++)
+		addToggle("m: " + show.movies[i]->name, false);
+	for(int i=0; i<show.pictures.size(); i++)
+		addToggle("p: " + show.pictures[i]->name, false);
 
 	addPanel("Highlight");
 	addToggle("highlight", false);

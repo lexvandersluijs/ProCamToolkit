@@ -51,7 +51,7 @@ void testApp::setup() {
 	selectionView.setModelAndMesh(&model, &objectMesh);
 
 	// then initialize the panel, which also needs to know the number of vertices in the mesh..
-	panel.initialize(projConfig, objectMesh.getNumVertices());
+	panel.initialize(projConfig, objectMesh.getNumVertices(), show);
 
 	mappingMovie.loadMovie("movies/oefentrap-uvtemplate_2.mov");
 	//mappingMovie.loadMovie("movies/fingers.mov");
