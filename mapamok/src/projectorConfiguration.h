@@ -6,24 +6,43 @@ public:
 
 	projectorConfiguration()
 	{
+		name = "new";
+		primaryScreenWidth = 0;
+		primaryScreenHeight = 0;
+		virtualScreenWidth = 0;
+		virtualScreenHeight = 0;
+		windowWidth = 0;
+		windowHeight = 0;
+
 		projViews = NULL;
 		nrOfProjViews = 0;
 	}
-	projectorConfiguration(int nrOfViews)
-	{
-		initialize(nrOfViews);
-	}
+
 	~projectorConfiguration()
 	{
 		delete [] projViews;
 	}
-	void initialize(int nrOfViews)
+	void initialize(int primScreenWidth, int primScreenHeight, int virtScreenWidth, int virtScreenHeight)
+	{
+		primaryScreenWidth = primScreenWidth;
+		primaryScreenHeight = primScreenHeight;
+		virtualScreenWidth = virtScreenWidth;
+		virtualScreenHeight = virtualScreenHeight;
+	}
+	int getPrimaryScreenWidth()
+	{
+		return primaryScreenWidth;
+	}
+	int getPrimaryScreenHeight()
+	{
+		return primaryScreenHeight;
+	}
+	void allocateViewports(int nrOfViews)
 	{
 		nrOfProjViews = nrOfViews;
 		projViews = new projectorView[nrOfProjViews];
 		for(int i=0; i<nrOfProjViews; i++)
 			projViews[i].setConfiguration(this);
-
 	}
 	int numProjectorViews()
 	{
@@ -56,6 +75,22 @@ public:
 	{
 		name = n;
 	}
+	void setWindowWidth(int w)
+	{
+		windowWidth = w;
+	}
+	void setWindowHeight(int h)
+	{
+		windowHeight = h;
+	}
+	int getWindowWidth()
+	{
+		return windowWidth;
+	}
+	int getWindowHeight()
+	{
+		return windowHeight;
+	}
 	void loadConfiguration(string name);
 
 	void saveCalibration();
@@ -63,6 +98,10 @@ public:
 
 private:
 	string name;
+	int primaryScreenWidth;
+	int primaryScreenHeight;
+	int virtualScreenWidth;
+	int virtualScreenHeight;
 	int windowWidth;
 	int windowHeight;
 	int mode; // OF_FULLSCREEN / OF_WINDOW

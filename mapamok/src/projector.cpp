@@ -168,8 +168,10 @@ void projector::loadCalibration(string calibFolder)
 		float x, y, z;
 		cv::Point3f oP;
     
+		// LS: fixed: the number of values is 1 column with x rows of vectors _with three
+		// components each_, so multiply * 3 !
 		const float* objVals = objPointsMat.ptr<float>(0);
-		numVals = objPointsMat.cols * objPointsMat.rows;
+		numVals = objPointsMat.cols * objPointsMat.rows * 3; 
 
 		// LS: make sure destination has enough space
 		objectPoints.resize(objPointsMat.rows);
@@ -183,18 +185,22 @@ void projector::loadCalibration(string calibFolder)
     
 		cv::Point2f iP;
     
-		referencePoints.resize( (imgPointsMat.cols * imgPointsMat.rows ) / 2, false);
-    
+		referencePoints.resize(objPointsMat.rows);
+
+		// LS: fixed: the number of values is 1 column of x rows of vectors _with two
+		// components each_, so multiply * 2 !
 		const float* imgVals = imgPointsMat.ptr<float>(0);
-		numVals = objPointsMat.cols * objPointsMat.rows;
+		numVals = objPointsMat.cols * objPointsMat.rows * 2;
     
 		// LS: make sure destination has enough space
 		imagePoints.resize(imgPointsMat.rows);
 
+		int numRefPoints = 0;
 		for(int i = 0; i < numVals; i+=2) {
 			iP.x = imgVals[i];
 			iP.y = imgVals[i+1];
 			if(iP.x != 0 && iP.y != 0) {
+				numRefPoints++;
 				referencePoints[i/2] = true;
 			}
 			imagePoints[i/2] = iP;

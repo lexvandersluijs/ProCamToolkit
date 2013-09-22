@@ -51,8 +51,28 @@ void projectorConfiguration::loadConfiguration(string configName)
 	Poco::XML::InputSource src(configFile);
 	Poco::XML::DOMParser parser;
 	Poco::AutoPtr<Poco::XML::Document> pDoc = parser.parse(&src);
-			
-	// -------------- first count the number of viewports -------------
+
+	// ---------------- get the window size --------------------
+	Poco::XML::Node* windowNode = pDoc->getNodeByPath("/projectorConfiguration/window");
+	Poco::XML::NamedNodeMap* attribs = windowNode->attributes();
+	string ws, hs;
+	for(int i=0; i<attribs->length(); i++)
+	{
+		Poco::XML::Node* attribute = NULL;
+		attribute = attribs->item(i);
+
+		if (attribute->nodeName() == "width")
+			ws = attribute->nodeValue();
+		else if (attribute->nodeName() == "height")
+			hs = attribute->nodeValue();
+	}
+	int width=::atoi(ws.c_str());
+	int height=::atoi(hs.c_str());
+	windowWidth = width; 
+	windowHeight = height;
+	attribs->release();
+
+	// -------------- count the number of viewports -------------
 	int nrOfViewports = 0;
 	Poco::XML::Node* viewportsNode = pDoc->getNodeByPath("/projectorConfiguration/viewports");
 	Poco::XML::NodeList* vpList = viewportsNode->childNodes();
@@ -66,7 +86,7 @@ void projectorConfiguration::loadConfiguration(string configName)
 	}
 	// ----------------- then allocate space and read + fill their properties ---------
 	// also see http://stackoverflow.com/questions/15626048/how-can-i-use-poco-to-parse-an-xml-file-and-extract-a-particular-node-to-a-std
-	initialize(nrOfViewports);
+	allocateViewports(nrOfViewports);
 	int currentVpIndex = 0;
 	for(int itemIndex=0; itemIndex<vpList->length(); itemIndex++)
 	{

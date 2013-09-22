@@ -26,10 +26,24 @@ float testApp::getf(string name) {
 
 void testApp::setup() {
 
+	bool showWindowBorder = false;
+	if (!showWindowBorder) {
+	  HWND m_hWnd = WindowFromDC(wglGetCurrentDC());
+	  LONG style = ::GetWindowLong(m_hWnd, GWL_STYLE);
+	  style &= ~WS_DLGFRAME;
+	  style &= ~WS_CAPTION;
+	  style &= ~WS_BORDER;
+	  style &= WS_POPUP;
+	  LONG exstyle = ::GetWindowLong(m_hWnd, GWL_EXSTYLE);
+	  exstyle &= ~WS_EX_DLGMODALFRAME;
+	  ::SetWindowLong(m_hWnd, GWL_STYLE, style);
+	  ::SetWindowLong(m_hWnd, GWL_EXSTYLE, exstyle);
+	  SetWindowPos(m_hWnd, HWND_TOPMOST, 0,0,0,0, SWP_NOSIZE|SWP_NOMOVE);
+	}
 
 	// TODO: instead of hardcoding, can we get a the main physical screen's width in OF,
 	// instead of the window size or virtual desktop size?
-	selectionView.setViewport(0, 0, 1920.f, 1080.f); 
+	selectionView.setViewport(0, 0, projConfig.getPrimaryScreenWidth(), projConfig.getPrimaryScreenHeight()); 
 
 	// ---------------------------------------------------------------
 
@@ -208,13 +222,17 @@ void testApp::draw() {
 	// viewport we are calibrating. this is on the main GUI monitor
 	if(getb("selectionMode")) 
 	{
-		if(projConfig.getViewToCalibrate() != NULL)
+		projectorView* projViewToCalibrate = projConfig.getViewToCalibrate();
+		if(projViewToCalibrate != NULL)
 		{
-			// for testing: put the selection view in the same spot as the projection view (for now..)
-			// .. update: not just for testing.. always do this if -singleScreen is specified, whether we 
-			// have 1 projector or 2, 4, 5, 9, etc. 
-			ofRectangle vp = projConfig.getViewToCalibrate()->getViewport();
-			selectionView.setViewport(vp.x, vp.y, vp.width, vp.height);
+			ofRectangle vp = projViewToCalibrate->getViewport();
+
+			// .. so: if the viewport is on the primary screen, this means we either have a single-viewport (original mapamok) situation
+			// or a testing config, where we have laid out multiple viewports on the main screen. in those cases we override the default
+			// viewport settings of the selectionView (as being on the main screen) and put this viewport in the same location as the
+			// projection view
+			if(vp.x <= projConfig.getPrimaryScreenWidth())
+				selectionView.setViewport(vp.x, vp.y, vp.width, vp.height);
 
 			ofRectangle selectionVp = selectionView.getViewport();
 			// ----------------- draw the viewport -------------------
@@ -233,7 +251,7 @@ void testApp::draw() {
 			//setupScreen_custom(0, 0, 60, 0, 0); 
 			// --------------------------------------------------------------
 
-			selectionView.draw(panel, mouseX, mouseY, projConfig.getViewToCalibrate(), light, shader, customPicture0, mappingMovie);
+			selectionView.draw(panel, mouseX, mouseY, projViewToCalibrate, light, shader, customPicture0, mappingMovie);
 
 			// ------------------- unwind the viewport thing ---------------
 			// restore the old viewport (now full view and oF coords)
