@@ -45,23 +45,22 @@ int main( int argc,      // Number of strings in array argv
 	int primaryScreenHeight = GetSystemMetrics(SM_CYSCREEN);
 	int virtualScreenWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
 	int virtualScreenHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
-	float vpWidth = (float)primaryScreenWidth; // ofGetScreenWidth()/2; doesn't work, uses window, isn't there yet..
-	float vpHeight = (float)primaryScreenHeight; //ofGetScreenHeight()/2;
+
 
 	// get parameter: which configuration to load -> = name of folder
 	// if no parameter specified, then create a default configuration
 	if(argc == 1)
 	{
 		projConfig.setName("Default");
-		projConfig.setWindowWidth(1024);
-		projConfig.setWindowWidth(768);
+		projConfig.setWindowWidth(primaryScreenWidth);
+		projConfig.setWindowHeight(primaryScreenHeight);
 		projConfig.initialize(primaryScreenWidth, primaryScreenHeight, virtualScreenWidth, virtualScreenHeight);
 		projConfig.allocateViewports(1);
 		projConfig.getProjView(0).proj.name = "Single";
 		projConfig.getProjView(0).index = 0;
-		projConfig.getProjView(0).setViewport(0, 0, vpWidth, vpHeight);
+		projConfig.getProjView(0).setViewport(0, 0, primaryScreenWidth, primaryScreenHeight);
 
-		show.addMovie("movies/fingers.mov", "fingers");
+		show.addMovie("movies/oefentrap-uvtemplate_2.mov", "oefentrap");
 		show.addPicture("pictures/oefentrap-stonesandgrass.png", "stone and grass");
 	}
 	else
@@ -70,9 +69,12 @@ int main( int argc,      // Number of strings in array argv
 
 		if(configName == "FourViewTest")
 		{
+			float vpWidth = (float)primaryScreenWidth/2; 
+			float vpHeight = (float)primaryScreenHeight/2; 
+
 			projConfig.setName("FourViewportsSingleScreen");
 			projConfig.setWindowWidth(primaryScreenWidth);
-			projConfig.setWindowWidth(primaryScreenHeight);
+			projConfig.setWindowHeight(primaryScreenHeight);
 			projConfig.initialize(primaryScreenWidth, primaryScreenHeight, virtualScreenWidth, virtualScreenHeight);
 			projConfig.allocateViewports(4);
 			projConfig.getProjView(0).proj.name = "Top left";
