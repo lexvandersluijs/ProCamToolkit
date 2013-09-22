@@ -3,7 +3,7 @@
 using namespace ofxCv;
 using namespace cv;
 
-void modelView::draw(ofxControlPanel& panel, float mouseX, float mouseY, projectorView* projView, ofLight& light, ofShader& shader, ofImage& customPicture, ofxThreadedVideo& mappingMovie) 
+void modelView::draw(ofxControlPanel& panel, float mouseX, float mouseY, projectorView* projView, ofLight& light, ofShader& shader, ofTexture* texture) //ofImage& customPicture, ofxThreadedVideo& mappingMovie) 
 //void modelView::draw(ofxControlPanel& panel, float mouseX, float mouseY, projectorView* projView, ofLight& light, ofShader& shader, ofImage& customPicture, ofVideoPlayer& mappingMovie) 
 {
 	if(objectMesh == NULL)
@@ -16,7 +16,7 @@ void modelView::draw(ofxControlPanel& panel, float mouseX, float mouseY, project
 	if(panel.getValueB("useFog")) {
 		enableFog(panel.getValueF("fogNear"), panel.getValueF("fogFar"));
 	}
-	render(panel, light, shader, customPicture, mappingMovie);
+	render(panel, light, shader, texture);
 	if(panel.getValueB("useFog")) {
 		disableFog();
 	}

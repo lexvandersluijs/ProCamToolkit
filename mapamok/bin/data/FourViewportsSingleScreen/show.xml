@@ -6,6 +6,8 @@
   <movies>
     <movie file="movies/fingers.mov" name="fingers"></movie>
     <movie file="movies/oefentrap-uvtemplate_2.mov" name="oefentrap"></movie>
+    <movie file="movies/sample_iTunes.mov" name="qt met audio"></movie>
+
   </movies>
   <pictures>
     <picture file="pictures/oefentrap-stonesandgrass.png" name="stone and grass"></picture>

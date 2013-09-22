@@ -41,15 +41,22 @@ int main( int argc,      // Number of strings in array argv
 	// TODO: make command line parameter for this
 	ofLogLevel(OF_LOG_VERBOSE);
 
+	int primaryScreenWidth = GetSystemMetrics(SM_CXSCREEN);
+	int primaryScreenHeight = GetSystemMetrics(SM_CYSCREEN);
+	int virtualScreenWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+	int virtualScreenHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+	float vpWidth = (float)primaryScreenWidth; // ofGetScreenWidth()/2; doesn't work, uses window, isn't there yet..
+	float vpHeight = (float)primaryScreenHeight; //ofGetScreenHeight()/2;
 
 	// get parameter: which configuration to load -> = name of folder
 	// if no parameter specified, then create a default configuration
 	if(argc == 1)
 	{
-		float vpWidth = (float)GetSystemMetrics(SM_CXSCREEN); // ofGetScreenWidth()/2; doesn't work, uses window, isn't there yet..
-		float vpHeight = (float)GetSystemMetrics(SM_CYSCREEN); //ofGetScreenHeight()/2;
 		projConfig.setName("Default");
-		projConfig.initialize(1);
+		projConfig.setWindowWidth(1024);
+		projConfig.setWindowWidth(768);
+		projConfig.initialize(primaryScreenWidth, primaryScreenHeight, virtualScreenWidth, virtualScreenHeight);
+		projConfig.allocateViewports(1);
 		projConfig.getProjView(0).proj.name = "Single";
 		projConfig.getProjView(0).index = 0;
 		projConfig.getProjView(0).setViewport(0, 0, vpWidth, vpHeight);
@@ -63,10 +70,11 @@ int main( int argc,      // Number of strings in array argv
 
 		if(configName == "FourViewTest")
 		{
-			float vpWidth = (float)GetSystemMetrics(SM_CXSCREEN) / 2; // ofGetScreenWidth()/2; doesn't work, uses window, isn't there yet..
-			float vpHeight = (float)GetSystemMetrics(SM_CYSCREEN) / 2; //ofGetScreenHeight()/2;
 			projConfig.setName("FourViewportsSingleScreen");
-			projConfig.initialize(4);
+			projConfig.setWindowWidth(primaryScreenWidth);
+			projConfig.setWindowWidth(primaryScreenHeight);
+			projConfig.initialize(primaryScreenWidth, primaryScreenHeight, virtualScreenWidth, virtualScreenHeight);
+			projConfig.allocateViewports(4);
 			projConfig.getProjView(0).proj.name = "Top left";
 			projConfig.getProjView(0).index = 0;
 			projConfig.getProjView(0).setViewport(0, 0, vpWidth, vpHeight);
@@ -86,6 +94,7 @@ int main( int argc,      // Number of strings in array argv
 		}
 		else
 		{
+			projConfig.initialize(primaryScreenWidth, primaryScreenHeight, virtualScreenWidth, virtualScreenHeight);
 			projConfig.loadConfiguration(configName);
 			show.load(configName);
 
@@ -113,7 +122,10 @@ int main( int argc,      // Number of strings in array argv
 	// multiple views laid out on large extended desktop
 
 
-	ofSetupOpenGL(&window, 1024, 768, OF_FULLSCREEN);
-	//ofSetupOpenGL(&window, 2048, 768, OF_WINDOW);
+	//ofSetupOpenGL(&window, 1024, 768, OF_FULLSCREEN);
+	ofSetupOpenGL(&window, projConfig.getWindowWidth(), projConfig.getWindowHeight(), OF_WINDOW);
+
+
+
 	ofRunApp(new testApp(projConfig, show));
 }

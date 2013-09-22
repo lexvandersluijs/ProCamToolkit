@@ -66,38 +66,20 @@ void testApp::setup() {
 
 	// then initialize the panel, which also needs to know the number of vertices in the mesh..
 	panel.initialize(projConfig, objectMesh.getNumVertices(), show);
-
-	mappingMovie.loadMovie("movies/oefentrap-uvtemplate_2.mov");
-	//mappingMovie.loadMovie("movies/fingers.mov");
-	//customPicture0.loadImage("pictures/oefentrap-stonesandgrass.png");
-	customPicture0.loadImage("pictures/CLC_TRAP_UV_2048_calibration.png");
 	
+	// some resource types probably need an OpenGL context, so we do this here
+	// not in main where the XML was read
+	show.loadResources();
 
 	ofSetWindowTitle("mapamok");
 }
 
 void testApp::update() 
 {
-	// ----------------- update active movie -----------------
-	if(getb("playVideo"))
-	{
-		if(mappingMovie.isPlaying() == false)
-			mappingMovie.play();
-		else
-			if(mappingMovie.isPaused())
-				mappingMovie.setPaused(false); 
-	}
-	else
-	{
-		if(!getb("playVideo") && mappingMovie.isPlaying() == true)
-		{
-			mappingMovie.setPaused(true); //.stop();
-			//mappingMovie.closeMovie();
-		}
-	}
-
-	if(mappingMovie.isPlaying())
-		mappingMovie.update();
+	// check the status of the GUI, change the texture if necessary
+	// if a movie is playing, update that movie
+	// if we switched movies, pause the one and resume/play the other
+	show.updateCurrentTexture(panel);
 
 	// -------------------- update lighting ---------------------------
 	if(getb("randomLighting")) {
@@ -251,7 +233,7 @@ void testApp::draw() {
 			//setupScreen_custom(0, 0, 60, 0, 0); 
 			// --------------------------------------------------------------
 
-			selectionView.draw(panel, mouseX, mouseY, projViewToCalibrate, light, shader, customPicture0, mappingMovie);
+			selectionView.draw(panel, mouseX, mouseY, projViewToCalibrate, light, shader, show.getCurrentTexture()); //customPicture0, mappingMovie);
 
 			// ------------------- unwind the viewport thing ---------------
 			// restore the old viewport (now full view and oF coords)
@@ -292,7 +274,7 @@ void testApp::draw() {
 				ofSetupScreen();
 				// --------------------------------------------------------------
 
-				projView->draw(panel, mouseX, mouseY, light, shader, customPicture0, mappingMovie);
+				projView->draw(panel, mouseX, mouseY, light, shader, show.getCurrentTexture()); //customPicture0, mappingMovie);
 
 				// ------------------- unwind the viewport thing ---------------
 				// restore the old viewport (now full view and oF coords)

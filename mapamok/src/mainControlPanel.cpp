@@ -27,9 +27,9 @@ void mainControlPanel::initialize(projectorConfiguration& config, int nrOfPoints
 	
 	addPanel("Show");
 	for(int i=0; i<show.movies.size(); i++)
-		addToggle("m: " + show.movies[i]->name, false);
+		addToggle(show.movies[i]->makeGuiName(), false);
 	for(int i=0; i<show.pictures.size(); i++)
-		addToggle("p: " + show.pictures[i]->name, false);
+		addToggle(show.pictures[i]->makeGuiName(), false);
 
 	addPanel("Highlight");
 	addToggle("highlight", false);

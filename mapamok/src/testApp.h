@@ -40,13 +40,6 @@ public:
 	void setupControlPanel();
 	void setupMesh();
 	void setupScreen_custom(float viewW, float viewH, float fov, float nearDist, float farDist);
-	//void drawLabeledPoint(int label, ofVec2f position, ofColor color, ofColor bg = ofColor::black, ofColor fg = ofColor::white);
-	//void drawSelectionMode(projectorView* projView);
-	//void drawRenderMode(projectorView* projView);
-	//void render();
-	//void drawModel(ofPolyRenderMode renderType, ofTexture* textureOverride);
-    //void loadCalibration();
-	//void saveCalibration();
 	
 	ofxAssimpModelLoader model;	
 	ofVboMesh objectMesh;
@@ -60,10 +53,4 @@ public:
 	Poco::Timestamp lastFragTimestamp, lastVertTimestamp;
 	ofShader shader;
 
-	// the movie we are going to project onto our shapes
-	//ofVideoPlayer 		mappingMovie;
-	ofxThreadedVideo		mappingMovie;
-
-	// custom picture
-	ofImage				customPicture0;
 };

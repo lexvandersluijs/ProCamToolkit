@@ -61,7 +61,7 @@ public:
 	// LvdS: adapted from ofxAssimpModelLoader
 	void drawModel(ofPolyRenderMode renderType, ofTexture* textureOverride);
 
-	void render(ofxControlPanel& panel, ofLight& light, ofShader& shader, ofImage& customPicture, ofxThreadedVideo& mappingMovie);
+	void render(ofxControlPanel& panel, ofLight& light, ofShader& shader, ofTexture* texture); //ofImage& customPicture, ofxThreadedVideo& mappingMovie);
 	//void render(ofxControlPanel& panel, ofLight& light, ofShader& shader, ofImage& customPicture, ofVideoPlayer& mappingMovie);
 	
 };

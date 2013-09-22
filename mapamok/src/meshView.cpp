@@ -121,7 +121,7 @@ void meshView::drawModel(ofPolyRenderMode renderType, ofTexture* textureOverride
 	ofPopStyle();
 }
 
-void meshView::render(ofxControlPanel& panel, ofLight& light, ofShader& shader, ofImage& customPicture, ofxThreadedVideo& mappingMovie) 
+void meshView::render(ofxControlPanel& panel, ofLight& light, ofShader& shader, ofTexture* texture) 
 //void meshView::render(ofxControlPanel& panel, ofLight& light, ofShader& shader, ofImage& customPicture, ofVideoPlayer& mappingMovie) 
 {
 	ofPushStyle();
@@ -196,24 +196,30 @@ void meshView::render(ofxControlPanel& panel, ofLight& light, ofShader& shader, 
 			LineArt::draw(*objectMesh, false, transparentBlack, useShader ? &shader : NULL);
 			break;
 			}
-		case 4:
+		case 4: // texture
 			{
-				ofTexture& pictureTexture = customPicture.getTextureReference();
-				pictureTexture.bind();
-				drawModel(OF_MESH_FILL, &pictureTexture);
-				pictureTexture.unbind();
+				if(texture != NULL)
+				{
+					//ofTexture& pictureTexture = customPicture.getTextureReference();
+					//pictureTexture.bind();
+					//drawModel(OF_MESH_FILL, &pictureTexture);
+					//pictureTexture.unbind();
+					texture->bind();
+					drawModel(OF_MESH_FILL, texture);
+					texture->unbind();
+				}
 			}
 			break;
 
-		case 5: // video
-			{
-			// use our custom version that supports video textures and stuff
-			ofTexture& videoTexture = mappingMovie.getTextureReference();
-			videoTexture.bind();
-			drawModel(OF_MESH_FILL, &videoTexture);
-			videoTexture.unbind();
-			break;
-			}
+		//case 5: // video
+		//	{
+		//	// use our custom version that supports video textures and stuff
+		//	ofTexture& videoTexture = mappingMovie.getTextureReference();
+		//	videoTexture.bind();
+		//	drawModel(OF_MESH_FILL, &videoTexture);
+		//	videoTexture.unbind();
+		//	break;
+		//	}
 	}
 	glPopAttrib();
 	if(useLights) {
