@@ -66,15 +66,17 @@ public:
 	showDefinition()
 	{
 		currentResource = NULL;
+		currentSegment = NULL;
 	}
 	~showDefinition();
 
 	void load(string configName);
 
+	void setup(); // let each segment initialize itself, creating a control panel if needed
+	void update(mainControlPanel& panel);
+
 	void addMovie(string filePath, string name);
 	void addPicture(string filePath, string name);
-
-	void loadResources();
 
 	void updateSelectedResourceCheckbox(mainControlPanel& panel);
 	showResource* findNewSelectedResource(mainControlPanel& panel, bool& anySelectionMade);
@@ -84,6 +86,11 @@ public:
 	std::vector<movieResource*> movies;
 	std::vector<pictureResource*> pictures;
 
+	std::vector<showSegment*> showSegments;
+	showSegment* currentSegment;
+
 private:
+	void loadResources();
+
 	showResource* currentResource;
 };

@@ -172,6 +172,15 @@
     <ClCompile Include="src\showDefinition.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxOnsetDetection\src\OnsetsDS\onsetsds.c">
+      <Filter>addons\ofxOnsetDetection\src\OnsetDS</Filter>
+    </ClCompile>
+    <ClCompile Include="src\showSegmentClcGirls1.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\showSegmentDefault.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -281,6 +290,15 @@
     </Filter>
     <Filter Include="addons\ofxThreadedVideo\src">
       <UniqueIdentifier>{a12f12ee-175f-4e1a-9f45-5aea846ea849}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxOnsetDetection">
+      <UniqueIdentifier>{b268b2e4-7d47-4ebf-8c53-0c863a8e3772}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxOnsetDetection\src">
+      <UniqueIdentifier>{0f42b030-9359-483d-bac5-60c28425d859}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxOnsetDetection\src\OnsetDS">
+      <UniqueIdentifier>{be010d0a-8909-434a-9269-41d188eb3eb3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -714,6 +732,21 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\showDefinition.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxOnsetDetection\src\ofxOnsetDetection.h">
+      <Filter>addons\ofxOnsetDetection\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxOnsetDetection\src\OnsetsDS\onsetsds.h">
+      <Filter>addons\ofxOnsetDetection\src\OnsetDS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\showSegment.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\showSegmentClcGirls1.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\showSegmentDefault.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

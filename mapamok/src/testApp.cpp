@@ -67,19 +67,18 @@ void testApp::setup() {
 	// then initialize the panel, which also needs to know the number of vertices in the mesh..
 	panel.initialize(projConfig, objectMesh.getNumVertices(), show);
 	
-	// some resource types probably need an OpenGL context, so we do this here
-	// not in main where the XML was read
-	show.loadResources();
+	// load all resources, let all showsegments initialize themselves:
+	show.setup();
 
 	ofSetWindowTitle("mapamok");
 }
 
 void testApp::update() 
 {
-	// check the status of the GUI, change the texture if necessary
-	// if a movie is playing, update that movie
-	// if we switched movies, pause the one and resume/play the other
-	show.updateCurrentTexture(panel);
+	// possibly update the current segment selection
+	// and have the current segment update itself
+	show.update(panel);
+
 
 	// -------------------- update lighting ---------------------------
 	if(getb("randomLighting")) {
@@ -169,37 +168,9 @@ void testApp::reloadShaderIfNeeded()
 
 }
 
-// LvdS: the implementation in ofGLRenderer calls getCurrentViewport and then subsequently doesn't use
-// that information (unless some deep magic happens during these calls).. 
-// Using the VS2012 profiler it appears that this call is a hotspot. Let's try
-// to eliminate it and get some performance improvement
-// UPDATE: method below does not work properly, problem was elsewhere: disabling vsync solved our performance issue
-void testApp::setupScreen_custom(float viewW, float viewH, float fov, float nearDist, float farDist) 
-{
-	float eyeX = viewW / 2;
-	float eyeY = viewH / 2;
-	float halfFov = PI * fov / 360;
-	float theTan = tanf(halfFov);
-	float dist = eyeY / theTan;
-	float aspect = (float) viewW / viewH;
-
-	if(nearDist == 0) nearDist = dist / 10.0f;
-	if(farDist == 0) farDist = dist * 10.0f;
-
-
-	ofGetGLRenderer()->matrixMode(OF_MATRIX_PROJECTION);
-	ofMatrix4x4 persp;
-	persp.makePerspectiveMatrix(fov, aspect, nearDist, farDist);
-	ofGetGLRenderer()->loadMatrix( persp );
-
-	ofGetGLRenderer()->matrixMode(OF_MATRIX_MODELVIEW);
-	ofMatrix4x4 lookAt;
-	lookAt.makeLookAtViewMatrix( ofVec3f(eyeX, eyeY, dist),  ofVec3f(eyeX, eyeY, 0),  ofVec3f(0, 1, 0) );
-	ofGetGLRenderer()->loadMatrix(lookAt);
-}
 
 void testApp::draw() {
-	ofBackground(geti("backgroundColor"));
+	//ofBackground(geti("backgroundColor"));
 
 	reloadShaderIfNeeded();
 

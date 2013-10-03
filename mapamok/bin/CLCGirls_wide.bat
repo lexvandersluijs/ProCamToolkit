@@ -1,0 +1,1 @@
+mapamok CLCGirls_wide

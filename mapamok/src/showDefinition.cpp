@@ -102,6 +102,32 @@ void showDefinition::addPicture(string filePath, string name)
 	pictures.push_back(sr);
 }
 
+void showDefinition::setup()
+{
+	// some resource types probably need an OpenGL context, so we do this here
+	// not in main where the XML was read
+	loadResources();
+
+	showSegments.push_back(new showSegmentDefault());
+	showSegments.push_back(new showSegmentClcGirls1());
+
+	for(std::vector<showSegment*>::iterator sit = showSegments.begin(); sit != showSegments.end(); ++sit)
+	{
+		(*sit)->setup();
+	}
+}
+
+void showDefinition::update(mainControlPanel& panel)
+{
+	// check the status of the GUI, change the texture if necessary
+	// if a movie is playing, update that movie
+	// if we switched movies, pause the one and resume/play the other
+	updateCurrentTexture(panel);
+
+	if(currentSegment != NULL)
+		currentSegment->update();
+}
+
 void showDefinition::loadResources()
 {
 	for(std::vector<movieResource*>::iterator mit = movies.begin(); mit != movies.end(); ++mit)

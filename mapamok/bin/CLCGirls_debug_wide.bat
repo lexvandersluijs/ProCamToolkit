@@ -1,0 +1,1 @@
+mapamok_debug CLCGirls_wide

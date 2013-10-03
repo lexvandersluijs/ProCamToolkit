@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxOnsetDetection.h"
 #include "ofxCv.h"
 #include "ofxAssimpModelLoader.h"
 #include "ofxProCamToolkit.h"
@@ -13,7 +14,10 @@
 #include "modelView.h"
 #include "projectorView.h"
 #include "projectorConfiguration.h"
+#include "showSegment.h"
 #include "showDefinition.h"
+#include "showSegmentDefault.h"
+#include "showSegmentClcGirls1.h"
 
 class testApp : public ofBaseApp {
 public:
@@ -39,7 +43,6 @@ public:
 	void reloadShaderIfNeeded();
 	void setupControlPanel();
 	void setupMesh();
-	void setupScreen_custom(float viewW, float viewH, float fov, float nearDist, float farDist);
 	
 	ofxAssimpModelLoader model;	
 	ofVboMesh objectMesh;
