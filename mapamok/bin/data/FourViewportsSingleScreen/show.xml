@@ -1,16 +1,14 @@
 <show>
-  <model file="oefentrap.dae"></model>
+  <model file="models/stairs.dae"></model>
   <shaders>
     <shader name="demo" frag="shader.frag" vert="shader.vert"></shader>
   </shaders>
   <movies>
-    <movie file="movies/fingers.mov" name="fingers"></movie>
-    <movie file="movies/oefentrap-uvtemplate_2.mov" name="oefentrap"></movie>
-    <movie file="movies/sample_iTunes.mov" name="qt met audio"></movie>
-
+    <movie file="movies/sample_iTunes.mov" name="intro"></movie>
+    <movie file="movies/oefentrap-uvtemplate_2.mov" name="dance 1"></movie>
+    <movie file="movies/CLC_TRAP_UV_2048_calibration2.mov" name="probeer"></movie>
   </movies>
   <pictures>
-    <picture file="pictures/oefentrap-stonesandgrass.png" name="stone and grass"></picture>
     <picture file="pictures/CLC_TRAP_UV_2048_calibration.png" name="calibration"></picture>
   </pictures>
 </show>

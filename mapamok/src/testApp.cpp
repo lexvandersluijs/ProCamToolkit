@@ -137,13 +137,16 @@ void testApp::update()
 void testApp::drawViewportOutline(const ofRectangle & viewport){
 	ofPushStyle();
 	ofFill();
-	ofSetColor(50);
+	ofSetColor(0);
 	ofSetLineWidth(0);
 	ofRect(viewport);
 	ofNoFill();
-	ofSetColor(25);
-	ofSetLineWidth(1.0f);
-	ofRect(viewport);
+	if(geti("mode") == 0) // only draw viewport borders in setup mode
+	{
+		ofSetColor(128);
+		ofSetLineWidth(1.0f);
+		ofRect(viewport);
+	}
 	ofPopStyle();
 }
 
@@ -213,7 +216,7 @@ void testApp::draw() {
 			// or a testing config, where we have laid out multiple viewports on the main screen. in those cases we override the default
 			// viewport settings of the selectionView (as being on the main screen) and put this viewport in the same location as the
 			// projection view
-			if(vp.x <= projConfig.getPrimaryScreenWidth())
+			if(vp.x < projConfig.getPrimaryScreenWidth())
 				selectionView.setViewport(vp.x, vp.y, vp.width, vp.height);
 
 			ofRectangle selectionVp = selectionView.getViewport();

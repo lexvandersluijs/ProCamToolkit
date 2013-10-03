@@ -21,7 +21,7 @@ movieResource::~movieResource()
 	{
 		if(movie->isPlaying() || movie->isPaused())
 			movie->stop();
-
+		movie->close();
 		delete movie;
 	}
 }
