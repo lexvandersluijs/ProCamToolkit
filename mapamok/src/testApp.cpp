@@ -284,6 +284,35 @@ void testApp::draw() {
 				ofPopView();
 			}
 		}
+
+		// if we do not render the selection view in the same spot as the projection
+		// view, then we can render this view side-by-side with the projectionviews
+		ofRectangle vp = selectionView.getViewport();
+		if(!(vp.x < projConfig.getPrimaryScreenWidth()))
+		{
+			// ----------------- draw the viewport -------------------
+			drawViewportOutline(vp);
+
+			// keep a copy of your viewport and transform matrices for later
+			ofPushView();
+
+			// tell OpenGL to change your viewport. note that your transform matrices will now need setting up
+			ofViewport(vp);
+
+			// setup transform matrices for normal oF-style usage, i.e.
+			//  0,0=left,top
+			//  ofGetViewportWidth(),ofGetViewportHeight()=right,bottom
+			ofSetupScreen();
+			//setupScreen_custom(0, 0, 60, 0, 0); 
+			// --------------------------------------------------------------
+
+			selectionView.draw(panel, mouseX, mouseY, NULL, light, shader, show.getCurrentTexture()); //customPicture0, mappingMovie);
+
+			// ------------------- unwind the viewport thing ---------------
+			// restore the old viewport (now full view and oF coords)
+			ofPopView();
+		}
+
 	}
 
 	// LS: TODO: this message should be on the main screen, not
