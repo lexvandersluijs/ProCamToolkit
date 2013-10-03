@@ -46,8 +46,10 @@ void drawCamera(string name, cv::Mat camMatrix, cv::Size size,
 	cv::Mat rotation = cv::Mat(), cv::Mat translation = cv::Mat());
 
 ofVec3f ofWorldToScreen(ofVec3f world);
+ofVec3f ofWorldToViewport(ofVec3f world);
 ofVec3f ofScreenToWorld(ofVec3f screen);
 ofMesh getProjectedMesh(const ofMesh& mesh);
+ofMesh getProjectedInViewportMesh(const ofMesh& mesh);
 cv::Point2f getClosestPoint(const vector<cv::Point2f>& vertices, float x, float y, int* choice = NULL, float* distance = NULL);
 ofVec3f getClosestPointOnMesh(const ofMesh& mesh, float x, float y, int* choice = NULL, float* distance = NULL);
 

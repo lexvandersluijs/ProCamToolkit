@@ -1,0 +1,9 @@
+<projectorConfiguration>
+  <window width="1920" height="1080"></window>
+  <viewports>
+  <projectorView x="0" y="0" width="960" height="540" name="Top Left"></projectorView>
+  <projectorView x="960" y="0" width="960" height="540" name="Top Right"></projectorView>
+  <projectorView x="0" y="540" width="960" height="540" name="Bottom Left"></projectorView>
+  <projectorView x="960" y="540" width="960" height="540" name="Bottom Right"></projectorView>
+    </viewports>
+</projectorConfiguration>

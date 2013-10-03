@@ -5,10 +5,21 @@
 #include "ofxAssimpModelLoader.h"
 #include "ofxProCamToolkit.h"
 #include "ofxAutoControlPanel.h"
+#include "ofxThreadedVideo.h"
 #include "LineArt.h"
+#include "mainControlPanel.h"
+#include "projector.h"
+#include "meshView.h"
+#include "modelView.h"
+#include "projectorView.h"
+#include "projectorConfiguration.h"
+#include "showDefinition.h"
 
 class testApp : public ofBaseApp {
 public:
+	testApp(projectorConfiguration& pconfig, showDefinition& s) : projConfig(pconfig), show(s)
+	{
+	}
 	void setb(string name, bool value);
 	void seti(string name, int value);
 	void setf(string name, float value);
@@ -23,32 +34,23 @@ public:
 	void mousePressed(int x, int y, int button);
 	void mouseReleased(int x, int y, int button);
 	
+	void drawViewportOutline(const ofRectangle & viewport);
+
+	void reloadShaderIfNeeded();
 	void setupControlPanel();
 	void setupMesh();
-	void drawLabeledPoint(int label, ofVec2f position, ofColor color, ofColor bg = ofColor::black, ofColor fg = ofColor::white);
-	void updateRenderMode();
-	void drawSelectionMode();
-	void drawRenderMode();
-	void render();
-    void loadCalibration();
-	void saveCalibration();
+	void setupScreen_custom(float viewW, float viewH, float fov, float nearDist, float farDist);
 	
 	ofxAssimpModelLoader model;	
-	ofEasyCam cam;
 	ofVboMesh objectMesh;
-	ofMesh imageMesh;
 	ofLight light;
-	ofxAutoControlPanel panel;
+	mainControlPanel panel;
 	
-	vector<cv::Point3f> objectPoints;
-	vector<cv::Point2f> imagePoints;
-	vector<bool> referencePoints;
-	
-	cv::Mat rvec, tvec;
-	ofMatrix4x4 modelMatrix;
-	ofxCv::Intrinsics intrinsics;
-	bool calibrationReady;
-	
+	projectorConfiguration& projConfig;
+	showDefinition& show;
+	modelView selectionView;
+
 	Poco::Timestamp lastFragTimestamp, lastVertTimestamp;
 	ofShader shader;
+
 };

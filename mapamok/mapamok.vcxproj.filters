@@ -148,6 +148,30 @@
     <ClCompile Include="..\..\..\addons\ofxAssimpModelLoader\src\ofxAssimpTexture.cpp">
       <Filter>addons\ofxAssimpModelLoader\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\projector.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxThreadedVideo\src\ofxThreadedVideo.cpp">
+      <Filter>addons\ofxThreadedVideo\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mainControlPanel.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\projectorView.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\modelView.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\meshView.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\projectorConfiguration.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\showDefinition.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -251,6 +275,12 @@
     </Filter>
     <Filter Include="addons\ofxXmlSettings\libs">
       <UniqueIdentifier>{7cb966d8-ada6-4a77-a824-a63ce89a2937}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxThreadedVideo">
+      <UniqueIdentifier>{836f60d4-6751-4d41-9129-990fb578b587}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxThreadedVideo\src">
+      <UniqueIdentifier>{a12f12ee-175f-4e1a-9f45-5aea846ea849}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -661,6 +691,30 @@
     </ClInclude>
     <ClInclude Include="..\..\..\addons\ofxAssimpModelLoader\src\ofxAssimpUtils.h">
       <Filter>addons\ofxAssimpModelLoader\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\projector.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mainControlPanel.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\projectorView.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxThreadedVideo\src\ofxThreadedVideo.h">
+      <Filter>addons\ofxThreadedVideo\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\modelView.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\meshView.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\projectorConfiguration.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\showDefinition.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

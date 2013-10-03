@@ -3,6 +3,8 @@
 using namespace ofxCv;
 using namespace cv;
 
+
+
 void testApp::setb(string name, bool value) {
 	panel.setValueB(name, value);
 }
@@ -23,59 +25,269 @@ float testApp::getf(string name) {
 }
 
 void testApp::setup() {
-	ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD);
-	ofSetVerticalSync(true);
-	calibrationReady = false;
-	setupMesh();	
-	setupControlPanel();
+
+	bool showWindowBorder = false;
+	if (!showWindowBorder) {
+	  HWND m_hWnd = WindowFromDC(wglGetCurrentDC());
+	  LONG style = ::GetWindowLong(m_hWnd, GWL_STYLE);
+	  style &= ~WS_DLGFRAME;
+	  style &= ~WS_CAPTION;
+	  style &= ~WS_BORDER;
+	  style &= WS_POPUP;
+	  LONG exstyle = ::GetWindowLong(m_hWnd, GWL_EXSTYLE);
+	  exstyle &= ~WS_EX_DLGMODALFRAME;
+	  ::SetWindowLong(m_hWnd, GWL_STYLE, style);
+	  ::SetWindowLong(m_hWnd, GWL_EXSTYLE, exstyle);
+	  SetWindowPos(m_hWnd, HWND_TOPMOST, 0,0,0,0, SWP_NOSIZE|SWP_NOMOVE);
+	}
+
+	// TODO: instead of hardcoding, can we get a the main physical screen's width in OF,
+	// instead of the window size or virtual desktop size?
+	selectionView.setViewport(0, 0, projConfig.getPrimaryScreenWidth(), projConfig.getPrimaryScreenHeight()); 
+
+	// ---------------------------------------------------------------
+
+	//ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD);
+	ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL);
+	ofSetVerticalSync(false); //true);
+	
+
+	// load the 3D model
+	setupMesh();
+
+	// let the projectors initialize arrays for calibration from this model
+	// and also let the projector- and selection-views know about it, so that
+	// they can render it
+	for(int i=0; i<projConfig.numProjectorViews(); i++)
+	{
+		projConfig.getProjView(i).setModelAndMesh(&model, &objectMesh);
+	}
+	selectionView.setModelAndMesh(&model, &objectMesh);
+
+	// then initialize the panel, which also needs to know the number of vertices in the mesh..
+	panel.initialize(projConfig, objectMesh.getNumVertices(), show);
+	
+	// some resource types probably need an OpenGL context, so we do this here
+	// not in main where the XML was read
+	show.loadResources();
+
+	ofSetWindowTitle("mapamok");
 }
 
-void testApp::update() {
-	ofSetWindowTitle("mapamok");
+void testApp::update() 
+{
+	// check the status of the GUI, change the texture if necessary
+	// if a movie is playing, update that movie
+	// if we switched movies, pause the one and resume/play the other
+	show.updateCurrentTexture(panel);
+
+	// -------------------- update lighting ---------------------------
 	if(getb("randomLighting")) {
 		setf("lightX", ofSignedNoise(ofGetElapsedTimef(), 1, 1) * 1000);
 		setf("lightY", ofSignedNoise(1, ofGetElapsedTimef(), 1) * 1000);
 		setf("lightZ", ofSignedNoise(1, 1, ofGetElapsedTimef()) * 1000);
 	}
 	light.setPosition(getf("lightX"), getf("lightY"), getf("lightZ"));
-		
-	if(getb("selectionMode")) {
-		cam.enableMouseInput();
-	} else {
-		updateRenderMode();
-		cam.disableMouseInput();
+	
+	// --------------- if we are in selection mode, input should go the main 3D model view ----
+	if(getb("selectionMode")) 
+		selectionView.cam.enableMouseInput();
+	else
+	{
+		selectionView.cam.disableMouseInput();
+
+		// only update the calibration while we are in Setup mode, not in Show mode..
+		if(geti("mode") == 0)
+		{
+			// if we're not selecting, then we are working in the render view and the calibration can be updated
+			// TODO: only for the projector being edited, and only if something has actually changed
+			// can save many cycles..
+			//for(int i=0; i<projConfig.numProjectorViews(); i++)
+			//{
+			//	projectorView* projView = projConfig.getProjViewPtr(i);
+			//	projView->updateCalibration(panel);
+			//}
+			if(projConfig.getViewToCalibrate() != NULL)
+				projConfig.getViewToCalibrate()->updateCalibration(panel);
+		}
 	}
+	// --------------- check if we should load or save a calibration -----
+	if(getb("loadCalibration")) 
+	{
+		projConfig.loadCalibration();
+		setb("loadCalibration", false);
+	}
+	if(getb("saveCalibration")) 
+	{
+		projConfig.saveCalibration();
+		setb("saveCalibration", false);
+	}
+
+	// if 'None' is selected in the list of projectors for calibration, we set NULL
+	// as the current pointer
+	// otherwise the index we want to set is equal to the number we got from the GUI
+	// minus 1, since they were added in the same order
+	int projToCalibrateIndex = geti("calibrate");
+	projConfig.setViewToCalibrate(projToCalibrateIndex);
 }
 
-void enableFog(float nearFog, float farFog) {
-	glEnable(GL_FOG);
-	glFogi(GL_FOG_MODE, GL_LINEAR);
-	GLfloat fogColor[4]= {0, 0, 0, 1};
-	glFogfv(GL_FOG_COLOR, fogColor);
-	glHint(GL_FOG_HINT, GL_FASTEST);
-	glFogf(GL_FOG_START, nearFog);
-	glFogf(GL_FOG_END, farFog);
+
+
+// copied from viewportsExample
+void testApp::drawViewportOutline(const ofRectangle & viewport){
+	ofPushStyle();
+	ofFill();
+	ofSetColor(0);
+	ofSetLineWidth(0);
+	ofRect(viewport);
+	ofNoFill();
+	if(geti("mode") == 0) // only draw viewport borders in setup mode
+	{
+		ofSetColor(128);
+		ofSetLineWidth(1.0f);
+		ofRect(viewport);
+	}
+	ofPopStyle();
 }
 
-void disableFog() {
-	glDisable(GL_FOG);
+void testApp::reloadShaderIfNeeded()
+{
+	int shading = geti("shading");
+	bool useShader = shading == 2;
+	
+	if(useShader) {
+		ofFile fragFile("shaders/shader.frag"), vertFile("shaders/shader.vert");
+		Poco::Timestamp fragTimestamp = fragFile.getPocoFile().getLastModified();
+		Poco::Timestamp vertTimestamp = vertFile.getPocoFile().getLastModified();
+		if(fragTimestamp != lastFragTimestamp || vertTimestamp != lastVertTimestamp) {
+			bool validShader = shader.load("shaders/shader");
+			setb("validShader", validShader);
+		}
+		lastFragTimestamp = fragTimestamp;
+		lastVertTimestamp = vertTimestamp;		
+	}
+
+}
+
+// LvdS: the implementation in ofGLRenderer calls getCurrentViewport and then subsequently doesn't use
+// that information (unless some deep magic happens during these calls).. 
+// Using the VS2012 profiler it appears that this call is a hotspot. Let's try
+// to eliminate it and get some performance improvement
+// UPDATE: method below does not work properly, problem was elsewhere: disabling vsync solved our performance issue
+void testApp::setupScreen_custom(float viewW, float viewH, float fov, float nearDist, float farDist) 
+{
+	float eyeX = viewW / 2;
+	float eyeY = viewH / 2;
+	float halfFov = PI * fov / 360;
+	float theTan = tanf(halfFov);
+	float dist = eyeY / theTan;
+	float aspect = (float) viewW / viewH;
+
+	if(nearDist == 0) nearDist = dist / 10.0f;
+	if(farDist == 0) farDist = dist * 10.0f;
+
+
+	ofGetGLRenderer()->matrixMode(OF_MATRIX_PROJECTION);
+	ofMatrix4x4 persp;
+	persp.makePerspectiveMatrix(fov, aspect, nearDist, farDist);
+	ofGetGLRenderer()->loadMatrix( persp );
+
+	ofGetGLRenderer()->matrixMode(OF_MATRIX_MODELVIEW);
+	ofMatrix4x4 lookAt;
+	lookAt.makeLookAtViewMatrix( ofVec3f(eyeX, eyeY, dist),  ofVec3f(eyeX, eyeY, 0),  ofVec3f(0, 1, 0) );
+	ofGetGLRenderer()->loadMatrix(lookAt);
 }
 
 void testApp::draw() {
 	ofBackground(geti("backgroundColor"));
-    if(getb("loadCalibration")) {
-		loadCalibration();
-		setb("loadCalibration", false);
+
+	reloadShaderIfNeeded();
+
+	// in selectionmode we render the 3D object (TODO: full-screen) using the easyCam of the 
+	// viewport we are calibrating. this is on the main GUI monitor
+	if(getb("selectionMode")) 
+	{
+		projectorView* projViewToCalibrate = projConfig.getViewToCalibrate();
+		if(projViewToCalibrate != NULL)
+		{
+			ofRectangle vp = projViewToCalibrate->getViewport();
+
+			// .. so: if the viewport is on the primary screen, this means we either have a single-viewport (original mapamok) situation
+			// or a testing config, where we have laid out multiple viewports on the main screen. in those cases we override the default
+			// viewport settings of the selectionView (as being on the main screen) and put this viewport in the same location as the
+			// projection view
+			if(vp.x < projConfig.getPrimaryScreenWidth())
+				selectionView.setViewport(vp.x, vp.y, vp.width, vp.height);
+
+			ofRectangle selectionVp = selectionView.getViewport();
+			// ----------------- draw the viewport -------------------
+			drawViewportOutline(selectionVp);
+
+			// keep a copy of your viewport and transform matrices for later
+			ofPushView();
+
+			// tell OpenGL to change your viewport. note that your transform matrices will now need setting up
+			ofViewport(selectionVp);
+
+			// setup transform matrices for normal oF-style usage, i.e.
+			//  0,0=left,top
+			//  ofGetViewportWidth(),ofGetViewportHeight()=right,bottom
+			ofSetupScreen();
+			//setupScreen_custom(0, 0, 60, 0, 0); 
+			// --------------------------------------------------------------
+
+			selectionView.draw(panel, mouseX, mouseY, projViewToCalibrate, light, shader, show.getCurrentTexture()); //customPicture0, mappingMovie);
+
+			// ------------------- unwind the viewport thing ---------------
+			// restore the old viewport (now full view and oF coords)
+			ofPopView();
+		}
+
+		// else: if we are not calibrating, we show nothing?
+		// .. no.. then we should probably see the main Show GUI
+		// although we could consider showing the 3D model in the background
+		// so that the mapping etc can be checked in real-time, from the operator
+		// station
+		// .. TODO
 	}
-	if(getb("saveCalibration")) {
-		saveCalibration();
-		setb("saveCalibration", false);
+	else
+	{
+		// in render-mode we render all the views
+		// except in selectionMode, then we only render the selected view
+
+		bool setupMode = (geti("mode") == 0);
+		for(int i=0; i<projConfig.numProjectorViews(); i++)
+		{
+			projectorView* projView = projConfig.getProjViewPtr(i);
+
+			if((setupMode && projView == projConfig.getViewToCalibrate()) || !setupMode)
+			{
+				// ----------------- draw the viewport -------------------
+				drawViewportOutline(projView->getViewport());
+
+				// keep a copy of your viewport and transform matrices for later
+				ofPushView();
+
+				// tell OpenGL to change your viewport. note that your transform matrices will now need setting up
+				ofViewport(projView->getViewport());
+
+				// setup transform matrices for normal oF-style usage, i.e.
+				//  0,0=left,top
+				//  ofGetViewportWidth(),ofGetViewportHeight()=right,bottom
+				ofSetupScreen();
+				// --------------------------------------------------------------
+
+				projView->draw(panel, mouseX, mouseY, light, shader, show.getCurrentTexture()); //customPicture0, mappingMovie);
+
+				// ------------------- unwind the viewport thing ---------------
+				// restore the old viewport (now full view and oF coords)
+				ofPopView();
+			}
+		}
 	}
-	if(getb("selectionMode")) {
-		drawSelectionMode();
-	} else {
-		drawRenderMode();
-	}
+
+	// LS: TODO: this message should be on the main screen, not
+	// stretched all over all viewports
 	if(!getb("validShader")) {
 		ofPushStyle();
 		ofSetColor(magentaPrint);
@@ -90,37 +302,47 @@ void testApp::draw() {
 		drawHighlightString(message, center);
 		ofPopStyle();
 	}
+
+	//mappingMovie.draw(600,20);
+
 }
 
-void testApp::keyPressed(int key) {
-	if(key == OF_KEY_LEFT || key == OF_KEY_UP || key == OF_KEY_RIGHT|| key == OF_KEY_DOWN){
-		int choice = geti("selectionChoice");
-		setb("arrowing", true);
-		if(choice > 0){
-			Point2f& cur = imagePoints[choice];
-			switch(key) {
-				case OF_KEY_LEFT: cur.x -= 1; break;
-				case OF_KEY_RIGHT: cur.x += 1; break;
-				case OF_KEY_UP: cur.y -= 1; break;
-				case OF_KEY_DOWN: cur.y += 1; break;
+// TODO: this direct access to data of the projectorView should be refactored..
+// the projectorView itself should probably handle most of these events
+void testApp::keyPressed(int key) 
+{
+	projectorView* viewToCalibrate = projConfig.getViewToCalibrate();
+	if(viewToCalibrate != NULL)
+	{
+		if(key == OF_KEY_LEFT || key == OF_KEY_UP || key == OF_KEY_RIGHT|| key == OF_KEY_DOWN){
+			int choice = geti("selectionChoice");
+			setb("arrowing", true);
+			if(choice > 0){
+				Point2f& cur = viewToCalibrate->proj.imagePoints[choice];
+				switch(key) {
+					case OF_KEY_LEFT: cur.x -= 1; break;
+					case OF_KEY_RIGHT: cur.x += 1; break;
+					case OF_KEY_UP: cur.y -= 1; break;
+					case OF_KEY_DOWN: cur.y += 1; break;
+				}
+			}
+		} else {
+			setb("arrowing",false);
+		}
+		if(key == OF_KEY_BACKSPACE) { // delete selected
+			if(getb("selected")) {
+				setb("selected", false);
+				int choice = geti("selectionChoice");
+				viewToCalibrate->proj.referencePoints[choice] = false;
+				viewToCalibrate->proj.imagePoints[choice] = Point2f();
 			}
 		}
-	} else {
-		setb("arrowing",false);
-	}
-	if(key == OF_KEY_BACKSPACE) { // delete selected
-		if(getb("selected")) {
+		if(key == '\n') { // deselect
 			setb("selected", false);
-			int choice = geti("selectionChoice");
-			referencePoints[choice] = false;
-			imagePoints[choice] = Point2f();
 		}
-	}
-	if(key == '\n') { // deselect
-		setb("selected", false);
-	}
-	if(key == ' ') { // toggle render/select mode
-		setb("selectionMode", !getb("selectionMode"));
+		if(key == ' ') { // toggle render/select mode
+			setb("selectionMode", !getb("selectionMode"));
+		}
 	}
 }
 
@@ -137,464 +359,13 @@ void testApp::mouseReleased(int x, int y, int button) {
 }
 
 void testApp::setupMesh() {
-	model.loadModel("model.dae");
+	//model.loadModel("model.dae");
+	//model.loadModel("movicolon-box.dae");
+	//model.loadModel("oefentrap.obj");
+	//model.loadModel("oefentrap.dae");
+	model.loadModel("models/stairs.dae");
+	
+	// LS: note: stuff breaks down when there is more than one submesh in the model
 	objectMesh = model.getMesh(0);
-	int n = objectMesh.getNumVertices();
-	objectPoints.resize(n);
-	imagePoints.resize(n);
-	referencePoints.resize(n, false);
-	for(int i = 0; i < n; i++) {
-		objectPoints[i] = toCv(objectMesh.getVertex(i));
-	}
 }
 
-void testApp::render() {
-	ofPushStyle();
-	ofSetLineWidth(geti("lineWidth"));
-	if(getb("useSmoothing")) {
-		ofEnableSmoothing();
-	} else {
-		ofDisableSmoothing();
-	}
-	int shading = geti("shading");
-	bool useLights = shading == 1;
-	bool useShader = shading == 2;
-	if(useLights) {
-		light.enable();
-		ofEnableLighting();
-		glShadeModel(GL_SMOOTH);
-		glEnable(GL_NORMALIZE);
-	}
-	
-	if(getb("highlight")) {
-		objectMesh.clearColors();
-		int n = objectMesh.getNumVertices();
-		float highlightPosition = getf("highlightPosition");
-		float highlightOffset = getf("highlightOffset");
-		for(int i = 0; i < n; i++) {
-			int lower = ofMap(highlightPosition - highlightOffset, 0, 1, 0, n);
-			int upper = ofMap(highlightPosition + highlightOffset, 0, 1, 0, n);
-			ofColor cur = (lower < i && i < upper) ? ofColor::white : ofColor::black;
-			objectMesh.addColor(cur);
-		}
-	}
-	
-	ofSetColor(255);
-	glPushAttrib(GL_ALL_ATTRIB_BITS);
-	glEnable(GL_DEPTH_TEST);
-	if(useShader) {
-		ofFile fragFile("shader.frag"), vertFile("shader.vert");
-		Poco::Timestamp fragTimestamp = fragFile.getPocoFile().getLastModified();
-		Poco::Timestamp vertTimestamp = vertFile.getPocoFile().getLastModified();
-		if(fragTimestamp != lastFragTimestamp || vertTimestamp != lastVertTimestamp) {
-			bool validShader = shader.load("shader");
-			setb("validShader", validShader);
-		}
-		lastFragTimestamp = fragTimestamp;
-		lastVertTimestamp = vertTimestamp;
-		
-		shader.begin();
-		shader.setUniform1f("elapsedTime", ofGetElapsedTimef());
-		shader.end();
-	}
-	ofColor transparentBlack(0, 0, 0, 0);
-	switch(geti("drawMode")) {
-		case 0: // faces
-			if(useShader) shader.begin();
-			glEnable(GL_CULL_FACE);
-			glCullFace(GL_BACK);
-			objectMesh.drawFaces();
-			if(useShader) shader.end();
-			break;
-		case 1: // fullWireframe
-			if(useShader) shader.begin();
-			objectMesh.drawWireframe();
-			if(useShader) shader.end();
-			break;
-		case 2: // outlineWireframe
-			LineArt::draw(objectMesh, true, transparentBlack, useShader ? &shader : NULL);
-			break;
-		case 3: // occludedWireframe
-			LineArt::draw(objectMesh, false, transparentBlack, useShader ? &shader : NULL);
-			break;
-	}
-	glPopAttrib();
-	if(useLights) {
-		ofDisableLighting();
-	}
-	ofPopStyle();
-}
-
-void testApp::saveCalibration() {
-	string dirName = "calibration-" + ofGetTimestampString() + "/";
-	ofDirectory dir(dirName);
-	dir.create();
-	
-	FileStorage fs(ofToDataPath(dirName + "calibration-advanced.yml"), FileStorage::WRITE);	
-	
-	Mat cameraMatrix = intrinsics.getCameraMatrix();
-	fs << "cameraMatrix" << cameraMatrix;
-	
-	double focalLength = intrinsics.getFocalLength();
-	fs << "focalLength" << focalLength;
-	
-	Point2d fov = intrinsics.getFov();
-	fs << "fov" << fov;
-	
-	Point2d principalPoint = intrinsics.getPrincipalPoint();
-	fs << "principalPoint" << principalPoint;
-	
-	cv::Size imageSize = intrinsics.getImageSize();
-	fs << "imageSize" << imageSize;
-	
-	fs << "translationVector" << tvec;
-	fs << "rotationVector" << rvec;
-
-	Mat rotationMatrix;
-	Rodrigues(rvec, rotationMatrix);
-	fs << "rotationMatrix" << rotationMatrix;
-	
-	double rotationAngleRadians = norm(rvec, NORM_L2);
-	double rotationAngleDegrees = ofRadToDeg(rotationAngleRadians);
-	Mat rotationAxis = rvec / rotationAngleRadians;
-	fs << "rotationAngleRadians" << rotationAngleRadians;
-	fs << "rotationAngleDegrees" << rotationAngleDegrees;
-	fs << "rotationAxis" << rotationAxis;
-	
-	ofVec3f axis(rotationAxis.at<double>(0), rotationAxis.at<double>(1), rotationAxis.at<double>(2));
-	ofVec3f euler = ofQuaternion(rotationAngleDegrees, axis).getEuler();
-	Mat eulerMat = (Mat_<double>(3,1) << euler.x, euler.y, euler.z);
-	fs << "euler" << eulerMat;
-	
-	ofFile basic("calibration-basic.txt", ofFile::WriteOnly);
-	ofVec3f position( tvec.at<double>(1), tvec.at<double>(2));
-	basic << "position (in world units):" << endl;
-	basic << "\tx: " << ofToString(tvec.at<double>(0), 2) << endl;
-	basic << "\ty: " << ofToString(tvec.at<double>(1), 2) << endl;
-	basic << "\tz: " << ofToString(tvec.at<double>(2), 2) << endl;
-	basic << "axis-angle rotation (in degrees):" << endl;
-	basic << "\taxis x: " << ofToString(axis.x, 2) << endl;
-	basic << "\taxis y: " << ofToString(axis.y, 2) << endl;
-	basic << "\taxis z: " << ofToString(axis.z, 2) << endl;
-	basic << "\tangle: " << ofToString(rotationAngleDegrees, 2) << endl;
-	basic << "euler rotation (in degrees):" << endl;
-	basic << "\tx: " << ofToString(euler.x, 2) << endl;
-	basic << "\ty: " << ofToString(euler.y, 2) << endl;
-	basic << "\tz: " << ofToString(euler.z, 2) << endl;
-	basic << "fov (in degrees):" << endl;
-	basic << "\thorizontal: " << ofToString(fov.x, 2) << endl;
-	basic << "\tvertical: " << ofToString(fov.y, 2) << endl;
-	basic << "principal point (in screen units):" << endl;
-	basic << "\tx: " << ofToString(principalPoint.x, 2) << endl;
-	basic << "\ty: " << ofToString(principalPoint.y, 2) << endl;
-	basic << "image size (in pixels):" << endl;
-	basic << "\tx: " << ofToString(principalPoint.x, 2) << endl;
-	basic << "\ty: " << ofToString(principalPoint.y, 2) << endl;
-	
-	saveMat(Mat(objectPoints), dirName + "objectPoints.yml");
-	saveMat(Mat(imagePoints), dirName + "imagePoints.yml");
-}
-
-void testApp::loadCalibration() {
-    
-    // retrieve advanced calibration folder
-    
-    string calibPath;
-    ofFileDialogResult result = ofSystemLoadDialog("Select a calibration folder", true, ofToDataPath("", true));
-    calibPath = result.getPath();
-    
-    // load objectPoints and imagePoints
-    
-    Mat objPointsMat, imgPointsMat;
-    loadMat( objPointsMat, calibPath + "/objectPoints.yml");
-    loadMat( imgPointsMat, calibPath + "/imagePoints.yml");
-    
-    int numVals;
-    float x, y, z;
-    cv::Point3f oP;
-    
-    const float* objVals = objPointsMat.ptr<float>(0);
-    numVals = objPointsMat.cols * objPointsMat.rows;
-    
-    for(int i = 0; i < numVals; i+=3) {
-        oP.x = objVals[i];
-        oP.y = objVals[i+1];
-        oP.z = objVals[i+2];
-        objectPoints[i/3] = oP;
-    }
-    
-    cv::Point2f iP;
-    
-    referencePoints.resize( (imgPointsMat.cols * imgPointsMat.rows ) / 2, false);
-    
-    const float* imgVals = imgPointsMat.ptr<float>(0);
-    numVals = objPointsMat.cols * objPointsMat.rows;
-    
-    for(int i = 0; i < numVals; i+=2) {
-        iP.x = imgVals[i];
-        iP.y = imgVals[i+1];
-        if(iP.x != 0 && iP.y != 0) {
-            referencePoints[i/2] = true;
-        }
-        imagePoints[i/2] = iP;
-    }
-    
-    
-    // load the calibration-advanced yml
-    
-    FileStorage fs(ofToDataPath(calibPath + "/calibration-advanced.yml", true), FileStorage::READ);
-    
-    Mat cameraMatrix;
-    Size2i imageSize;
-    fs["cameraMatrix"] >> cameraMatrix;
-    fs["imageSize"][0] >> imageSize.width;
-    fs["imageSize"][1] >> imageSize.height;
-    fs["rotationVector"] >> rvec;
-    fs["translationVector"] >> tvec;
-    
-    intrinsics.setup(cameraMatrix, imageSize);
-    modelMatrix = makeMatrix(rvec, tvec);
-    
-    calibrationReady = true;
-}
-
-void testApp::setupControlPanel() {
-	panel.setup();
-	panel.msg = "tab hides the panel, space toggles render/selection mode, 'f' toggles fullscreen.";
-	
-	panel.addPanel("Interaction");
-	panel.addToggle("setupMode", true);
-	panel.addSlider("scale", 1, .1, 25);
-	panel.addSlider("backgroundColor", 0, 0, 255, true);
-	panel.addMultiToggle("drawMode", 3, variadic("faces")("fullWireframe")("outlineWireframe")("occludedWireframe"));
-	panel.addMultiToggle("shading", 0, variadic("none")("lights")("shader"));
-	panel.addToggle("loadCalibration", false);
-	panel.addToggle("saveCalibration", false);
-	
-	panel.addPanel("Highlight");
-	panel.addToggle("highlight", false);
-	panel.addSlider("highlightPosition", 0, 0, 1);
-	panel.addSlider("highlightOffset", .1, 0, 1);
-	
-	panel.addPanel("Calibration");
-	panel.addSlider("aov", 80, 50, 100);
-	panel.addToggle("CV_CALIB_FIX_ASPECT_RATIO", true);
-	panel.addToggle("CV_CALIB_FIX_K1", true);
-	panel.addToggle("CV_CALIB_FIX_K2", true);
-	panel.addToggle("CV_CALIB_FIX_K3", true);
-	panel.addToggle("CV_CALIB_ZERO_TANGENT_DIST", true);
-	panel.addToggle("CV_CALIB_FIX_PRINCIPAL_POINT", false);
-	
-	panel.addPanel("Rendering");
-	panel.addSlider("lineWidth", 2, 1, 8, true);
-	panel.addToggle("useSmoothing", false);
-	panel.addToggle("useFog", false);
-	panel.addSlider("fogNear", 200, 0, 1000);
-	panel.addSlider("fogFar", 1850, 0, 2500);
-	panel.addSlider("screenPointSize", 2, 1, 16, true);
-	panel.addSlider("selectedPointSize", 8, 1, 16, true);
-	panel.addSlider("selectionRadius", 12, 1, 32);
-	panel.addSlider("lightX", 200, -1000, 1000);
-	panel.addSlider("lightY", 400, -1000, 1000);
-	panel.addSlider("lightZ", 800, -1000, 1000);
-	panel.addToggle("randomLighting", false);
-	
-	panel.addPanel("Internal");
-	panel.addToggle("validShader", true);
-	panel.addToggle("selectionMode", true);
-	panel.addToggle("hoverSelected", false);
-	panel.addSlider("hoverChoice", 0, 0, objectPoints.size(), true);
-	panel.addToggle("selected", false);
-	panel.addToggle("dragging", false);
-	panel.addToggle("arrowing", false);
-	panel.addSlider("selectionChoice", 0, 0, objectPoints.size(), true);
-	panel.addSlider("slowLerpRate", .001, 0, .01);
-	panel.addSlider("fastLerpRate", 1, 0, 1);
-}
-
-void testApp::updateRenderMode() {
-	// generate camera matrix given aov guess
-	float aov = getf("aov");
-	Size2i imageSize(ofGetWidth(), ofGetHeight());
-	float f = imageSize.width * ofDegToRad(aov); // i think this is wrong, but it's optimized out anyway
-	Point2f c = Point2f(imageSize) * (1. / 2);
-	Mat1d cameraMatrix = (Mat1d(3, 3) <<
-		f, 0, c.x,
-		0, f, c.y,
-		0, 0, 1);
-		
-	// generate flags
-	#define getFlag(flag) (panel.getValueB((#flag)) ? flag : 0)
-	int flags =
-		CV_CALIB_USE_INTRINSIC_GUESS |
-		getFlag(CV_CALIB_FIX_PRINCIPAL_POINT) |
-		getFlag(CV_CALIB_FIX_ASPECT_RATIO) |
-		getFlag(CV_CALIB_FIX_K1) |
-		getFlag(CV_CALIB_FIX_K2) |
-		getFlag(CV_CALIB_FIX_K3) |
-		getFlag(CV_CALIB_ZERO_TANGENT_DIST);
-	
-	vector<Mat> rvecs, tvecs;
-	Mat distCoeffs;
-	vector<vector<Point3f> > referenceObjectPoints(1);
-	vector<vector<Point2f> > referenceImagePoints(1);
-	int n = referencePoints.size();
-	for(int i = 0; i < n; i++) {
-		if(referencePoints[i]) {
-			referenceObjectPoints[0].push_back(objectPoints[i]);
-			referenceImagePoints[0].push_back(imagePoints[i]);
-		}
-	}
-	const static int minPoints = 6;
-	if(referenceObjectPoints[0].size() >= minPoints) {
-		calibrateCamera(referenceObjectPoints, referenceImagePoints, imageSize, cameraMatrix, distCoeffs, rvecs, tvecs, flags);
-		rvec = rvecs[0];
-		tvec = tvecs[0];
-		intrinsics.setup(cameraMatrix, imageSize);
-		modelMatrix = makeMatrix(rvec, tvec);
-		calibrationReady = true;
-	} else {
-		calibrationReady = false;
-	}
-}
-
-void testApp::drawLabeledPoint(int label, ofVec2f position, ofColor color, ofColor bg, ofColor fg) {
-	glPushAttrib(GL_DEPTH_BUFFER_BIT);
-	glDisable(GL_DEPTH_TEST);
-	//glEnable(GL_DEPTH_TEST);
-	ofVec2f tooltipOffset(5, -25);
-	ofSetColor(color);
-	float w = ofGetWidth();
-	float h = ofGetHeight();
-	ofSetLineWidth(1.5);
-	ofLine(position - ofVec2f(w,0), position + ofVec2f(w,0));
-	ofLine(position - ofVec2f(0,h), position + ofVec2f(0,h));
-	ofCircle(position, geti("selectedPointSize"));
-	drawHighlightString(ofToString(label), position + tooltipOffset, bg, fg);
-	glPopAttrib();
-}
-	
-void testApp::drawSelectionMode() {
-	ofSetColor(255);
-	cam.begin();
-	float scale = getf("scale");
-	ofScale(scale, scale, scale);
-	if(getb("useFog")) {
-		enableFog(getf("fogNear"), getf("fogFar"));
-	}
-	render();
-	if(getb("useFog")) {
-		disableFog();
-	}
-	if(getb("setupMode")) {
-		imageMesh = getProjectedMesh(objectMesh);
-	}
-	cam.end();
-	
-	if(getb("setupMode")) {
-		// draw all points cyan small
-		glPointSize(geti("screenPointSize"));
-		glEnable(GL_POINT_SMOOTH);
-		ofSetColor(cyanPrint);
-		imageMesh.drawVertices();
-
-		// draw all reference points cyan
-		int n = referencePoints.size();
-		for(int i = 0; i < n; i++) {
-			if(referencePoints[i]) {
-				drawLabeledPoint(i, imageMesh.getVertex(i), cyanPrint);
-			}
-		}
-		
-		// check to see if anything is selected
-		// draw hover point magenta
-		int choice;
-		float distance;
-		ofVec3f selected = getClosestPointOnMesh(imageMesh, mouseX, mouseY, &choice, &distance);
-		if(!ofGetMousePressed() && distance < getf("selectionRadius")) {
-			seti("hoverChoice", choice);
-			setb("hoverSelected", true);
-			drawLabeledPoint(choice, selected, magentaPrint);
-		} else {
-			setb("hoverSelected", false);
-		}
-		
-		// draw selected point yellow
-		if(getb("selected")) {
-			int choice = geti("selectionChoice");
-			ofVec2f selected = imageMesh.getVertex(choice);
-			drawLabeledPoint(choice, selected, yellowPrint, ofColor::white, ofColor::black);
-		}
-	}
-}
-
-void testApp::drawRenderMode() {
-	glPushMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	
-	if(calibrationReady) {
-		intrinsics.loadProjectionMatrix(10, 2000);
-		applyMatrix(modelMatrix);
-		render();
-		if(getb("setupMode")) {
-			imageMesh = getProjectedMesh(objectMesh);	
-		}
-	}
-	
-	glPopMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	
-	if(getb("setupMode")) {
-		// draw all reference points cyan
-		int n = referencePoints.size();
-		for(int i = 0; i < n; i++) {
-			if(referencePoints[i]) {
-				drawLabeledPoint(i, toOf(imagePoints[i]), cyanPrint);
-			}
-		}
-		
-		// move points that need to be dragged
-		// draw selected yellow
-		int choice = geti("selectionChoice");
-		if(getb("selected")) {
-			referencePoints[choice] = true;	
-			Point2f& cur = imagePoints[choice];	
-			if(cur == Point2f()) {
-				if(calibrationReady) {
-					cur = toCv(ofVec2f(imageMesh.getVertex(choice)));
-				} else {
-					cur = Point2f(mouseX, mouseY);
-				}
-			}
-		}
-		if(getb("dragging")) {
-			Point2f& cur = imagePoints[choice];
-			float rate = ofGetMousePressed(0) ? getf("slowLerpRate") : getf("fastLerpRate");
-			cur = Point2f(ofLerp(cur.x, mouseX, rate), ofLerp(cur.y, mouseY, rate));
-			drawLabeledPoint(choice, toOf(cur), yellowPrint, ofColor::white, ofColor::black);
-			ofSetColor(ofColor::black);
-			ofRect(toOf(cur), 1, 1);
-		} else if(getb("arrowing")) {
-			Point2f& cur = imagePoints[choice];
-			drawLabeledPoint(choice, toOf(cur), yellowPrint, ofColor::white, ofColor::black);
-			ofSetColor(ofColor::black);
-			ofRect(toOf(cur), 1, 1);
-        } else {
-			// check to see if anything is selected
-			// draw hover magenta
-			float distance;
-			ofVec2f selected = toOf(getClosestPoint(imagePoints, mouseX, mouseY, &choice, &distance));
-			if(!ofGetMousePressed() && referencePoints[choice] && distance < getf("selectionRadius")) {
-				seti("hoverChoice", choice);
-				setb("hoverSelected", true);
-				drawLabeledPoint(choice, selected, magentaPrint);
-			} else {
-				setb("hoverSelected", false);
-			}
-		}
-	}
-}
