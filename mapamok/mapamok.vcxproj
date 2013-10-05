@@ -163,8 +163,6 @@
     <ClCompile Include="src\showDefinition.cpp" />
     <ClCompile Include="src\showSegment.cpp" />
     <ClCompile Include="src\showSegmentClcGirls1.cpp" />
-    <ClCompile Include="src\showSegmentDefault.cpp" />
-    <ClCompile Include="src\showSegmentSingleTexture.cpp" />
     <ClCompile Include="src\testApp.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -236,8 +234,6 @@
     <ClInclude Include="src\showDefinition.h" />
     <ClInclude Include="src\showSegment.h" />
     <ClInclude Include="src\showSegmentClcGirls1.h" />
-    <ClInclude Include="src\showSegmentDefault.h" />
-    <ClInclude Include="src\showSegmentSingleTexture.h" />
     <ClInclude Include="src\testApp.h" />
     <ClInclude Include="..\..\..\addons\ofxOpenCv\libs\opencv\include\opencv\cv.h" />
     <ClInclude Include="..\..\..\addons\ofxOpenCv\libs\opencv\include\opencv\cv.hpp" />
