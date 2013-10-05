@@ -34,11 +34,13 @@ void testApp::setup() {
 	  style &= ~WS_CAPTION;
 	  style &= ~WS_BORDER;
 	  style &= WS_POPUP;
+	  ::SetWindowLong(m_hWnd, GWL_STYLE, style);
+
 	  LONG exstyle = ::GetWindowLong(m_hWnd, GWL_EXSTYLE);
 	  exstyle &= ~WS_EX_DLGMODALFRAME;
-	  ::SetWindowLong(m_hWnd, GWL_STYLE, style);
 	  ::SetWindowLong(m_hWnd, GWL_EXSTYLE, exstyle);
-	  SetWindowPos(m_hWnd, HWND_TOPMOST, 0,0,0,0, SWP_NOSIZE|SWP_NOMOVE);
+
+	  //SetWindowPos(m_hWnd, HWND_TOPMOST, 0,0,0,0, SWP_NOSIZE|SWP_NOMOVE);
 	}
 
 	// TODO: instead of hardcoding, can we get a the main physical screen's width in OF,
@@ -329,6 +331,20 @@ void testApp::keyPressed(int key)
 		} else {
 			setb("arrowing",false);
 		}
+
+		if(key == OF_KEY_RETURN)
+		{
+			ofLogError("mapamok") << "Enter key was pressed";
+			int choice = geti("selectionChoice");
+			if(choice > 0)
+			{
+				float vpX, vpY;
+				viewToCalibrate->screenToViewport((float)lastMouseX, (float)lastMouseY, vpX, vpY);
+				ofLogError("Enter key was pressed") << "Snapping point to " << vpX << ", " << vpY;
+				viewToCalibrate->proj.imagePoints[choice].x = vpX;
+				viewToCalibrate->proj.imagePoints[choice].y = vpY;
+			}
+		}
 		if(key == OF_KEY_BACKSPACE) { // delete selected
 			if(getb("selected")) {
 				setb("selected", false);
@@ -344,6 +360,12 @@ void testApp::keyPressed(int key)
 			setb("selectionMode", !getb("selectionMode"));
 		}
 	}
+}
+
+void testApp::mouseMoved(int x, int y)
+{
+	lastMouseX = x;
+	lastMouseY = y;
 }
 
 void testApp::mousePressed(int x, int y, int button) {

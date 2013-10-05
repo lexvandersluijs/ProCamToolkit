@@ -31,6 +31,7 @@ public:
 	void update();
 	void draw();	
 	void keyPressed(int key);
+	void mouseMoved( int x, int y );
 	void mousePressed(int x, int y, int button);
 	void mouseReleased(int x, int y, int button);
 	
@@ -53,4 +54,5 @@ public:
 	Poco::Timestamp lastFragTimestamp, lastVertTimestamp;
 	ofShader shader;
 
+	int lastMouseX, lastMouseY;
 };
