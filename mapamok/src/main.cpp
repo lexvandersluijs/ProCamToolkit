@@ -100,28 +100,33 @@ int main( int argc,      // Number of strings in array argv
 			projConfig.loadConfiguration(configName);
 			show.load(configName);
 
-			// Poco::XML::NodeIterator it(pDoc, Poco::XML::NodeFilter::WhatToShow::SHOW_ELEMENT);
-			//Poco::XML::Node* pNode = it.nextNode();
-			//while (pNode)
-			//{
-			// std::cout<<pNode->nodeName()<<":"<< pNode->nodeValue()<<std::endl;
-			// pNode = it.nextNode();
-			//}
+			showSegment* segment = new showSegment();
+			segment->name = "Default";
+			effect* ef = new effectDefaultShader();
+			segment->effects.push_back(ef);
+			show.showSegments.push_back(segment);
 
-			// default, single monitor configuration: one projector, one screen
-			//projConfig.initialize(1);
-			//projConfig.getProjView(0).viewport.x = 0;
-			//projConfig.getProjView(0).viewport.y = 0;
-			//projConfig.getProjView(0).viewport.width = ofGetWidth();
-			//projConfig.getProjView(0).viewport.height = ofGetHeight();
-			//projConfig.setViewToCalibrate(0);
+			segment = new showSegment();
+			segment->name = "Waterval";
+			effectSingleTextureMap* tmef = new effectSingleTextureMap();
+			tmef->addSelectedResourceName("waterval");
+			segment->effects.push_back(tmef);
+			show.showSegments.push_back(segment);
+			
+			segment = new showSegmentClcGirls1();
+			segment->name = "Dans 1";
+			show.showSegments.push_back(segment);
 
-			// testing: four projector views on a single monitor
+			segment = new showSegment();
+			segment->name = "einddans";
+			tmef = new effectSingleTextureMap();
+			tmef->addSelectedResourceName("einddans");
+			segment->effects.push_back(tmef);
+
+			show.showSegments.push_back(segment);
+
 		}
 	}
-
-	// todo: production:
-	// multiple views laid out on large extended desktop
 
 
 	//ofSetupOpenGL(&window, 1024, 768, OF_FULLSCREEN);

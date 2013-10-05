@@ -21,9 +21,10 @@ public:
 			delete (*eit);
 		}
 	}
-	void setModel(ofxAssimpModelLoader* m)
+	void setModelAndMesh(ofxAssimpModelLoader* m, ofMesh* me)
 	{
 		model = m;
+		mesh = me;
 	}
 	virtual void allEffectsSetupControlPanels()
 	{
@@ -32,14 +33,17 @@ public:
 			(*eit)->setupControlPanel(controlPanel);
 		}
 	}
-	virtual void setup() { }
-	virtual void start() { }
+	virtual void setup();
+	virtual void start();
 	virtual void update();
 	virtual void render();
-	virtual void end() { }
+	virtual void end();
+
+	ofxAutoControlPanel& getControlPanel() { return controlPanel; }
 
 protected:
 
 	ofxAssimpModelLoader* model;
+	ofMesh* mesh;
 	ofxAutoControlPanel controlPanel;
 };

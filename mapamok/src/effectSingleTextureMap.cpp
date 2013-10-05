@@ -6,9 +6,22 @@ void effectSingleTextureMap::setupControlPanel(ofxAutoControlPanel& panel)
 	showDefinition* show = showDefinition::getInstance();
 
 	for(int i=0; i<show->movies.size(); i++)
-		panel.addToggle(show->movies[i]->makeGuiName(), false);
+	{
+		// only add this movie to the GUI if the name is present in the list of selectedResourceNames
+		if (std::find(selectedResourceNames.begin(), selectedResourceNames.end(), show->movies[i]->name) != selectedResourceNames.end())
+		{
+			panel.addToggle(show->movies[i]->makeGuiName(), false);
+		}
+	}
+
 	for(int i=0; i<show->pictures.size(); i++)
-		panel.addToggle(show->pictures[i]->makeGuiName(), false);
+	{
+		// .. same for the pictures
+		if (std::find(selectedResourceNames.begin(), selectedResourceNames.end(), show->movies[i]->name) != selectedResourceNames.end())
+		{
+			panel.addToggle(show->pictures[i]->makeGuiName(), false);
+		}
+	}
 }
 
 
@@ -139,6 +152,7 @@ void effectSingleTextureMap::updateCurrentTexture(ofxAutoControlPanel& panel)
 		currentResource->update();
 	}
 
+	currentTexture = getCurrentTexture();
 }
 
 ofTexture* effectSingleTextureMap::getCurrentTexture()
@@ -149,24 +163,28 @@ ofTexture* effectSingleTextureMap::getCurrentTexture()
 		return NULL;
 }
 
-void effectSingleTextureMap::render(ofxAutoControlPanel& panel, ofxAssimpModelLoader* model)
+void effectSingleTextureMap::stop()
 {
-	ofVboMesh mesh = model->getMesh(0);
+	if(currentResource != NULL)
+		currentResource->goOutOfView();
+}
 
+void effectSingleTextureMap::render(ofxAutoControlPanel& panel, ofxAssimpModelLoader* model, ofMesh* mesh)
+{
 	ofPushStyle();
 
-	if(panel.getValueB("highlight")) {
-		mesh.clearColors();
-		int n = mesh.getNumVertices();
+/*	if(panel.getValueB("highlight")) {
+		mesh->clearColors();
+		int n = mesh->getNumVertices();
 		float highlightPosition = panel.getValueF("highlightPosition");
 		float highlightOffset = panel.getValueF("highlightOffset");
 		for(int i = 0; i < n; i++) {
 			int lower = ofMap(highlightPosition - highlightOffset, 0, 1, 0, n);
 			int upper = ofMap(highlightPosition + highlightOffset, 0, 1, 0, n);
 			ofColor cur = (lower < i && i < upper) ? ofColor::white : ofColor::black;
-			mesh.addColor(cur);
+			mesh->addColor(cur);
 		}
-	}
+	}*/
 	
 	ofSetColor(255);
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -212,7 +230,7 @@ void effectSingleTextureMap::drawModel(ofPolyRenderMode renderType, ofxAssimpMod
 		ofxAssimpMeshHelper & mesh = model->getMeshHelper(i);
         
 		ofPushMatrix();
-		//ofMultMatrix(mesh.matrix);
+		//ofMultMatrix(mesh->matrix);
 
 		// if no texture override is specified then try to use the texture from the mesh definition
 		if(currentTexture == NULL)
@@ -244,13 +262,13 @@ void effectSingleTextureMap::drawModel(ofPolyRenderMode renderType, ofxAssimpMod
 #else
 		switch(renderType){
 			case OF_MESH_FILL:
-		    	mesh.vbo.drawElements(GL_TRIANGLES,mesh.indices.size());
+		    	mesh->vbo.drawElements(GL_TRIANGLES,mesh->indices.size());
 		    	break;
 			case OF_MESH_WIREFRAME:
-		    	mesh.vbo.drawElements(GL_LINES,mesh.indices.size());
+		    	mesh->vbo.drawElements(GL_LINES,mesh->indices.size());
 		    	break;
 			case OF_MESH_POINTS:
-		    	mesh.vbo.drawElements(GL_POINTS,mesh.indices.size());
+		    	mesh->vbo.drawElements(GL_POINTS,mesh->indices.size());
 		    	break;
 		}
 #endif

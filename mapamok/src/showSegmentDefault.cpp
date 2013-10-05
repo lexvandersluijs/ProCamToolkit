@@ -9,8 +9,9 @@ void showSegmentDefault::setup()
 {
 	effects.push_back(new effectDefaultShader());
 
-	controlPanel.setup(name, 570.0f, 5.0f, 280.0f, 600.0f);
+	controlPanel.setup(name, 285.0f, 5.0f, 280.0f, 800.0f, false);
 	controlPanel.addPanel("Interaction");
+	controlPanel.hide();
 
 	allEffectsSetupControlPanels();
 }
@@ -24,5 +25,5 @@ void showSegmentDefault::update()
 
 void showSegmentDefault::render()
 {
-
+	showSegment::render();
 }

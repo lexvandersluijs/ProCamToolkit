@@ -29,8 +29,7 @@ void testApp::setup() {
 	bool showWindowBorder = false;
 	if (!showWindowBorder) {
 	  HWND m_hWnd = WindowFromDC(wglGetCurrentDC());
-	  LONG style = ::GetWindowLong(m_hWnd, GWL_STYLE);
-	  long style = _originalWindowStyle;
+	  long style = ::GetWindowLong(m_hWnd, GWL_STYLE);
 	  style &= ~WS_DLGFRAME;
 	  style &= ~WS_CAPTION;
 	  style &= ~WS_BORDER;
@@ -38,7 +37,7 @@ void testApp::setup() {
 	  _originalWindowStyle = style;
 	  ::SetWindowLong(m_hWnd, GWL_STYLE, style);
 
-	  LONG exstyle = ::GetWindowLong(m_hWnd, GWL_EXSTYLE);
+	  long exstyle = ::GetWindowLong(m_hWnd, GWL_EXSTYLE);
 	  exstyle &= ~WS_EX_DLGMODALFRAME;
 	  _originalWindowStyleEx = exstyle;
 	  ::SetWindowLong(m_hWnd, GWL_EXSTYLE, exstyle);
@@ -81,6 +80,17 @@ void testApp::setup() {
 void testApp::update() 
 {
 	// possibly update the current segment selection
+	int selectedSegmentIndex = panel.getValueI("segments");
+	if(selectedSegmentIndex != show.currentSegmentIndex)
+	{
+		if(show.currentSegment != NULL)
+			show.currentSegment->end();
+
+		show.setCurrentSegment(selectedSegmentIndex);
+
+		if(show.currentSegment != NULL)
+			show.currentSegment->start();
+	}
 	// and have the current segment update itself. this will call on all its (active) embedded effects to update themselves
 	show.update(panel);
 
@@ -152,7 +162,7 @@ void testApp::drawViewportOutline(const ofRectangle & viewport){
 void testApp::draw() {
 	//ofBackground(geti("backgroundColor"));
 
-	show.currentSegment->setModel(&model);
+	show.currentSegment->setModelAndMesh(&model, &objectMesh);
 
 	// in selectionmode we render the 3D object (TODO: full-screen) using the easyCam of the 
 	// viewport we are calibrating. this is on the main GUI monitor
@@ -309,7 +319,23 @@ void testApp::keyPressed(int key)
 		} else {
 			setb("arrowing",false);
 		}
-
+		// contrary to standard behaviour of ofxAutoControlPanel, we toggle the visibility here
+		// instead of letting the control panels toggle themselves (we want to control the show/hide behaviour explicitly)
+		if(key == OF_KEY_TAB)
+		{
+			if(panel.hidden)
+			{
+				panel.show();
+				if(show.currentSegment != NULL)
+					show.currentSegment->getControlPanel().show();
+			}
+			else
+			{
+				panel.hide();
+				if(show.currentSegment != NULL)
+					show.currentSegment->getControlPanel().hide();
+			}
+		}
 		if(key == OF_KEY_RETURN)
 		{
 			ofLogError("mapamok") << "Enter key was pressed";

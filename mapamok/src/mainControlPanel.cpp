@@ -3,7 +3,8 @@
 void mainControlPanel::initialize(projectorConfiguration& config, int nrOfPoints, showDefinition& show)
 {
 	setup();
-	msg = "tab hides the panel, space toggles render/selection mode, 'f' toggles fullscreen.";
+	respondToKeyboard = false;
+	msg = "tab hides the panel, space toggles render/selection mode"; //, 'f' toggles fullscreen.";
 	
 	addPanel("Interaction");
 
@@ -30,10 +31,10 @@ void mainControlPanel::initialize(projectorConfiguration& config, int nrOfPoints
 
 	addMultiToggle("segments", 0, *segmentNames);
 
-	addPanel("Highlight");
+/*	addPanel("Highlight");
 	addToggle("highlight", false);
 	addSlider("highlightPosition", 0, 0, 1);
-	addSlider("highlightOffset", .1, 0, 1);
+	addSlider("highlightOffset", .1, 0, 1);*/
 	
 	addPanel("Calibration");
 	addSlider("aov", 80, 50, 100);

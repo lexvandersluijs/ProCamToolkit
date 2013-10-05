@@ -9,7 +9,7 @@ void effectMusicShader1::update(ofxAutoControlPanel& panel)
 {
 }
 
-void effectMusicShader1::render(ofxAutoControlPanel& panel, ofxAssimpModelLoader* model)
+void effectMusicShader1::render(ofxAutoControlPanel& panel, ofxAssimpModelLoader* model, ofMesh* mesh)
 {
 
 }

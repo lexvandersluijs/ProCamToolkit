@@ -8,6 +8,7 @@ private:
     ofSoundPlayer snd;
 	int nBands;
     ofxOnsetDetection onsetD;
+	bool playing;
 
 	ofColor currentColor;
 
@@ -16,6 +17,7 @@ public:
 
 	virtual void setup();
 	virtual void start();
+	virtual void end();
 	virtual void update();
 	virtual void render();
 

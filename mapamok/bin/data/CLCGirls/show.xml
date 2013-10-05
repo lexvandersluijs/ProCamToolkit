@@ -4,11 +4,9 @@
     <shader name="demo" frag="shader.frag" vert="shader.vert"></shader>
   </shaders>
   <movies>
-    <movie file="movies/sample_iTunes.mov" name="intro"></movie>
-    <movie file="movies/oefentrap-uvtemplate_2.mov" name="dance 1"></movie>
-    <movie file="movies/CLC_TRAP_UV_2048_calibration2.mov" name="probeer"></movie>
-    <movie file="movies/CLC_TRAP_UV_2048_calibration2_1.mov" name="probeer _1"></movie>
-<movie file="movies/CLC_TRAP_UV_2048_calibration2_2.mov" name="probeer _2"></movie>
+    <movie file="movies/CLC_TRAP_UV_2048_calibration2_1.mov" name="probeer"></movie>
+    <movie file="movies/CLC_TRAP_UV_2048_waterval2.mov" name="waterval"></movie>
+    <movie file="movies/CLC_TRAP_UV_2048_einddans.mov" name="einddans"></movie>
   </movies>
   <pictures>
     <picture file="pictures/CLC_TRAP_UV_2048_calibration.png" name="calibration"></picture>

@@ -73,11 +73,8 @@ ofTexture* pictureResource::getTexturePtr()
 // ---------------------------- showDefinition ----------------------
 showDefinition::showDefinition()
 {
-	showSegment* segment = new showSegmentDefault();
-	showSegments.push_back(segment);
-	showSegments.push_back(new showSegmentSingleTexture());
-	showSegments.push_back(new showSegmentClcGirls1());
-	currentSegment = segment;
+	currentSegmentIndex = -1;
+	currentSegment = NULL;
 
 	instance = this;
 }
@@ -223,4 +220,15 @@ void showDefinition::load(string configName)
 showDefinition* showDefinition::getInstance()
 {
 	return instance;
+}
+
+void showDefinition::setCurrentSegment(int segmentIndex)
+{
+	if(segmentIndex >= 0 && segmentIndex < showSegments.size())
+	{
+		currentSegmentIndex = segmentIndex;
+		currentSegment = showSegments[segmentIndex];
+	}
+	else
+		currentSegment = NULL;
 }

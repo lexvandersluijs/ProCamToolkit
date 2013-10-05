@@ -45,10 +45,8 @@ void effectDefaultShader::update(ofxAutoControlPanel& panel)
 	light.setPosition(panel.getValueF("lightX"), panel.getValueF("lightY"), panel.getValueF("lightZ"));
 }
 
-void effectDefaultShader::render(ofxAutoControlPanel& panel, ofxAssimpModelLoader* model)
+void effectDefaultShader::render(ofxAutoControlPanel& panel, ofxAssimpModelLoader* model, ofMesh* mesh)
 {
-	ofVboMesh mesh = model->getMesh(0);
-
 	ofPushStyle();
 	ofSetLineWidth(panel.getValueI("lineWidth"));
 	if(panel.getValueB("useSmoothing")) {
@@ -66,18 +64,24 @@ void effectDefaultShader::render(ofxAutoControlPanel& panel, ofxAssimpModelLoade
 		glEnable(GL_NORMALIZE);
 	}
 	
-	if(panel.getValueB("highlight")) {
-		mesh.clearColors();
-		int n = mesh.getNumVertices();
+	//float scale = panel.getValueF("scale");
+	//ofScale(scale, scale, scale);
+	//if(panel.getValueB("useFog")) {
+	//	enableFog(panel.getValueF("fogNear"), panel.getValueF("fogFar"));
+	//}
+
+/*	if(panel.getValueB("highlight")) {
+		mesh->clearColors();
+		int n = mesh->getNumVertices();
 		float highlightPosition = panel.getValueF("highlightPosition");
 		float highlightOffset = panel.getValueF("highlightOffset");
 		for(int i = 0; i < n; i++) {
 			int lower = ofMap(highlightPosition - highlightOffset, 0, 1, 0, n);
 			int upper = ofMap(highlightPosition + highlightOffset, 0, 1, 0, n);
 			ofColor cur = (lower < i && i < upper) ? ofColor::white : ofColor::black;
-			mesh.addColor(cur);
+			mesh->addColor(cur);
 		}
-	}
+	}*/
 	
 	ofSetColor(255);
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -87,7 +91,6 @@ void effectDefaultShader::render(ofxAutoControlPanel& panel, ofxAssimpModelLoade
 		shader.setUniform1f("elapsedTime", ofGetElapsedTimef());
 		shader.end();
 	}
-	int nrOfMeshes = 0;
 
 	ofColor transparentBlack(0, 0, 0, 0);
 	switch(panel.getValueI("drawMode")) {
@@ -96,28 +99,33 @@ void effectDefaultShader::render(ofxAutoControlPanel& panel, ofxAssimpModelLoade
 			if(useShader) shader.begin();
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_BACK);
-			mesh.drawFaces();
+			mesh->drawFaces();
 			if(useShader) shader.end();
 			break;
 			}
 		case 1: // fullWireframe
 			{
 			if(useShader) shader.begin();
-			mesh.drawWireframe();
+			mesh->drawWireframe();
 			if(useShader) shader.end();
 			break;
 			}
 		case 2: // outlineWireframe
 			{
-			LineArt::draw(mesh, true, transparentBlack, useShader ? &shader : NULL);
+			LineArt::draw(*mesh, true, transparentBlack, useShader ? &shader : NULL);
 			break;
 			}
 		case 3: // occludedWireframe
 			{
-			LineArt::draw(mesh, false, transparentBlack, useShader ? &shader : NULL);
+			LineArt::draw(*mesh, false, transparentBlack, useShader ? &shader : NULL);
 			break;
 			}
 	}
+
+	//if(panel.getValueB("useFog")) {
+	//	disableFog();
+	//}
+
 	glPopAttrib();
 	if(useLights) {
 		ofDisableLighting();
@@ -128,7 +136,7 @@ void effectDefaultShader::render(ofxAutoControlPanel& panel, ofxAssimpModelLoade
 
 void effectDefaultShader::reloadShaderIfNeeded(ofxAutoControlPanel& panel)
 {
-	int shading = panel.getValueB("shading");
+	int shading = panel.getValueI("shading");
 	bool useShader = shading == 2;
 	
 	if(useShader) {

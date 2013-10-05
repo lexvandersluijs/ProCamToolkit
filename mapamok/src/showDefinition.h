@@ -79,6 +79,9 @@ public:
 
 	std::vector<showSegment*> showSegments;
 	showSegment* currentSegment;
+	int currentSegmentIndex;
+
+	void setCurrentSegment(int segmentIndex);
 
 	static showDefinition* getInstance();
 
