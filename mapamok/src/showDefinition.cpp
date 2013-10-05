@@ -4,9 +4,11 @@
 using namespace ofxCv;
 using namespace cv;
 
+showDefinition* showDefinition::instance;
+
 // --------------------- showResource ------------------
 
-bool showResource::isSelected(mainControlPanel& panel)
+bool showResource::isSelected(ofxControlPanel& panel)
 {
 	if(panel.getValueB(makeGuiName()))
 		return true;
@@ -69,6 +71,16 @@ ofTexture* pictureResource::getTexturePtr()
 
 
 // ---------------------------- showDefinition ----------------------
+showDefinition::showDefinition()
+{
+	showSegment* segment = new showSegmentDefault();
+	showSegments.push_back(segment);
+	showSegments.push_back(new showSegmentSingleTexture());
+	showSegments.push_back(new showSegmentClcGirls1());
+	currentSegment = segment;
+
+	instance = this;
+}
 showDefinition::~showDefinition()
 {
 	vector<movieResource*>::iterator mit = movies.begin();
@@ -108,8 +120,6 @@ void showDefinition::setup()
 	// not in main where the XML was read
 	loadResources();
 
-	showSegments.push_back(new showSegmentDefault());
-	showSegments.push_back(new showSegmentClcGirls1());
 
 	for(std::vector<showSegment*>::iterator sit = showSegments.begin(); sit != showSegments.end(); ++sit)
 	{
@@ -119,10 +129,6 @@ void showDefinition::setup()
 
 void showDefinition::update(mainControlPanel& panel)
 {
-	// check the status of the GUI, change the texture if necessary
-	// if a movie is playing, update that movie
-	// if we switched movies, pause the one and resume/play the other
-	updateCurrentTexture(panel);
 
 	if(currentSegment != NULL)
 		currentSegment->update();
@@ -213,125 +219,8 @@ void showDefinition::load(string configName)
 
 }
 
-// this function is a bit complicated because we are emulating a radiobutton with
-// checkboxes. Two checkboxes can be selected at the same time.. but we want to have
-// only one selection, and that the new selection takes precedence over the old one
 
-showResource* showDefinition::findNewSelectedResource(mainControlPanel& panel, bool& anySelectionMade)
+showDefinition* showDefinition::getInstance()
 {
-	anySelectionMade = false;
-	showResource* newSelection = NULL;
-
-	for(std::vector<movieResource*>::iterator mit = movies.begin(); mit != movies.end(); ++mit)
-	{
-		if((*mit)->isSelected(panel))
-		{
-			anySelectionMade = true;
-			if((*mit) != currentResource )
-			{
-				newSelection = *mit;
-			}
-		}
-	}
-
-	for(std::vector<pictureResource*>::iterator pit = pictures.begin(); pit != pictures.end(); ++pit) 
-	{
-		if((*pit)->isSelected(panel))
-		{
-			anySelectionMade = true;
-			if((*pit) != currentResource)
-			{
-				newSelection = *pit;
-			}
-		}
-	}
-	return newSelection;
-}
-
-void showDefinition::updateSelectedResourceCheckbox(mainControlPanel& panel)
-{
-	for(std::vector<movieResource*>::iterator mit = movies.begin(); mit != movies.end(); ++mit)
-	{
-		if(currentResource == NULL)
-			panel.setValueB((*mit)->makeGuiName(), false);
-		else
-		{
-			if((*mit)->filePath == currentResource->filePath)
-				panel.setValueB((*mit)->makeGuiName(), true);
-			else
-				panel.setValueB((*mit)->makeGuiName(), false);
-		}
-	}
-
-	for(std::vector<pictureResource*>::iterator pit = pictures.begin(); pit != pictures.end(); ++pit) 
-	{
-		if(currentResource == NULL)
-			panel.setValueB((*pit)->makeGuiName(), false);
-		else
-		{
-			if((*pit)->filePath == currentResource->filePath)
-				panel.setValueB((*pit)->makeGuiName(), true);
-			else
-				panel.setValueB((*pit)->makeGuiName(), false);
-		}
-	}
-}
-
-// note: this is rather convoluted.. and all because we wanted to be able to stop/pause
-// a video by not selecting a checkbox. Otherwise we could have used a radio button
-// Now it turns out that pausing a video doesn't work, because the logic of the app
-// dictates that nothing will be rendered if nothing is selected..
-// So better would be to replace this with a simple radiobutton and some video-player
-// controls to start, pause, rewind (etc) the video
-void showDefinition::updateCurrentTexture(mainControlPanel& panel)
-{
-	showResource* prevResource = currentResource;
-
-	bool anySelectionMade = false;
-	showResource* newSelection = findNewSelectedResource(panel, anySelectionMade);
-
-
-	if(anySelectionMade == false) // no selection was made
-		currentResource = NULL;
-	else
-	{
-		if(newSelection != NULL) // there was a selection, and it's new
-			currentResource = newSelection;
-		else // there was a selection, but it's the same as before
-		{
-			// keep current resource as it is
-		}
-	}
-
-	// find selected resource
-	// if different from what we had 
-	if(prevResource != currentResource)
-	{
-		//   disable the toggle of the previous one
-		if(prevResource != NULL)
-		{
-			prevResource->goOutOfView();
-		}
-
-		if(currentResource != NULL)
-		{
-			currentResource->comeIntoView();
-		}
-	}
-
-	updateSelectedResourceCheckbox(panel);
-
-	if(currentResource != NULL)
-	{
-		currentResource->update();
-	}
-
-}
-
-ofTexture* showDefinition::getCurrentTexture()
-{
-	if(currentResource != NULL)
-		return currentResource->getTexturePtr();
-	else
-		return NULL;
+	return instance;
 }

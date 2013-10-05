@@ -181,6 +181,21 @@
     <ClCompile Include="src\showSegmentDefault.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\effectDefaultShader.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\effectMusicShader1.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\effectSingleTextureMap.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\showSegment.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\showSegmentSingleTexture.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -747,6 +762,21 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\showSegmentDefault.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\effect.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\effectDefaultShader.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\effectSingleTextureMap.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\effectMusicShader1.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\showSegmentSingleTexture.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

@@ -3,7 +3,7 @@
 using namespace ofxCv;
 using namespace cv;
 
-void modelView::draw(ofxControlPanel& panel, float mouseX, float mouseY, projectorView* projView, ofLight& light, ofShader& shader, ofTexture* texture) //ofImage& customPicture, ofxThreadedVideo& mappingMovie) 
+void modelView::draw(ofxControlPanel& panel, float mouseX, float mouseY, projectorView* projView, showSegment* currentShowSegment) //ofImage& customPicture, ofxThreadedVideo& mappingMovie) 
 //void modelView::draw(ofxControlPanel& panel, float mouseX, float mouseY, projectorView* projView, ofLight& light, ofShader& shader, ofImage& customPicture, ofVideoPlayer& mappingMovie) 
 {
 	if(objectMesh == NULL)
@@ -11,15 +11,16 @@ void modelView::draw(ofxControlPanel& panel, float mouseX, float mouseY, project
 
 	ofSetColor(255);
 	cam.begin(viewport); // pass along viewport to prevent another getViewport call
-	float scale = panel.getValueF("scale");
-	ofScale(scale, scale, scale);
-	if(panel.getValueB("useFog")) {
-		enableFog(panel.getValueF("fogNear"), panel.getValueF("fogFar"));
-	}
-	render(panel, light, shader, texture);
-	if(panel.getValueB("useFog")) {
-		disableFog();
-	}
+	//float scale = panel.getValueF("scale");
+	//ofScale(scale, scale, scale);
+	//if(panel.getValueB("useFog")) {
+	//	enableFog(panel.getValueF("fogNear"), panel.getValueF("fogFar"));
+	//}
+	currentShowSegment->render();
+	//render(panel, shader, texture);
+	//if(panel.getValueB("useFog")) {
+	//	disableFog();
+	//}
 	if(panel.getValueI("mode") == 0) {
 		imageMesh = getProjectedInViewportMesh(*objectMesh);
 	}

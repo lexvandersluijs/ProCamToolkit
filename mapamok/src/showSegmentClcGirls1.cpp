@@ -1,9 +1,12 @@
 #include "testApp.h"
 
+showSegmentClcGirls1::showSegmentClcGirls1()
+{
+	name = "CLC Girls 1";
+}
+
 void showSegmentClcGirls1::setup()
 {
-	name = "Segment 1";
-
 	// --- onset detection ---
 	nBands = 1024;
 	onsetD.setup();
@@ -36,7 +39,7 @@ void showSegmentClcGirls1::update()
     }
 }
 
-void showSegmentClcGirls1::draw()
+void showSegmentClcGirls1::render()
 {
 	ofSetColor(currentColor);
 }

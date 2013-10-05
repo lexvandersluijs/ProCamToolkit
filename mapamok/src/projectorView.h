@@ -48,7 +48,7 @@ public:
 		proj.updateCalibration(aov, flags, viewport);
 	}
 
-	virtual void draw(ofxControlPanel& panel, float mouseX, float mouseY, ofLight& light, ofShader& shader, ofTexture* texture); //ofImage& customPicture, ofxThreadedVideo& mappingMovie);
+	virtual void draw(ofxControlPanel& panel, float mouseX, float mouseY, showSegment* currentShowSegment); //ofImage& customPicture, ofxThreadedVideo& mappingMovie);
 	//virtual void draw(ofxControlPanel& panel, float mouseX, float mouseY, ofLight& light, ofShader& shader, ofImage& customPicture, ofVideoPlayer& mappingMovie);
 };
 

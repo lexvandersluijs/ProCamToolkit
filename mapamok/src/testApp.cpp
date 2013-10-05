@@ -28,17 +28,20 @@ void testApp::setup() {
 
 	bool showWindowBorder = false;
 	if (!showWindowBorder) {
-	  HWND m_hWnd = WindowFromDC(wglGetCurrentDC());
-	  LONG style = ::GetWindowLong(m_hWnd, GWL_STYLE);
+	  HWND hWnd = WindowFromDC(wglGetCurrentDC());
+	  _originalWindowStyle = ::GetWindowLong(hWnd, GWL_STYLE);
+	  long style = _originalWindowStyle;
 	  style &= ~WS_DLGFRAME;
 	  style &= ~WS_CAPTION;
 	  style &= ~WS_BORDER;
 	  style &= WS_POPUP;
-	  LONG exstyle = ::GetWindowLong(m_hWnd, GWL_EXSTYLE);
-	  exstyle &= ~WS_EX_DLGMODALFRAME;
-	  ::SetWindowLong(m_hWnd, GWL_STYLE, style);
-	  ::SetWindowLong(m_hWnd, GWL_EXSTYLE, exstyle);
-	  SetWindowPos(m_hWnd, HWND_TOPMOST, 0,0,0,0, SWP_NOSIZE|SWP_NOMOVE);
+	  ::SetWindowLong(hWnd, GWL_STYLE, style);
+
+	  _originalWindowStyleEx = ::GetWindowLong(hWnd, GWL_EXSTYLE);
+	  long exstyle = _originalWindowStyleEx & ~WS_EX_DLGMODALFRAME;
+	  ::SetWindowLong(hWnd, GWL_EXSTYLE, exstyle);
+
+	  SetWindowPos(hWnd, HWND_TOPMOST, 0,0,0,0, SWP_NOSIZE|SWP_NOMOVE);
 	}
 
 	// TODO: instead of hardcoding, can we get a the main physical screen's width in OF,
@@ -76,17 +79,11 @@ void testApp::setup() {
 void testApp::update() 
 {
 	// possibly update the current segment selection
-	// and have the current segment update itself
+	// and have the current segment update itself. this will call on all its (active) embedded effects to update themselves
 	show.update(panel);
 
 
-	// -------------------- update lighting ---------------------------
-	if(getb("randomLighting")) {
-		setf("lightX", ofSignedNoise(ofGetElapsedTimef(), 1, 1) * 1000);
-		setf("lightY", ofSignedNoise(1, ofGetElapsedTimef(), 1) * 1000);
-		setf("lightZ", ofSignedNoise(1, 1, ofGetElapsedTimef()) * 1000);
-	}
-	light.setPosition(getf("lightX"), getf("lightY"), getf("lightZ"));
+
 	
 	// --------------- if we are in selection mode, input should go the main 3D model view ----
 	if(getb("selectionMode")) 
@@ -149,30 +146,11 @@ void testApp::drawViewportOutline(const ofRectangle & viewport){
 	ofPopStyle();
 }
 
-void testApp::reloadShaderIfNeeded()
-{
-	int shading = geti("shading");
-	bool useShader = shading == 2;
-	
-	if(useShader) {
-		ofFile fragFile("shaders/shader.frag"), vertFile("shaders/shader.vert");
-		Poco::Timestamp fragTimestamp = fragFile.getPocoFile().getLastModified();
-		Poco::Timestamp vertTimestamp = vertFile.getPocoFile().getLastModified();
-		if(fragTimestamp != lastFragTimestamp || vertTimestamp != lastVertTimestamp) {
-			bool validShader = shader.load("shaders/shader");
-			setb("validShader", validShader);
-		}
-		lastFragTimestamp = fragTimestamp;
-		lastVertTimestamp = vertTimestamp;		
-	}
-
-}
-
 
 void testApp::draw() {
 	//ofBackground(geti("backgroundColor"));
 
-	reloadShaderIfNeeded();
+	show.currentSegment->setModel(&model);
 
 	// in selectionmode we render the 3D object (TODO: full-screen) using the easyCam of the 
 	// viewport we are calibrating. this is on the main GUI monitor
@@ -207,7 +185,7 @@ void testApp::draw() {
 			//setupScreen_custom(0, 0, 60, 0, 0); 
 			// --------------------------------------------------------------
 
-			selectionView.draw(panel, mouseX, mouseY, projViewToCalibrate, light, shader, show.getCurrentTexture()); //customPicture0, mappingMovie);
+			selectionView.draw(panel, mouseX, mouseY, projViewToCalibrate, show.currentSegment); 
 
 			// ------------------- unwind the viewport thing ---------------
 			// restore the old viewport (now full view and oF coords)
@@ -248,7 +226,7 @@ void testApp::draw() {
 				ofSetupScreen();
 				// --------------------------------------------------------------
 
-				projView->draw(panel, mouseX, mouseY, light, shader, show.getCurrentTexture()); //customPicture0, mappingMovie);
+				projView->draw(panel, mouseX, mouseY, show.currentSegment); 
 
 				// ------------------- unwind the viewport thing ---------------
 				// restore the old viewport (now full view and oF coords)
@@ -277,7 +255,7 @@ void testApp::draw() {
 			//setupScreen_custom(0, 0, 60, 0, 0); 
 			// --------------------------------------------------------------
 
-			selectionView.draw(panel, mouseX, mouseY, NULL, light, shader, show.getCurrentTexture()); //customPicture0, mappingMovie);
+			selectionView.draw(panel, mouseX, mouseY, NULL, show.currentSegment); 
 
 			// ------------------- unwind the viewport thing ---------------
 			// restore the old viewport (now full view and oF coords)
@@ -336,6 +314,15 @@ void testApp::keyPressed(int key)
 				viewToCalibrate->proj.referencePoints[choice] = false;
 				viewToCalibrate->proj.imagePoints[choice] = Point2f();
 			}
+		}
+		if(key == OF_KEY_ESC)
+		{
+			// restore the window state before exiting
+			HWND hWnd = WindowFromDC(wglGetCurrentDC());
+			::SetWindowLong(hWnd, GWL_STYLE, _originalWindowStyle);
+			::SetWindowLong(hWnd, GWL_EXSTYLE, _originalWindowStyleEx);
+			ofBaseApp::keyPressed(key);
+
 		}
 		if(key == '\n') { // deselect
 			setb("selected", false);

@@ -3,7 +3,7 @@
 using namespace ofxCv;
 using namespace cv;
 
-void projectorView::draw(ofxControlPanel& panel, float mouseX, float mouseY, ofLight& light, ofShader& shader, ofTexture* texture) //ofImage& customPicture, ofxThreadedVideo& mappingMovie)
+void projectorView::draw(ofxControlPanel& panel, float mouseX, float mouseY, showSegment* currentShowSegment) //ofImage& customPicture, ofxThreadedVideo& mappingMovie)
 //void projectorView::draw(ofxControlPanel& panel, float mouseX, float mouseY, ofLight& light, ofShader& shader, ofImage& customPicture, ofVideoPlayer& mappingMovie)
 {
 	if(proj.calibrationReady) {
@@ -18,7 +18,7 @@ void projectorView::draw(ofxControlPanel& panel, float mouseX, float mouseY, ofL
 		glPushMatrix();
 		applyMatrix(proj.modelMatrix);
 		
-		render(panel, light, shader, texture); //customPicture, mappingMovie);
+		currentShowSegment->render(); //customPicture, mappingMovie);
 
 		if(panel.getValueI("mode") == 0) {
 			imageMesh = getProjectedInViewportMesh(*objectMesh);	

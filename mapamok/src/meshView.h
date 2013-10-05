@@ -42,26 +42,13 @@ public:
 		return false;
 	}
 
-	void enableFog(float nearFog, float farFog) {
-		glEnable(GL_FOG);
-		glFogi(GL_FOG_MODE, GL_LINEAR);
-		GLfloat fogColor[4]= {0, 0, 0, 1};
-		glFogfv(GL_FOG_COLOR, fogColor);
-		glHint(GL_FOG_HINT, GL_FASTEST);
-		glFogf(GL_FOG_START, nearFog);
-		glFogf(GL_FOG_END, farFog);
-	}
-
-	void disableFog() {
-		glDisable(GL_FOG);
-	}
 
 	void drawLabeledPoint(int label, ofVec2f position,  int pointSize, ofColor color, ofColor bg = ofColor::black, ofColor fg = ofColor::white);
 
 	// LvdS: adapted from ofxAssimpModelLoader
-	void drawModel(ofPolyRenderMode renderType, ofTexture* textureOverride);
+	//void drawModel(ofPolyRenderMode renderType, ofTexture* textureOverride);
 
-	void render(ofxControlPanel& panel, ofLight& light, ofShader& shader, ofTexture* texture); //ofImage& customPicture, ofxThreadedVideo& mappingMovie);
+	//void render(ofxControlPanel& panel, ofShader& shader, ofTexture* texture); //ofImage& customPicture, ofxThreadedVideo& mappingMovie);
 	//void render(ofxControlPanel& panel, ofLight& light, ofShader& shader, ofImage& customPicture, ofVideoPlayer& mappingMovie);
 	
 };

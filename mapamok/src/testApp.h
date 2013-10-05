@@ -14,10 +14,15 @@
 #include "modelView.h"
 #include "projectorView.h"
 #include "projectorConfiguration.h"
+#include "effect.h"
+#include "effectDefaultShader.h"
+#include "effectSingleTextureMap.h"
+#include "effectMusicShader1.h"
 #include "showSegment.h"
 #include "showDefinition.h"
 #include "showSegmentDefault.h"
 #include "showSegmentClcGirls1.h"
+#include "showSegmentSingleTexture.h"
 
 class testApp : public ofBaseApp {
 public:
@@ -40,20 +45,21 @@ public:
 	
 	void drawViewportOutline(const ofRectangle & viewport);
 
-	void reloadShaderIfNeeded();
 	void setupControlPanel();
 	void setupMesh();
 	
 	ofxAssimpModelLoader model;	
 	ofVboMesh objectMesh;
-	ofLight light;
 	mainControlPanel panel;
 	
 	projectorConfiguration& projConfig;
 	showDefinition& show;
 	modelView selectionView;
 
-	Poco::Timestamp lastFragTimestamp, lastVertTimestamp;
-	ofShader shader;
+
+
+private:
+	long _originalWindowStyle;
+	long _originalWindowStyleEx;
 
 };

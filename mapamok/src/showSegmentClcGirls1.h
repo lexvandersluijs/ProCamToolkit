@@ -11,12 +11,12 @@ private:
 
 	ofColor currentColor;
 
-	ofxAutoControlPanel controlPanel;
-
 public:
+	showSegmentClcGirls1();
+
 	virtual void setup();
 	virtual void start();
 	virtual void update();
-	virtual void draw();
+	virtual void render();
 
 };

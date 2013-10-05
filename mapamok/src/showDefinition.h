@@ -7,7 +7,7 @@ public:
 	string name;
 
 	virtual string makeGuiName() { return ""; }
-	virtual bool isSelected(mainControlPanel& panel);
+	virtual bool isSelected(ofxControlPanel& panel);
 	virtual ofTexture* getTexturePtr() { return NULL; }
 	virtual void comeIntoView() { }
 	virtual void goOutOfView() { }
@@ -63,11 +63,7 @@ private:
 class showDefinition
 {
 public:
-	showDefinition()
-	{
-		currentResource = NULL;
-		currentSegment = NULL;
-	}
+	showDefinition();
 	~showDefinition();
 
 	void load(string configName);
@@ -78,19 +74,17 @@ public:
 	void addMovie(string filePath, string name);
 	void addPicture(string filePath, string name);
 
-	void updateSelectedResourceCheckbox(mainControlPanel& panel);
-	showResource* findNewSelectedResource(mainControlPanel& panel, bool& anySelectionMade);
-	void updateCurrentTexture(mainControlPanel& panel);
-	ofTexture* getCurrentTexture();
-
 	std::vector<movieResource*> movies;
 	std::vector<pictureResource*> pictures;
 
 	std::vector<showSegment*> showSegments;
 	showSegment* currentSegment;
 
+	static showDefinition* getInstance();
+
 private:
+	static showDefinition* instance;
+
 	void loadResources();
 
-	showResource* currentResource;
 };
