@@ -14,6 +14,11 @@ void disableFog() {
 	glDisable(GL_FOG);
 }
 
+effectDefaultShader::effectDefaultShader()
+{
+	shaderPartialFilePath = "shaders/shader";
+}
+
 void effectDefaultShader::setupControlPanel(ofxAutoControlPanel& panel)
 {
 	panel.addMultiToggle("drawMode", 3, variadic("faces")("fullWireframe")("outlineWireframe")("occludedWireframe")("texture"));
@@ -34,7 +39,10 @@ void effectDefaultShader::setupControlPanel(ofxAutoControlPanel& panel)
 
 void effectDefaultShader::update(ofxAutoControlPanel& panel)
 {
-	reloadShaderIfNeeded(panel);
+	int shading = panel.getValueI("shading");
+	bool useShader = shading == 2;
+	if(useShader)
+		reloadShaderIfNeeded(panel);
 
 	// -------------------- update lighting ---------------------------
 	if(panel.getValueB("randomLighting")) {
@@ -134,21 +142,3 @@ void effectDefaultShader::render(ofxAutoControlPanel& panel, ofxAssimpModelLoade
 }
 
 
-void effectDefaultShader::reloadShaderIfNeeded(ofxAutoControlPanel& panel)
-{
-	int shading = panel.getValueI("shading");
-	bool useShader = shading == 2;
-	
-	if(useShader) {
-		ofFile fragFile("shaders/shader.frag"), vertFile("shaders/shader.vert");
-		Poco::Timestamp fragTimestamp = fragFile.getPocoFile().getLastModified();
-		Poco::Timestamp vertTimestamp = vertFile.getPocoFile().getLastModified();
-		if(fragTimestamp != lastFragTimestamp || vertTimestamp != lastVertTimestamp) {
-			bool validShader = shader.load("shaders/shader");
-			panel.setValueB("validShader", validShader);
-		}
-		lastFragTimestamp = fragTimestamp;
-		lastVertTimestamp = vertTimestamp;		
-	}
-
-}

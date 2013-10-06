@@ -3,14 +3,12 @@
 class showSegmentClcGirls1 : public showSegment
 {
 private:
-	ofShader shader;
-
     ofSoundPlayer snd;
 	int nBands;
     ofxOnsetDetection onsetD;
 	bool playing;
 
-	ofColor currentColor;
+	effectMusicShader1* musicShader;
 
 public:
 	showSegmentClcGirls1();

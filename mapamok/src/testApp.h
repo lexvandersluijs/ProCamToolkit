@@ -20,9 +20,7 @@
 #include "effectMusicShader1.h"
 #include "showSegment.h"
 #include "showDefinition.h"
-#include "showSegmentDefault.h"
 #include "showSegmentClcGirls1.h"
-#include "showSegmentSingleTexture.h"
 
 class testApp : public ofBaseApp {
 public:

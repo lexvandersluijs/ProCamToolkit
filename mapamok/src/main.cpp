@@ -115,6 +115,8 @@ int main( int argc,      // Number of strings in array argv
 			
 			segment = new showSegmentClcGirls1();
 			segment->name = "Dans 1";
+			effectMusicShader1* musicShader = new effectMusicShader1();
+			segment->effects.push_back(musicShader);
 			show.showSegments.push_back(segment);
 
 			segment = new showSegment();

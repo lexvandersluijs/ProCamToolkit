@@ -150,6 +150,7 @@
     <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxmlparser.cpp" />
     <ClCompile Include="..\..\..\addons\ofxXmlSettings\src\ofxXmlSettings.cpp" />
     <ClCompile Include="..\SharedCode\ofxProCamToolkit.cpp" />
+    <ClCompile Include="src\effect.cpp" />
     <ClCompile Include="src\effectDefaultShader.cpp" />
     <ClCompile Include="src\effectMusicShader1.cpp" />
     <ClCompile Include="src\effectSingleTextureMap.cpp" />
