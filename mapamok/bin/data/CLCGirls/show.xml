@@ -10,5 +10,7 @@
   </movies>
   <pictures>
     <picture file="pictures/CLC_TRAP_UV_2048_calibration.png" name="calibration"></picture>
+    <picture file="pictures/flowerpattern.png" name="flowerpattern"></picture>
+    <picture file="pictures/stars.png" name="stars"></picture>
   </pictures>
 </show>

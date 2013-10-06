@@ -144,6 +144,22 @@ void showDefinition::loadResources()
 
 }
 
+pictureResource* showDefinition::findPictureByName(string name)
+{
+	pictureResource* result = NULL;
+
+	for(std::vector<pictureResource*>::iterator pit = pictures.begin(); pit != pictures.end(); ++pit) 
+	{
+		if ( (*pit)->name == name )
+		{
+			result = (*pit);
+			break;
+		}
+	}
+
+	return result;
+}
+
 void showDefinition::load(string configName)
 {
 

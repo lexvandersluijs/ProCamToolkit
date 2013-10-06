@@ -6,8 +6,15 @@ void showSegment::setup()
 	controlPanel.addPanel("Interaction");
 	controlPanel.hide();
 
+
+	for(std::vector<effect*>::iterator eit = effects.begin(); eit != effects.end(); ++eit)
+	{
+		(*eit)->setup();
+	}
+
 	allEffectsSetupControlPanels();
 }
+
 void showSegment::update()
 {
 	for(std::vector<effect*>::iterator eit = effects.begin(); eit != effects.end(); ++eit)

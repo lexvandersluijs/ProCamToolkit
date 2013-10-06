@@ -52,6 +52,7 @@ public:
 
 	virtual string makeGuiName() { return "p: " + name; }
 	virtual ofTexture* getTexturePtr();
+	virtual ofImage* getImagePtr() { return picture; }
 	virtual void comeIntoView() { }
 	virtual void goOutOfView() { }
 	virtual void update() { }
@@ -73,6 +74,7 @@ public:
 
 	void addMovie(string filePath, string name);
 	void addPicture(string filePath, string name);
+	pictureResource* findPictureByName(string name);
 
 	std::vector<movieResource*> movies;
 	std::vector<pictureResource*> pictures;

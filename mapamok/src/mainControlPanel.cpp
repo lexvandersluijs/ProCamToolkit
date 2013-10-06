@@ -59,7 +59,7 @@ void mainControlPanel::initialize(projectorConfiguration& config, int nrOfPoints
 	addToggle("dragging", false);
 	addToggle("arrowing", false);
 	addSlider("selectionChoice", 0, 0, nrOfPoints, true);
-	addSlider("slowLerpRate", .05, 0, 0.5);
+	addSlider("slowLerpRate", .005, 0, 0.3);
 	addSlider("fastLerpRate", 1, 0, 1);
 
 }

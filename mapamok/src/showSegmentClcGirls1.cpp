@@ -8,6 +8,12 @@ showSegmentClcGirls1::showSegmentClcGirls1()
 
 void showSegmentClcGirls1::setup()
 {
+	// let all effects set themselves up
+	for(std::vector<effect*>::iterator eit = effects.begin(); eit != effects.end(); ++eit)
+	{
+		(*eit)->setup();
+	}
+
 	// --- onset detection ---
 	nBands = 1024;
 	onsetD.setup(OFX_ODS_ODF_RCOMPLEX);
@@ -18,11 +24,8 @@ void showSegmentClcGirls1::setup()
 	controlPanel.addPanel("Interaction");
 	controlPanel.addToggle("play", false);
 
-	controlPanel.addSlider("pattern 1", 1, .1, 25);
-	controlPanel.addSlider("pattern 2", 1, .1, 25);
-	controlPanel.addSlider("light effect", 1, .1, 25);
-
 	controlPanel.hide();
+
 
 	// after the segment has added its controls, also allow the effects underneath it to add its GUI elements
 	allEffectsSetupControlPanels();
