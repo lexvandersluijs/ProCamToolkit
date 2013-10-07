@@ -4,6 +4,7 @@ showSegmentClcGirls1::showSegmentClcGirls1()
 {
 	name = "CLC Girls 1";
 	playing = false;
+	segmentStartTime = 0;
 }
 
 void showSegmentClcGirls1::setup()
@@ -32,6 +33,14 @@ void showSegmentClcGirls1::setup()
 
 	// get a pointer to the music shader for easy access
 	musicShader = static_cast<effectMusicShader1*>(effects[0]);
+
+
+	startTrigger.setup(0.f);
+	startMelodyTrigger.setup(30.f);
+	startClappingTrigger.setup(100.f);
+	stopClappingTrigger.setup(115.f);
+	endSongTrigger.setup(156.f);
+
 }
 
 void showSegmentClcGirls1::start()
@@ -52,61 +61,106 @@ void showSegmentClcGirls1::update()
 	// all effects should update too
 	showSegment::update();
 
+
+	float t = ofGetElapsedTimef();
+
+	// ---------- check if we should stop / start the segment based on GUI ------
 	if(controlPanel.getValueB("play") && playing == false)
 	{
 		snd.play(); 
+		segmentStartTime = t;
 		playing = true;
 	}
 	else 
+	{
 		if (controlPanel.getValueB("play") == false && snd.getIsPlaying() == true)
 		{
 			snd.stop();
 			playing = false;
 		}
+	}
 
-	if(snd.getIsPlaying())
+	if(playing)
 	{
-		float* spectrum = ofSoundGetSpectrum(nBands);
+		// -------------- update faders and change high-level settings -------------
+		float timeInSegment = t - segmentStartTime;
+		if(startTrigger.evaluate(timeInSegment))
+			lightsFader.fadeIn();
 
-		float avg = 0;
-		float avgLow = 0;
-		float avgMid = 0;
-		float avgHigh = 0;
-		int bandwidth = nBands/3;
-		int bandwidth2 = bandwidth*2;
-		for(int i=0; i<nBands; ++i)
+		if(startMelodyTrigger.evaluate(timeInSegment))
+			centralPatternFader.fadeIn();
+
+		// 1:40 -> clapping section, 15 seconds
+		if(startClappingTrigger.evaluate(timeInSegment))
 		{
-			if(i<bandwidth)
-			{
-				avgLow += spectrum[i];
-			}
-			else if(i>bandwidth && i<bandwidth2)
-			{
-				avgMid += spectrum[i];
-			}
-			else
-			{
-				avgHigh += spectrum[i];
-			}
-			avg += spectrum[i];
+			lightsFader.fadeOut();
+			centralPatternFader.fadeOut();
+			musicShader->setLightingMode(2); // to light bars mode
 		}
 
-		avg /= (float)nBands;
-		avgLow /= (float)bandwidth;
-		avgMid /= (float)bandwidth;
-		avgHigh /= (float)bandwidth;
-
-		float normalizationFactor = 10.f; // let's try to get these in the 0 to 1 range..
-		avg *= normalizationFactor;
-		avgLow *= normalizationFactor;
-		avgMid *= normalizationFactor*3.f;
-		avgHigh *= normalizationFactor*10.f;
-
-		musicShader->setAvgFreqLevel(avg, avgLow, avgMid, avgHigh);
-
-		if (onsetD.isOnsetting(spectrum))
+		if(stopClappingTrigger.evaluate(timeInSegment))
 		{
-			musicShader->pulse(0);
+			lightsFader.fadeIn();
+			centralPatternFader.fadeIn();
+			musicShader->setLightingMode(0); // back to stars
+		}
+
+		if(endSongTrigger.evaluate(timeInSegment))
+		{
+			lightsFader.fadeOut();
+			centralPatternFader.fadeOut();
+		}
+
+		centralPatternFader.update();
+		lightsFader.update();
+
+		musicShader->setMainLightsLevel(lightsFader.getCurrentValue());
+		musicShader->setCentralPatternLevel(centralPatternFader.getCurrentValue());
+
+		if(snd.getIsPlaying())
+		{
+			float* spectrum = ofSoundGetSpectrum(nBands);
+
+			float avg = 0;
+			float avgLow = 0;
+			float avgMid = 0;
+			float avgHigh = 0;
+			int bandwidth = nBands/3;
+			int bandwidth2 = bandwidth*2;
+			for(int i=0; i<nBands; ++i)
+			{
+				if(i<bandwidth)
+				{
+					avgLow += spectrum[i];
+				}
+				else if(i>bandwidth && i<bandwidth2)
+				{
+					avgMid += spectrum[i];
+				}
+				else
+				{
+					avgHigh += spectrum[i];
+				}
+				avg += spectrum[i];
+			}
+
+			avg /= (float)nBands;
+			avgLow /= (float)bandwidth;
+			avgMid /= (float)bandwidth;
+			avgHigh /= (float)bandwidth;
+
+			float normalizationFactor = 10.f; // let's try to get these in the 0 to 1 range..
+			avg *= normalizationFactor;
+			avgLow *= normalizationFactor;
+			avgMid *= normalizationFactor*3.f;
+			avgHigh *= normalizationFactor*10.f;
+
+			musicShader->setAvgFreqLevel(avg, avgLow, avgMid, avgHigh);
+
+			if (onsetD.isOnsetting(spectrum))
+			{
+				musicShader->pulse(0);
+			}
 		}
 	}
 }

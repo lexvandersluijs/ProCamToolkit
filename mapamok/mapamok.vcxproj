@@ -226,6 +226,7 @@
     <ClInclude Include="src\effectDefaultShader.h" />
     <ClInclude Include="src\effectMusicShader1.h" />
     <ClInclude Include="src\effectSingleTextureMap.h" />
+    <ClInclude Include="src\fader.h" />
     <ClInclude Include="src\mainControlPanel.h" />
     <ClInclude Include="src\meshView.h" />
     <ClInclude Include="src\modelView.h" />
@@ -318,6 +319,7 @@
     <ClInclude Include="..\..\..\addons\ofxOpenCv\libs\opencv\include\opencv2\video\background_segm.hpp" />
     <ClInclude Include="..\..\..\addons\ofxOpenCv\libs\opencv\include\opencv2\video\tracking.hpp" />
     <ClInclude Include="..\..\..\addons\ofxOpenCv\libs\opencv\include\opencv2\video\video.hpp" />
+    <ClInclude Include="src\trigger.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\libs\openFrameworksCompiled\project\vs\openframeworksLib.vcxproj">

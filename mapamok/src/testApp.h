@@ -15,6 +15,8 @@
 #include "projectorView.h"
 #include "projectorConfiguration.h"
 #include "effect.h"
+#include "fader.h"
+#include "trigger.h"
 #include "effectDefaultShader.h"
 #include "effectSingleTextureMap.h"
 #include "effectMusicShader1.h"

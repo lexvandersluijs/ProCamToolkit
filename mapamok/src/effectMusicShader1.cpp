@@ -9,17 +9,20 @@ effectMusicShader1::effectMusicShader1()
 		pulseTimes[i] = 0.f;
 		pulseFactors[i] = 0.f;
 	}
-	initialLightPositions[0].x = 1400.0f;
-	initialLightPositions[0].y = 1000.0f;
+
+	lightingMode = 0;
+
+	initialLightPositions[0].x = 200.0f;
+	initialLightPositions[0].y = 100.0f;
 	initialLightPositions[0].z = 0.0f;
 
-	initialLightPositions[1].x = -1500.0f;
-	initialLightPositions[1].y = 3000.0f;
+	initialLightPositions[1].x = -150.0f;
+	initialLightPositions[1].y = 300.0f;
 	initialLightPositions[1].z = 0.0f;
 
 	initialLightPositions[2].x = 0.0f;
-	initialLightPositions[2].y = 3000.0f;
-	initialLightPositions[2].z = -1200.0f;
+	initialLightPositions[2].y = 300.0f;
+	initialLightPositions[2].z = -200.0f;
 
 	prevLightStepIndex = 0;
 }
@@ -44,6 +47,20 @@ void effectMusicShader1::setup()
 	stars		= showDefinition::getInstance()->findPictureByName("stars");
 
 
+}
+
+void effectMusicShader1::setCentralPatternLevel(float level)
+{
+	centralPatternLevel = level;
+
+	controlPanel->setValueF("flowerFactor", centralPatternLevel);
+}
+
+void effectMusicShader1::setLightingMode(int mode)
+{
+	lightingMode = mode;
+
+	controlPanel->setValueF("lightmode", mode);
 }
 
 void effectMusicShader1::update(ofxAutoControlPanel& panel)
@@ -104,6 +121,7 @@ void  effectMusicShader1::setAvgFreqLevel(float avg, float avgLow, float avgMid,
 		pulse(4);
 }
 
+
 void effectMusicShader1::render(ofxAutoControlPanel& panel, ofxAssimpModelLoader* model, ofMesh* mesh)
 {
 	float t = ofGetElapsedTimef();
@@ -123,22 +141,22 @@ void effectMusicShader1::render(ofxAutoControlPanel& panel, ofxAssimpModelLoader
 	ofMatrix4x4 scaleMatrix;
 	scaleMatrix.makeScaleMatrix(0.5f, 0.5f, 0.5f);
 	ofMatrix4x4 centerTrans, recenterTrans;
-	centerTrans.makeTranslationMatrix(256.f, 256.f, 0.f);
+	centerTrans.makeTranslationMatrix(-256.f, -256.f, 0.f);
 	ofMatrix4x4 projectorRot;
 	projectorRot.makeRotationMatrix(t * -60.0f, 0.0f, 0.0f, 1.0f); // rotate around projection axis
 	ofMatrix4x4 projectorTilt;
-	projectorTilt.makeRotationMatrix(-15.0f, 1.0f, 0.0f, 0.0f); // tilt over x axis
+	projectorTilt.makeRotationMatrix(-10.0f, 1.0f, 0.0f, 0.0f); // tilt over x axis
 	ofMatrix4x4 projectorTrans;
 	projectorTrans.makeTranslationMatrix(0.0f, 100.0f, 0.0f);
 
 	//ofMatrix4x4 starsProjectorMatrix = projectorTrans * (projectorTilt * (projectorRot * centerTrans));
 	ofMatrix4x4 starsProjectorMatrix =   scaleMatrix * centerTrans * projectorRot * projectorTilt * projectorTrans;
 
-	centerTrans.makeTranslationMatrix(128.f, 128.f, 0.f);
+	centerTrans.makeTranslationMatrix(-256.f, -256.f, 0.f);
 	projectorRot.makeRotationMatrix(t * 30.0f, 0.0f, 0.0f, 1.0f); // rotate around projection axis
-	projectorTrans.makeTranslationMatrix(0.0f, 100.0f, 0.0f);
+	projectorTrans.makeTranslationMatrix(0.0f, 80.0f, 0.0f);
 	//ofMatrix4x4 flowerProjectorMatrix = projectorTrans * (projectorRot * centerTrans);
-	ofMatrix4x4 flowerProjectorMatrix = centerTrans * projectorRot * projectorTrans;
+	ofMatrix4x4 flowerProjectorMatrix = centerTrans * scaleMatrix * projectorRot * projectorTrans;
 
 	// ------- rotate lights ------
 	ofMatrix4x4 rotMat;
@@ -154,17 +172,17 @@ void effectMusicShader1::render(ofxAutoControlPanel& panel, ofxAssimpModelLoader
 	}
 
 	float lightCol[3][3];
-	lightCol[0][0] = 0.1f + pulseFactors[2] * 0.9f;
+	lightCol[0][0] = (0.1f + pulseFactors[2] * 0.9f) * mainLightsLevel;
 	lightCol[0][1] = 0.0f;
 	lightCol[0][2] = 0.0f;
 
 	lightCol[1][0] = 0.0f;
-	lightCol[1][1] = 0.1f + pulseFactors[3] * 0.9f;
+	lightCol[1][1] = (0.1f + pulseFactors[3] * 0.9f) * mainLightsLevel;
 	lightCol[1][2] = 0.0f;
 
 	lightCol[2][0] = 0.0f;
 	lightCol[2][1] = 0.0f;
-	lightCol[2][2] = 0.1f + pulseFactors[4] * 0.9f;
+	lightCol[2][2] = (0.1f + pulseFactors[4] * 0.9f) * mainLightsLevel;
 	// ----------------------------------
 
 	shader.begin();

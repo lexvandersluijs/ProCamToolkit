@@ -21,7 +21,7 @@ effectDefaultShader::effectDefaultShader()
 
 void effectDefaultShader::setupControlPanel(ofxAutoControlPanel& panel)
 {
-	panel.addMultiToggle("drawMode", 3, variadic("faces")("fullWireframe")("outlineWireframe")("occludedWireframe")("texture"));
+	panel.addMultiToggle("drawMode", 3, variadic("faces")("fullWireframe")("outlineWireframe")("occludedWireframe"));
 	panel.addMultiToggle("shading", 0, variadic("none")("lights")("shader"));
 
 	panel.addSlider("lineWidth", 2, 1, 8, true);

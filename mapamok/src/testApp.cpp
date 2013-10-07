@@ -160,7 +160,7 @@ void testApp::drawViewportOutline(const ofRectangle & viewport){
 
 
 void testApp::draw() {
-	//ofBackground(geti("backgroundColor"));
+	ofBackground(geti("backgroundColor"));
 
 	show.currentSegment->setModelAndMesh(&model, &objectMesh);
 

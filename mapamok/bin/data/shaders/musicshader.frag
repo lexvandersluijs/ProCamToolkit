@@ -35,15 +35,11 @@ void main()
 
 	vec4 c = vec4(0.0, 0.0, 0.0, 1.0);
 
-	//vec2 pos = gl_TexCoord[0].st * 1024.0;
-	//pos.x = mod(pos.x, 512.0);
-	//pos.y = mod(pos.y, 512.0);
 	vec4 transformedFlowerPos = flowerProjectorMatrix * vec4(position, 1.0);
 	vec2 flowerPos;
-	flowerPos.x = mod(transformedFlowerPos.x, 256.0);
-	flowerPos.y = mod(transformedFlowerPos.y, 256.0);
+	flowerPos.x = mod(transformedFlowerPos.x, 512.0);
+	flowerPos.y = mod(transformedFlowerPos.y, 512.0);
 
-	//c = vec4(texture2DRect( pattern1, gl_TexCoord[0].st * 256.0 ).rgb * flowerFactor, 1.0);
 	c = vec4(texture2DRect( pattern1, flowerPos ).rgb * flowerFactor, 1.0);
 
 	if(lightMode == 0)
@@ -84,6 +80,7 @@ void main()
 		posToLight = normalize(posToLight);
 		float eyeFactor = dot(posToEye, normal);
 		float diffuseFactor = dot(normal, posToLight);
+		diffuseFactor *= diffuseFactor;
 		//if(diffuseFactor > 0.0)
 			lightsContribution += lightCol[i] * diffuseFactor;
 	}

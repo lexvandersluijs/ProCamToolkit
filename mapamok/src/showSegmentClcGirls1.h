@@ -2,13 +2,6 @@
 
 class showSegmentClcGirls1 : public showSegment
 {
-private:
-    ofSoundPlayer snd;
-	int nBands;
-    ofxOnsetDetection onsetD;
-	bool playing;
-
-	effectMusicShader1* musicShader;
 
 public:
 	showSegmentClcGirls1();
@@ -18,5 +11,23 @@ public:
 	virtual void end();
 	virtual void update();
 	virtual void render();
+
+protected:
+    ofSoundPlayer snd;
+	int nBands;
+    ofxOnsetDetection onsetD;
+	bool playing;
+
+	effectMusicShader1* musicShader;
+	float segmentStartTime;
+
+	trigger startTrigger;
+	trigger startMelodyTrigger;
+	trigger startClappingTrigger;
+	trigger stopClappingTrigger;
+	trigger endSongTrigger;
+
+	fader centralPatternFader;
+	fader lightsFader;
 
 };

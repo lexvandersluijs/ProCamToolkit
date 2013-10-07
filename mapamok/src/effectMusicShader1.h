@@ -15,11 +15,20 @@ public:
 	void pulse(int index);
 	void setAvgFreqLevel(float avg, float avgLow, float avgMid, float avgHigh);
 
+	void setMainLightsLevel(float level)
+	{
+		mainLightsLevel = level;
+	}
+	void setCentralPatternLevel(float level);
+	void setLightingMode(int mode);
+
 
 protected:
 	float pulseTimes[5];
 	float pulseFactors[5];
 	int nrOfPulseTimes;
+
+	int lightingMode;
 
 	ofVec3f initialLightPositions[3];
 	ofVec3f initialLightColors[3];
@@ -30,6 +39,9 @@ protected:
 	int prevLightStepIndex;
 	float lightBarLowY;
 	float lightBarHighY;
+
+	float mainLightsLevel;
+	float centralPatternLevel;
 
 	ofxControlPanel* controlPanel;  // hmm.. shouldn't all effects have pointer to their control panel (instead of passing it in from the segment all the time?)
 };

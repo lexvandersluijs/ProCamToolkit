@@ -770,5 +770,11 @@
     <ClInclude Include="src\effectMusicShader1.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\fader.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\trigger.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

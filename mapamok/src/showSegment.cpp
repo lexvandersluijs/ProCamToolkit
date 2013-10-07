@@ -2,7 +2,7 @@
 
 void showSegment::setup()
 {
-	controlPanel.setup(name, 285.0f, 5.0f, 280.0f, 800.0f, false);
+	controlPanel.setup(name, 285.0f, 5.0f, 280.0f, 700.0f, false);
 	controlPanel.addPanel("Interaction");
 	controlPanel.hide();
 
