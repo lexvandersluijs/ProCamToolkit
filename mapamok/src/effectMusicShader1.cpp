@@ -11,6 +11,8 @@ effectMusicShader1::effectMusicShader1()
 	}
 
 	lightingMode = 0;
+	centralPatternIndex = 0;
+	centralPatternMotion = 0;
 
 	initialLightPositions[0].x = 200.0f;
 	initialLightPositions[0].y = 100.0f;
@@ -32,6 +34,8 @@ void effectMusicShader1::setupControlPanel(ofxAutoControlPanel& panel)
 	controlPanel = &panel;
 
 	panel.addMultiToggle("lightmode", 0, variadic("stars")("stripes")("lightbars"));
+	panel.addMultiToggle("pattern", 0, variadic("flower")("heart"));
+	panel.addMultiToggle("motion", 0, variadic("none")("thump")("rotate"));
 	panel.addSlider("flowerFactor", 1.f, 0.f, 1.f);
 	panel.addSlider("avg", 0.f, 0.f, 1.f);
 	panel.addSlider("low", 0.f, 0.f, 1.f);
@@ -44,6 +48,7 @@ void effectMusicShader1::setup()
 	// look up texture (s) in showDefinition (these have already been 
 	// loaded because the resources are always loaded before the segments)
 	picture1	= showDefinition::getInstance()->findPictureByName("flowerpattern");
+	heart		= showDefinition::getInstance()->findPictureByName("heart");
 	stars		= showDefinition::getInstance()->findPictureByName("stars");
 
 
@@ -52,15 +57,25 @@ void effectMusicShader1::setup()
 void effectMusicShader1::setCentralPatternLevel(float level)
 {
 	centralPatternLevel = level;
-
 	controlPanel->setValueF("flowerFactor", centralPatternLevel);
 }
 
 void effectMusicShader1::setLightingMode(int mode)
 {
 	lightingMode = mode;
+	controlPanel->setValueI("lightmode", lightingMode);
+}
 
-	controlPanel->setValueF("lightmode", mode);
+void effectMusicShader1::setCentralPattern(int patternIndex)
+{
+	centralPatternIndex = patternIndex;
+	controlPanel->setValueI("pattern", centralPatternIndex);
+}
+
+void effectMusicShader1::setCentralPatternMotion(int motionIndex) // 0=none, 1=thumping, 2=rotating
+{
+	centralPatternMotion = motionIndex;
+	controlPanel->setValueI("motion", motionIndex);
 }
 
 void effectMusicShader1::update(ofxAutoControlPanel& panel)
@@ -72,10 +87,13 @@ void effectMusicShader1::update(ofxAutoControlPanel& panel)
 	{
 		float timeDif = t - pulseTimes[i];
 		if(timeDif > 0)
-			pulseFactors[i] = pow(0.05f, timeDif); // exponential decay.. 
+			pulseFactors[i] = pow(0.001f, timeDif * 2); // exponential decay.. 
 		else
 			pulseFactors[i] = 0;
 	}
+
+	centralPatternIndex = panel.getValueI("pattern");
+	centralPatternMotion = panel.getValueI("motion");
 }
 
 void effectMusicShader1::pulse(int index)
@@ -147,13 +165,35 @@ void effectMusicShader1::render(ofxAutoControlPanel& panel, ofxAssimpModelLoader
 	ofMatrix4x4 projectorTilt;
 	projectorTilt.makeRotationMatrix(-10.0f, 1.0f, 0.0f, 0.0f); // tilt over x axis
 	ofMatrix4x4 projectorTrans;
-	projectorTrans.makeTranslationMatrix(0.0f, 100.0f, 0.0f);
+	projectorTrans.makeTranslationMatrix(0.0f, 120.0f, 0.0f);
 
 	//ofMatrix4x4 starsProjectorMatrix = projectorTrans * (projectorTilt * (projectorRot * centerTrans));
 	ofMatrix4x4 starsProjectorMatrix =   scaleMatrix * centerTrans * projectorRot * projectorTilt * projectorTrans;
 
+	switch(centralPatternMotion)
+	{
+	case 0:
+		{
+			scaleMatrix.makeScaleMatrix(0.6f, -0.6f, 0.6f);
+			projectorRot.makeIdentityMatrix();
+			break;
+		}
+	case 1: // thump
+		{
+			float scale = 0.4f + 0.2f * pulseFactors[0];
+			scaleMatrix.makeScaleMatrix(scale, -scale, scale);
+			projectorRot.makeIdentityMatrix();
+			break;
+		}
+	case 2: // rotate
+		{
+			scaleMatrix.makeScaleMatrix(0.2f, 0.2f, 0.2f);
+			projectorRot.makeRotationMatrix(t * 30.0f, 0.0f, 0.0f, 1.0f); 
+			break;
+		}
+	}
+
 	centerTrans.makeTranslationMatrix(-256.f, -256.f, 0.f);
-	projectorRot.makeRotationMatrix(t * 30.0f, 0.0f, 0.0f, 1.0f); // rotate around projection axis
 	projectorTrans.makeTranslationMatrix(0.0f, 80.0f, 0.0f);
 	//ofMatrix4x4 flowerProjectorMatrix = projectorTrans * (projectorRot * centerTrans);
 	ofMatrix4x4 flowerProjectorMatrix = centerTrans * scaleMatrix * projectorRot * projectorTrans;
@@ -172,17 +212,17 @@ void effectMusicShader1::render(ofxAutoControlPanel& panel, ofxAssimpModelLoader
 	}
 
 	float lightCol[3][3];
-	lightCol[0][0] = (0.1f + pulseFactors[2] * 0.9f) * mainLightsLevel;
+	lightCol[0][0] = (0.5f + pulseFactors[2] * 0.5f) * mainLightsLevel;
 	lightCol[0][1] = 0.0f;
 	lightCol[0][2] = 0.0f;
 
 	lightCol[1][0] = 0.0f;
-	lightCol[1][1] = (0.1f + pulseFactors[3] * 0.9f) * mainLightsLevel;
+	lightCol[1][1] = (0.5f + pulseFactors[3] * 0.5f) * mainLightsLevel;
 	lightCol[1][2] = 0.0f;
 
 	lightCol[2][0] = 0.0f;
 	lightCol[2][1] = 0.0f;
-	lightCol[2][2] = (0.1f + pulseFactors[4] * 0.9f) * mainLightsLevel;
+	lightCol[2][2] = (0.5f + pulseFactors[4] * 0.5f) * mainLightsLevel;
 	// ----------------------------------
 
 	shader.begin();
@@ -190,7 +230,7 @@ void effectMusicShader1::render(ofxAutoControlPanel& panel, ofxAssimpModelLoader
 	shader.setUniform4fv("color", color);
 	shader.setUniform3fv("lightPos", (float*)lightPos, 3);
 	shader.setUniform3fv("lightCol", (float*)lightCol, 3);
-	shader.setUniformTexture("pattern1", *(picture1->getImagePtr()), 1);
+	shader.setUniformTexture("pattern", *(centralPatternIndex == 0 ? picture1->getImagePtr() : heart->getImagePtr()), 1);
 	shader.setUniformTexture("stars", *(stars->getImagePtr()), 2);
 	shader.setUniform1f("starsFactor", pulseFactors[0]);
 	shader.setUniform1f("flowerFactor", panel.getValueF("flowerFactor"));

@@ -9,7 +9,8 @@
   </movies>
   <pictures>
     <picture file="pictures/CLC_TRAP_UV_2048_calibration.png" name="calibration"></picture>
-    <picture file="pictures/flowerpattern2.png" name="flowerpattern"></picture>
+    <picture file="pictures/flowerpattern3.png" name="flowerpattern"></picture>
     <picture file="pictures/stars.png" name="stars"></picture>
+    <picture file="pictures/heart.png" name="heart"></picture>
   </pictures>
 </show>

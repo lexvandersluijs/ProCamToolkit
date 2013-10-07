@@ -23,9 +23,17 @@ protected:
 
 	trigger startTrigger;
 	trigger startMelodyTrigger;
+	trigger midSectionTrigger1;
+	trigger midSectionTrigger2;
+	trigger midSectionTrigger3;
+	trigger midSectionTrigger4;
+	trigger midSectionTrigger5;
 	trigger startClappingTrigger;
 	trigger stopClappingTrigger;
+	trigger midOfEndSectionTrigger;
 	trigger endSongTrigger;
+	trigger heartFadeInTrigger;
+	trigger heartFadeOutTrigger;
 
 	fader centralPatternFader;
 	fader lightsFader;

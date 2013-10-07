@@ -21,7 +21,8 @@ public:
 	}
 	void setCentralPatternLevel(float level);
 	void setLightingMode(int mode);
-
+	void setCentralPattern(int patternIndex);
+	void setCentralPatternMotion(int motionIndex); // 0=none, 1=thumping, 2=rotating
 
 protected:
 	float pulseTimes[5];
@@ -29,11 +30,14 @@ protected:
 	int nrOfPulseTimes;
 
 	int lightingMode;
+	int centralPatternIndex;
+	int centralPatternMotion;
 
 	ofVec3f initialLightPositions[3];
 	ofVec3f initialLightColors[3];
 
 	pictureResource* picture1;
+	pictureResource* heart;
 	pictureResource* stars;
 
 	int prevLightStepIndex;

@@ -37,9 +37,17 @@ void showSegmentClcGirls1::setup()
 
 	startTrigger.setup(0.f);
 	startMelodyTrigger.setup(30.f);
+	midSectionTrigger1.setup(38.f);
+	midSectionTrigger2.setup(46.f);
+	midSectionTrigger3.setup(54.f);
+	midSectionTrigger4.setup(62.f);
+	midSectionTrigger5.setup(70.f);
 	startClappingTrigger.setup(100.f);
 	stopClappingTrigger.setup(115.f);
+	midOfEndSectionTrigger.setup(132.f);
 	endSongTrigger.setup(156.f);
+	heartFadeInTrigger.setup(160.f);
+	heartFadeOutTrigger.setup(161.5f);
 
 }
 
@@ -88,7 +96,42 @@ void showSegmentClcGirls1::update()
 			lightsFader.fadeIn();
 
 		if(startMelodyTrigger.evaluate(timeInSegment))
+		{
+			musicShader->setCentralPattern(1); // thumping heart
+			musicShader->setCentralPatternMotion(1);
 			centralPatternFader.fadeIn();
+		}
+
+		if(midSectionTrigger1.evaluate(timeInSegment))
+		{
+			musicShader->setCentralPattern(0); // rotating flowers
+			musicShader->setLightingMode(1); // bars moving upward
+			musicShader->setCentralPatternMotion(2);
+		}
+		if(midSectionTrigger2.evaluate(timeInSegment))
+		{
+			musicShader->setCentralPattern(0); // rotating flowers
+			musicShader->setCentralPatternMotion(2);
+			musicShader->setLightingMode(0); // stars
+		}
+		if(midSectionTrigger3.evaluate(timeInSegment))
+		{
+			musicShader->setCentralPattern(1); // heart
+			musicShader->setCentralPatternMotion(1); // thumping
+			musicShader->setLightingMode(1); // bars moving upward
+		}
+		if(midSectionTrigger4.evaluate(timeInSegment))
+		{
+			musicShader->setCentralPattern(0); // flowers
+			musicShader->setCentralPatternMotion(2); // rotating
+			musicShader->setLightingMode(0); // stars
+		}
+		if(midSectionTrigger5.evaluate(timeInSegment))
+		{
+			musicShader->setCentralPattern(1); // heart
+			musicShader->setCentralPatternMotion(1); // thumping
+			musicShader->setLightingMode(0); // stars
+		}
 
 		// 1:40 -> clapping section, 15 seconds
 		if(startClappingTrigger.evaluate(timeInSegment))
@@ -104,6 +147,12 @@ void showSegmentClcGirls1::update()
 			centralPatternFader.fadeIn();
 			musicShader->setLightingMode(0); // back to stars
 		}
+		if(midOfEndSectionTrigger.evaluate(timeInSegment))
+		{
+			musicShader->setCentralPattern(0); // flowers
+			musicShader->setCentralPatternMotion(2);
+			musicShader->setLightingMode(0); // back to stars
+		}
 
 		if(endSongTrigger.evaluate(timeInSegment))
 		{
@@ -111,6 +160,16 @@ void showSegmentClcGirls1::update()
 			centralPatternFader.fadeOut();
 		}
 
+		if(heartFadeInTrigger.evaluate(timeInSegment))
+		{
+			musicShader->setCentralPattern(1);
+			musicShader->setCentralPatternMotion(0); // no motion
+			centralPatternFader.fadeIn();
+		}
+		if(heartFadeOutTrigger.evaluate(timeInSegment))
+		{
+			centralPatternFader.fadeOut();
+		}
 		centralPatternFader.update();
 		lightsFader.update();
 

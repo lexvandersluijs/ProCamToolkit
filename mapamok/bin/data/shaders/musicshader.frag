@@ -4,7 +4,7 @@
 #define PI (3.1415926536)
 #define TWO_PI (6.2831853072)
 
-uniform sampler2DRect pattern1;
+uniform sampler2DRect pattern;
 uniform sampler2DRect stars;
 uniform float starsFactor;
 uniform float flowerFactor;
@@ -40,7 +40,7 @@ void main()
 	flowerPos.x = mod(transformedFlowerPos.x, 512.0);
 	flowerPos.y = mod(transformedFlowerPos.y, 512.0);
 
-	c = vec4(texture2DRect( pattern1, flowerPos ).rgb * flowerFactor, 1.0);
+	c = vec4(texture2DRect( pattern, flowerPos ).rgb * flowerFactor, 1.0);
 
 	if(lightMode == 0)
 	{
@@ -58,9 +58,10 @@ void main()
 	{
 		if (lightMode == 1)
 		{
-			const float speed = 50.;
-			const float scale = 50.;
-			c += (mod((position.x + position.y + position.z) + (elapsedTime * speed), scale) > scale / 2.) ? (on * starsFactor): off;
+			const float speed = -50.;
+			const float scale = 19.;
+			//c += (mod((position.x + position.y + position.z) + (elapsedTime * speed), scale) > scale / 2.) ? (on * starsFactor): off;
+			c += (mod((position.y) + (elapsedTime * speed), scale) > scale / 2.) ? (on * starsFactor): off;
 		}
 		else  // if (lightMode == 2)
 		{
