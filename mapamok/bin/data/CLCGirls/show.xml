@@ -4,7 +4,6 @@
     <shader name="demo" frag="shader.frag" vert="shader.vert"></shader>
   </shaders>
   <movies>
-    <movie file="movies/CLC_TRAP_UV_2048_calibration2_1.mov" name="probeer"></movie>
     <movie file="movies/CLC_TRAP_UV_2048_waterval2.mov" name="waterval"></movie>
     <movie file="movies/CLC_TRAP_UV_2048_einddans.mov" name="einddans"></movie>
   </movies>

@@ -359,10 +359,16 @@ void testApp::keyPressed(int key)
 		}
 		if(key == OF_KEY_ESC)
 		{
+			ofLogNotice("mapamok") << "ESC key is pressed, ending show";
+
 			// restore the window state before exiting
-			HWND hWnd = WindowFromDC(wglGetCurrentDC());
-			::SetWindowLong(hWnd, GWL_STYLE, _originalWindowStyle);
-			::SetWindowLong(hWnd, GWL_EXSTYLE, _originalWindowStyleEx);
+			//HWND hWnd = WindowFromDC(wglGetCurrentDC());
+			//::SetWindowLong(hWnd, GWL_STYLE, _originalWindowStyle);
+			//::SetWindowLong(hWnd, GWL_EXSTYLE, _originalWindowStyleEx);
+
+			// stop all segments, threads, etc
+			show.end();
+
 			ofBaseApp::keyPressed(key);
 
 		}

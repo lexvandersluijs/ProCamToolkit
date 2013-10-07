@@ -80,19 +80,7 @@ showDefinition::showDefinition()
 }
 showDefinition::~showDefinition()
 {
-	vector<movieResource*>::iterator mit = movies.begin();
-	while (mit != movies.end()) 
-	{
-		delete *mit;
-		mit = movies.erase(mit);    
-	}
-
-	vector<pictureResource*>::iterator pit = pictures.begin();
-	while (pit != pictures.end()) 
-	{
-		delete *pit;
-		pit = pictures.erase(pit);    
-	}
+	// note: all resources are freed in end() function, so this must be called before the program exits!
 }
 
 void showDefinition::addMovie(string filePath, string name)
@@ -131,6 +119,28 @@ void showDefinition::update(mainControlPanel& panel)
 		currentSegment->update();
 }
 
+void showDefinition::end()
+{
+	for(std::vector<showSegment*>::iterator sit = showSegments.begin(); sit != showSegments.end(); ++sit)
+	{
+		(*sit)->end();
+	}
+
+	vector<movieResource*>::iterator mit = movies.begin();
+	while (mit != movies.end()) 
+	{
+		delete *mit;
+		mit = movies.erase(mit);    
+	}
+
+	vector<pictureResource*>::iterator pit = pictures.begin();
+	while (pit != pictures.end()) 
+	{
+		delete *pit;
+		pit = pictures.erase(pit);    
+	}
+}
+
 void showDefinition::loadResources()
 {
 	for(std::vector<movieResource*>::iterator mit = movies.begin(); mit != movies.end(); ++mit)
@@ -153,6 +163,30 @@ pictureResource* showDefinition::findPictureByName(string name)
 		if ( (*pit)->name == name )
 		{
 			result = (*pit);
+			break;
+		}
+	}
+
+	return result;
+}
+
+showResource* showDefinition::findResourceByName(string name)
+{
+	showResource* result = NULL;
+
+	for(std::vector<pictureResource*>::iterator pit = pictures.begin(); pit != pictures.end(); ++pit) 
+	{
+		if ( (*pit)->name == name )
+		{
+			result = (*pit);
+			break;
+		}
+	}
+	for(std::vector<movieResource*>::iterator mit = movies.begin(); mit != movies.end(); ++mit) 
+	{
+		if ( (*mit)->name == name )
+		{
+			result = (*mit);
 			break;
 		}
 	}

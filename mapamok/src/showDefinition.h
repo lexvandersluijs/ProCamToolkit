@@ -71,10 +71,12 @@ public:
 
 	void setup(); // let each segment initialize itself, creating a control panel if needed
 	void update(mainControlPanel& panel);
+	void end();
 
 	void addMovie(string filePath, string name);
 	void addPicture(string filePath, string name);
 	pictureResource* findPictureByName(string name);
+	showResource* findResourceByName(string name);
 
 	std::vector<movieResource*> movies;
 	std::vector<pictureResource*> pictures;

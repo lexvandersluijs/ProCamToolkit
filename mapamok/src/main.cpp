@@ -101,6 +101,13 @@ int main( int argc,      // Number of strings in array argv
 			show.load(configName);
 
 			showSegment* segment = new showSegment();
+			segment->name = "Calibration";
+			effectSingleTextureMap* calibmap = new effectSingleTextureMap();
+			calibmap->addSelectedResourceName("calibration");
+			segment->effects.push_back(calibmap);
+			show.showSegments.push_back(segment);
+
+			segment = new showSegment();
 			segment->name = "Default";
 			effect* ef = new effectDefaultShader();
 			segment->effects.push_back(ef);
@@ -114,13 +121,13 @@ int main( int argc,      // Number of strings in array argv
 			show.showSegments.push_back(segment);
 			
 			segment = new showSegmentClcGirls1();
-			segment->name = "Dans 1";
+			segment->name = "Meidendans 1";
 			effectMusicShader1* musicShader = new effectMusicShader1();
 			segment->effects.push_back(musicShader);
 			show.showSegments.push_back(segment);
 
 			segment = new showSegment();
-			segment->name = "einddans";
+			segment->name = "Meidendans 2 (eind)";
 			tmef = new effectSingleTextureMap();
 			tmef->addSelectedResourceName("einddans");
 			segment->effects.push_back(tmef);

@@ -1,3 +1,4 @@
+#version 130
 #extension GL_ARB_texture_rectangle : enable
 
 #define PI (3.1415926536)
@@ -18,6 +19,9 @@ const int nrOfLights = 3;
 uniform mat4 starsProjectorMatrix;
 uniform mat4 flowerProjectorMatrix;
 
+uniform float lightBarLowY = 0;
+uniform float lightBarHighY = 0;
+
 uniform int lightMode = 0;
 
 varying vec3 position, normal;
@@ -36,8 +40,8 @@ void main()
 	//pos.y = mod(pos.y, 512.0);
 	vec4 transformedFlowerPos = flowerProjectorMatrix * vec4(position, 1.0);
 	vec2 flowerPos;
-	flowerPos.x = mod(transformedFlowerPos.x * 2.0, 256.0);
-	flowerPos.y = mod(transformedFlowerPos.y * 2.0, 256.0);
+	flowerPos.x = mod(transformedFlowerPos.x, 256.0);
+	flowerPos.y = mod(transformedFlowerPos.y, 256.0);
 
 	//c = vec4(texture2DRect( pattern1, gl_TexCoord[0].st * 256.0 ).rgb * flowerFactor, 1.0);
 	c = vec4(texture2DRect( pattern1, flowerPos ).rgb * flowerFactor, 1.0);
@@ -50,15 +54,25 @@ void main()
 		// using our projector
 		vec4 transformedPos = starsProjectorMatrix * vec4(position, 1.0);
 		vec2 pos;
-		pos.x = mod(transformedPos.x * 2.0, 512.0);
-		pos.y = mod(transformedPos.y * 2.0, 512.0);
+		pos.x = mod(transformedPos.x, 512.0);
+		pos.y = mod(transformedPos.y, 512.0);
 		c += vec4(texture2DRect( stars, pos ).rgb * starsFactor, 1.0);
 	}
-	else
+	else 
 	{
-		const float speed = 50.;
-		const float scale = 50.;
-		c += (mod((position.x + position.y + position.z) + (elapsedTime * speed), scale) > scale / 2.) ? (on * starsFactor): off;
+		if (lightMode == 1)
+		{
+			const float speed = 50.;
+			const float scale = 50.;
+			c += (mod((position.x + position.y + position.z) + (elapsedTime * speed), scale) > scale / 2.) ? (on * starsFactor): off;
+		}
+		else  // if (lightMode == 2)
+		{
+			if (position.y > lightBarLowY && position.y < lightBarHighY)
+				c = on;
+			else
+				c = off;
+		}
 	}
 
 	vec3 posToEye = normalize( -position.xyz );
@@ -68,9 +82,10 @@ void main()
 	{
 		vec3 posToLight = lightPos[i] - position;
 		posToLight = normalize(posToLight);
-		float eyeFactor = dot(posToEye, posToLight);
+		float eyeFactor = dot(posToEye, normal);
 		float diffuseFactor = dot(normal, posToLight);
-		lightsContribution += lightCol[i] * (eyeFactor * diffuseFactor);
+		//if(diffuseFactor > 0.0)
+			lightsContribution += lightCol[i] * diffuseFactor;
 	}
 
 	c.r += lightsContribution.r;

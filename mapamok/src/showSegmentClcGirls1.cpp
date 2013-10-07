@@ -17,8 +17,8 @@ void showSegmentClcGirls1::setup()
 	// --- onset detection ---
 	nBands = 1024;
 	onsetD.setup(OFX_ODS_ODF_RCOMPLEX);
-    snd.loadSound("sound/NeedYourLove-Gold_CLCMix_Joel_LQ.mp3");
-    snd.setLoop(true);
+    snd.loadSound("sound/NextStep_CLCEdit_Richard.mp3");
+    snd.setLoop(false);
 
 	controlPanel.setup(name, 285.0f, 5.0f, 280.0f, 600.0f, false);
 	controlPanel.addPanel("Interaction");
@@ -66,7 +66,45 @@ void showSegmentClcGirls1::update()
 
 	if(snd.getIsPlaying())
 	{
-		if (onsetD.isOnsetting(ofSoundGetSpectrum(nBands)))
+		float* spectrum = ofSoundGetSpectrum(nBands);
+
+		float avg = 0;
+		float avgLow = 0;
+		float avgMid = 0;
+		float avgHigh = 0;
+		int bandwidth = nBands/3;
+		int bandwidth2 = bandwidth*2;
+		for(int i=0; i<nBands; ++i)
+		{
+			if(i<bandwidth)
+			{
+				avgLow += spectrum[i];
+			}
+			else if(i>bandwidth && i<bandwidth2)
+			{
+				avgMid += spectrum[i];
+			}
+			else
+			{
+				avgHigh += spectrum[i];
+			}
+			avg += spectrum[i];
+		}
+
+		avg /= (float)nBands;
+		avgLow /= (float)bandwidth;
+		avgMid /= (float)bandwidth;
+		avgHigh /= (float)bandwidth;
+
+		float normalizationFactor = 10.f; // let's try to get these in the 0 to 1 range..
+		avg *= normalizationFactor;
+		avgLow *= normalizationFactor;
+		avgMid *= normalizationFactor*3.f;
+		avgHigh *= normalizationFactor*10.f;
+
+		musicShader->setAvgFreqLevel(avg, avgLow, avgMid, avgHigh);
+
+		if (onsetD.isOnsetting(spectrum))
 		{
 			musicShader->pulse(0);
 		}

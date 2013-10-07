@@ -13,15 +13,24 @@ public:
 	virtual void render(ofxAutoControlPanel& panel, ofxAssimpModelLoader* model, ofMesh* mesh);
 
 	void pulse(int index);
+	void setAvgFreqLevel(float avg, float avgLow, float avgMid, float avgHigh);
+
 
 protected:
-	float pulseFactors[1];
-	int nrOfPulseFactors;
+	float pulseTimes[5];
+	float pulseFactors[5];
+	int nrOfPulseTimes;
 
 	ofVec3f initialLightPositions[3];
 	ofVec3f initialLightColors[3];
 
 	pictureResource* picture1;
 	pictureResource* stars;
+
+	int prevLightStepIndex;
+	float lightBarLowY;
+	float lightBarHighY;
+
+	ofxControlPanel* controlPanel;  // hmm.. shouldn't all effects have pointer to their control panel (instead of passing it in from the segment all the time?)
 };
 

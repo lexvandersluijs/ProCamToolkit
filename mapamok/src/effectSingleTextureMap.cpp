@@ -17,7 +17,7 @@ void effectSingleTextureMap::setupControlPanel(ofxAutoControlPanel& panel)
 	for(int i=0; i<show->pictures.size(); i++)
 	{
 		// .. same for the pictures
-		if (std::find(selectedResourceNames.begin(), selectedResourceNames.end(), show->movies[i]->name) != selectedResourceNames.end())
+		if (std::find(selectedResourceNames.begin(), selectedResourceNames.end(), show->pictures[i]->name) != selectedResourceNames.end())
 		{
 			panel.addToggle(show->pictures[i]->makeGuiName(), false);
 		}
@@ -46,29 +46,21 @@ showResource* effectSingleTextureMap::findNewSelectedResource(ofxAutoControlPane
 	anySelectionMade = false;
 	showResource* newSelection = NULL;
 
-	for(std::vector<movieResource*>::iterator mit = show->movies.begin(); mit != show->movies.end(); ++mit)
+	
+	for(std::vector<string>::iterator nit = selectedResourceNames.begin(); nit != selectedResourceNames.end(); ++nit)
 	{
-		if((*mit)->isSelected(panel))
-		{
-			anySelectionMade = true;
-			if((*mit) != currentResource )
+		showResource* r = show->findResourceByName((*nit));
+		if( r!= NULL)
+			if(r->isSelected(panel))
 			{
-				newSelection = *mit;
+				anySelectionMade = true;
+				if(r != currentResource )
+				{
+					newSelection = r;
+				}
 			}
-		}
 	}
 
-	for(std::vector<pictureResource*>::iterator pit = show->pictures.begin(); pit != show->pictures.end(); ++pit) 
-	{
-		if((*pit)->isSelected(panel))
-		{
-			anySelectionMade = true;
-			if((*pit) != currentResource)
-			{
-				newSelection = *pit;
-			}
-		}
-	}
 	return newSelection;
 }
 
