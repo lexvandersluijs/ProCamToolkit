@@ -12,7 +12,7 @@ void projectorView::draw(ofxControlPanel& panel, float mouseX, float mouseY, sho
 
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
- 		proj.intrinsics.loadProjectionMatrix_dontSetViewport(1, 2000);
+ 		proj.intrinsics.loadProjectionMatrix_dontSetViewport(10, 1000);
 
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();

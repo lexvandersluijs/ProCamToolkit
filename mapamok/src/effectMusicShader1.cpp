@@ -113,7 +113,7 @@ void effectMusicShader1::pulse(int index)
 		while(lightStepIndex == prevLightStepIndex);
 		
 		lightBarLowY = (float)lightStepIndex * 19.f + 0.5f;
-		lightBarHighY = (float)(lightStepIndex+1) * 19.f - 0.5f;
+		lightBarHighY = (float)(lightStepIndex+1) * 19.f + 0.4f;
 
 		prevLightStepIndex = lightStepIndex;
 	}
@@ -163,7 +163,7 @@ void effectMusicShader1::render(ofxAutoControlPanel& panel, ofxAssimpModelLoader
 	ofMatrix4x4 projectorRot;
 	projectorRot.makeRotationMatrix(t * -60.0f, 0.0f, 0.0f, 1.0f); // rotate around projection axis
 	ofMatrix4x4 projectorTilt;
-	projectorTilt.makeRotationMatrix(-10.0f, 1.0f, 0.0f, 0.0f); // tilt over x axis
+	projectorTilt.makeRotationMatrix(-5.0f, 1.0f, 0.0f, 0.0f); // tilt over x axis
 	ofMatrix4x4 projectorTrans;
 	projectorTrans.makeTranslationMatrix(0.0f, 120.0f, 0.0f);
 
@@ -180,7 +180,7 @@ void effectMusicShader1::render(ofxAutoControlPanel& panel, ofxAssimpModelLoader
 		}
 	case 1: // thump
 		{
-			float scale = 0.4f + 0.2f * pulseFactors[0];
+			float scale = 0.4f + 0.1f * pulseFactors[0];
 			scaleMatrix.makeScaleMatrix(scale, -scale, scale);
 			projectorRot.makeIdentityMatrix();
 			break;
@@ -196,7 +196,7 @@ void effectMusicShader1::render(ofxAutoControlPanel& panel, ofxAssimpModelLoader
 	centerTrans.makeTranslationMatrix(-256.f, -256.f, 0.f);
 	projectorTrans.makeTranslationMatrix(0.0f, 80.0f, 0.0f);
 	//ofMatrix4x4 flowerProjectorMatrix = projectorTrans * (projectorRot * centerTrans);
-	ofMatrix4x4 flowerProjectorMatrix = centerTrans * scaleMatrix * projectorRot * projectorTrans;
+	ofMatrix4x4 flowerProjectorMatrix = centerTrans * scaleMatrix * projectorRot * projectorTilt * projectorTrans;
 
 	// ------- rotate lights ------
 	ofMatrix4x4 rotMat;

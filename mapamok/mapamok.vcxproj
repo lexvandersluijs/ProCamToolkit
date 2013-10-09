@@ -152,6 +152,7 @@
     <ClCompile Include="..\SharedCode\ofxProCamToolkit.cpp" />
     <ClCompile Include="src\effect.cpp" />
     <ClCompile Include="src\effectDefaultShader.cpp" />
+    <ClCompile Include="src\effectMultiTextureShader.cpp" />
     <ClCompile Include="src\effectMusicShader1.cpp" />
     <ClCompile Include="src\effectSingleTextureMap.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -224,6 +225,7 @@
     <ClInclude Include="..\src\ofxCv.h" />
     <ClInclude Include="src\effect.h" />
     <ClInclude Include="src\effectDefaultShader.h" />
+    <ClInclude Include="src\effectMultiTextureShader.h" />
     <ClInclude Include="src\effectMusicShader1.h" />
     <ClInclude Include="src\effectSingleTextureMap.h" />
     <ClInclude Include="src\fader.h" />

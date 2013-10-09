@@ -12,5 +12,10 @@
     <picture file="pictures/flowerpattern3.png" name="flowerpattern"></picture>
     <picture file="pictures/stars.png" name="stars"></picture>
     <picture file="pictures/heart.png" name="heart"></picture>
+    <picture file="pictures/edges.png" name="edges"></picture>
+    <picture file="pictures/geenpunt.png" name="geenpunt"></picture>
+    <picture file="pictures/welkomspunt.png" name="welkomspunt"></picture>
+    <picture file="pictures/wavefront.png" name="wavefront"></picture>
+    
   </pictures>
 </show>

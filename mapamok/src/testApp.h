@@ -19,6 +19,7 @@
 #include "trigger.h"
 #include "effectDefaultShader.h"
 #include "effectSingleTextureMap.h"
+#include "effectMultiTextureShader.h"
 #include "effectMusicShader1.h"
 #include "showSegment.h"
 #include "showDefinition.h"
@@ -44,7 +45,7 @@ public:
 	void mousePressed(int x, int y, int button);
 	void mouseReleased(int x, int y, int button);
 	
-	void drawViewportOutline(const ofRectangle & viewport);
+	void drawViewportOutline(const ofRectangle & viewport, const ofColor& fillColor);
 
 	void setupControlPanel();
 	void setupMesh();
@@ -57,7 +58,11 @@ public:
 	showDefinition& show;
 	modelView selectionView;
 
+	//HCURSOR normalCursor;
+	//HCURSOR blockedCursor;
+	//HCURSOR currentCursor;
 
+	//void setCursorIfNeeded(HCURSOR c);
 
 private:
 	long _originalWindowStyle;

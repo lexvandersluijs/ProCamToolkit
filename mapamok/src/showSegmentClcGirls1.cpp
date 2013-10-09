@@ -46,14 +46,28 @@ void showSegmentClcGirls1::setup()
 	stopClappingTrigger.setup(115.f);
 	midOfEndSectionTrigger.setup(132.f);
 	endSongTrigger.setup(156.f);
-	heartFadeInTrigger.setup(160.f);
-	heartFadeOutTrigger.setup(161.5f);
+	heartFadeInTrigger.setup(159.f);
+	heartFadeOutTrigger.setup(160.5f);
 
 }
 
 void showSegmentClcGirls1::start()
 {
 	showSegment::start();
+
+	startTrigger.reset();
+	startMelodyTrigger.reset();
+	midSectionTrigger1.reset();
+	midSectionTrigger2.reset();
+	midSectionTrigger3.reset();
+	midSectionTrigger4.reset();
+	midSectionTrigger5.reset();
+	startClappingTrigger.reset();
+	stopClappingTrigger.reset();
+	midOfEndSectionTrigger.reset();
+	endSongTrigger.reset();
+	heartFadeInTrigger.reset();
+	heartFadeOutTrigger.reset();
 }
 
 void showSegmentClcGirls1::end()
@@ -116,12 +130,12 @@ void showSegmentClcGirls1::update()
 		}
 		if(midSectionTrigger3.evaluate(timeInSegment))
 		{
-			musicShader->setCentralPattern(1); // heart
-			musicShader->setCentralPatternMotion(1); // thumping
 			musicShader->setLightingMode(1); // bars moving upward
+			centralPatternFader.fadeOut(); // don't show central pattern together with heart, looks 'blocked'
 		}
 		if(midSectionTrigger4.evaluate(timeInSegment))
 		{
+			centralPatternFader.fadeIn();
 			musicShader->setCentralPattern(0); // flowers
 			musicShader->setCentralPatternMotion(2); // rotating
 			musicShader->setLightingMode(0); // stars

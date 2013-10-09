@@ -18,7 +18,10 @@ public:
 		}
 		return false;
 	}
-
+	void reset()
+	{
+		hasTriggered = false;
+	}
 protected:
 	float triggerTime;
 	bool hasTriggered;

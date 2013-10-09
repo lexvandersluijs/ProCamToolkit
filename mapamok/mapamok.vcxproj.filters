@@ -193,6 +193,9 @@
     <ClCompile Include="src\effect.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\effectMultiTextureShader.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -774,6 +777,9 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\trigger.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\effectMultiTextureShader.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

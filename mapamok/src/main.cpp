@@ -114,6 +114,16 @@ int main( int argc,      // Number of strings in array argv
 			show.showSegments.push_back(segment);
 
 			segment = new showSegment();
+			segment->name = "Welkom";
+			effectMultiTextureShader* emts = new effectMultiTextureShader();
+			// todo: allow specification of background image.. right now hard coded in effect
+			emts->addSelectedResourceName("geenpunt");
+			emts->addSelectedResourceName("welkomspunt");
+			segment->effects.push_back(emts);
+			show.showSegments.push_back(segment);
+
+
+			segment = new showSegment();
 			segment->name = "Waterval";
 			effectSingleTextureMap* tmef = new effectSingleTextureMap();
 			tmef->addSelectedResourceName("waterval");

@@ -47,21 +47,25 @@ void main()
 		// using the normal texture coordinates
 		//c += vec4(texture2DRect( stars, pos ).rgb * starsFactor, 1.0);
 
-		// using our projector
-		vec4 transformedPos = starsProjectorMatrix * vec4(position, 1.0);
-		vec2 pos;
-		pos.x = mod(transformedPos.x, 512.0);
-		pos.y = mod(transformedPos.y, 512.0);
-		c += vec4(texture2DRect( stars, pos ).rgb * starsFactor, 1.0);
+		if(abs(normal.x) < 0.8) // don't show light (stretched) on sides of stairs
+		{
+			// using our projector
+			vec4 transformedPos = starsProjectorMatrix * vec4(position, 1.0);
+			vec2 pos;
+			pos.x = mod(transformedPos.x, 512.0);
+			pos.y = mod(transformedPos.y, 512.0);
+
+			c += vec4(texture2DRect( stars, pos ).rgb * starsFactor, 1.0);
+		}
 	}
 	else 
 	{
 		if (lightMode == 1)
 		{
-			const float speed = -50.;
+			const float speed = -19.;
 			const float scale = 19.;
 			//c += (mod((position.x + position.y + position.z) + (elapsedTime * speed), scale) > scale / 2.) ? (on * starsFactor): off;
-			c += (mod((position.y) + (elapsedTime * speed), scale) > scale / 2.) ? (on * starsFactor): off;
+			c += (mod((position.y) + (elapsedTime * speed), scale) > scale / 2.) ? on : off;
 		}
 		else  // if (lightMode == 2)
 		{

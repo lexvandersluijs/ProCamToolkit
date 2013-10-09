@@ -26,6 +26,11 @@ float testApp::getf(string name) {
 
 void testApp::setup() {
 
+
+	//normalCursor = LoadCursor(NULL, IDC_ARROW);
+	//blockedCursor = LoadCursor(NULL, IDC_NO);
+	//currentCursor = normalCursor;
+
 	bool showWindowBorder = false;
 	if (!showWindowBorder) {
 	  HWND m_hWnd = WindowFromDC(wglGetCurrentDC());
@@ -95,8 +100,6 @@ void testApp::update()
 	show.update(panel);
 
 
-
-	
 	// --------------- if we are in selection mode, input should go the main 3D model view ----
 	if(getb("selectionMode")) 
 		selectionView.cam.enableMouseInput();
@@ -142,10 +145,10 @@ void testApp::update()
 
 
 // copied from viewportsExample
-void testApp::drawViewportOutline(const ofRectangle & viewport){
+void testApp::drawViewportOutline(const ofRectangle & viewport, const ofColor& fillColor){
 	ofPushStyle();
 	ofFill();
-	ofSetColor(0);
+	ofSetColor(fillColor);
 	ofSetLineWidth(0);
 	ofRect(viewport);
 	ofNoFill();
@@ -182,7 +185,7 @@ void testApp::draw() {
 
 			ofRectangle selectionVp = selectionView.getViewport();
 			// ----------------- draw the viewport -------------------
-			drawViewportOutline(selectionVp);
+			drawViewportOutline(selectionVp, projViewToCalibrate->fillColor);
 
 			// keep a copy of your viewport and transform matrices for later
 			ofPushView();
@@ -224,7 +227,7 @@ void testApp::draw() {
 			if((setupMode && projView == projConfig.getViewToCalibrate()) || !setupMode)
 			{
 				// ----------------- draw the viewport -------------------
-				drawViewportOutline(projView->getViewport());
+				drawViewportOutline(projView->getViewport(), projView->fillColor);
 
 				// keep a copy of your viewport and transform matrices for later
 				ofPushView();
@@ -252,7 +255,12 @@ void testApp::draw() {
 		if(!(vp.x < projConfig.getPrimaryScreenWidth()))
 		{
 			// ----------------- draw the viewport -------------------
-			drawViewportOutline(vp);
+			ofColor color;
+			color.a = 255;
+			color.r = 0;
+			color.g = 0;
+			color.b = 0;
+			drawViewportOutline(vp, color);
 
 			// keep a copy of your viewport and transform matrices for later
 			ofPushView();
@@ -338,15 +346,23 @@ void testApp::keyPressed(int key)
 		}
 		if(key == OF_KEY_RETURN)
 		{
-			ofLogError("mapamok") << "Enter key was pressed";
+			ofLogNotice("mapamok") << "Enter key was pressed";
 			int choice = geti("selectionChoice");
 			if(choice > 0)
 			{
 				float vpX, vpY;
-				viewToCalibrate->screenToViewport((float)lastMouseX, (float)lastMouseY, vpX, vpY);
-				ofLogError("Enter key was pressed") << "Snapping point to " << vpX << ", " << vpY;
-				viewToCalibrate->proj.imagePoints[choice].x = vpX;
-				viewToCalibrate->proj.imagePoints[choice].y = vpY;
+				if(viewToCalibrate->screenToViewport((float)lastMouseX, (float)lastMouseY, vpX, vpY))
+				{
+					ofLogNotice("mapamok") << "Enter key was pressed, snapping point to " << vpX << ", " << vpY;
+					viewToCalibrate->proj.imagePoints[choice].x = vpX;
+					viewToCalibrate->proj.imagePoints[choice].y = vpY;
+				}
+				else
+				{
+					ofLogNotice("mapamok") << "Enter key was pressed but mouse was not inside viewport, " << lastMouseX << ", " << lastMouseY;
+					ofRectangle cvp = viewToCalibrate->getViewport();
+					ofLogNotice("mapamok") << "ViewToCalibrate, name=" + viewToCalibrate->proj.name << " " << cvp.x;
+				}
 			}
 		}
 		if(key == OF_KEY_BACKSPACE) { // delete selected
@@ -381,10 +397,65 @@ void testApp::keyPressed(int key)
 	}
 }
 
+// don't do API call if not necessary
+//void testApp::setCursorIfNeeded(HCURSOR c)
+//{
+//	if(c == currentCursor) 
+//	{
+//		// no action needed
+//	}
+//	else
+//	{
+//		currentCursor = c;
+//		::SetCursor(currentCursor);
+//	}
+//}
+
 void testApp::mouseMoved(int x, int y)
 {
 	lastMouseX = x;
 	lastMouseY = y;
+
+	// update cursor, only in setup mode and while we are working in 2D, not selecting a point in 3D (selectionMode)
+	if(geti("mode") == 0 && getb("selectionMode") == false)
+	{
+		if(projConfig.getViewToCalibrate() != NULL)
+		{
+			float vpX, vpY;
+			if(projConfig.getViewToCalibrate()->screenToViewport(x, y, vpX, vpY))
+			{
+				projConfig.getViewToCalibrate()->fillColor.a = 255;
+				projConfig.getViewToCalibrate()->fillColor.r = 0;
+				projConfig.getViewToCalibrate()->fillColor.g = 0;
+				projConfig.getViewToCalibrate()->fillColor.b = 0;
+				return;
+
+			}
+			else
+			{
+				projConfig.getViewToCalibrate()->fillColor.a = 255;
+				projConfig.getViewToCalibrate()->fillColor.r = 128;
+				projConfig.getViewToCalibrate()->fillColor.g = 0;
+				projConfig.getViewToCalibrate()->fillColor.b = 0;
+				return;
+			}
+		}
+		//else
+		//	setCursorIfNeeded(normalCursor);
+	}
+	//else
+	//	setCursorIfNeeded(normalCursor);
+
+	// if we arrived here, we are not in setup / selection mode
+	for(int i=0; i<projConfig.numProjectorViews(); ++i)
+	{
+		ofColor black;
+		black.a = 255;
+		black.r = 0;
+		black.g = 0;
+		black.b = 0;
+		projConfig.getProjViewPtr(i)->fillColor = black;
+	}
 }
 
 void testApp::mousePressed(int x, int y, int button) {

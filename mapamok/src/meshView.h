@@ -31,8 +31,8 @@ public:
 	bool screenToViewport(float mouseX, float mouseY, float& vpX, float& vpY)
 	{
 		// check if mouse is inside viewport, in screen space
-		if((mouseX > viewport.x) && (mouseX < (viewport.x + viewport.width)) &&
-			(mouseY > viewport.y) && (mouseY < (viewport.y + viewport.height)))
+		if((mouseX >= viewport.x) && (mouseX < (viewport.x + viewport.width)) &&
+			(mouseY >= viewport.y) && (mouseY < (viewport.y + viewport.height)))
 		{
 			vpX = mouseX - viewport.x;
 			vpY = mouseY - viewport.y; 

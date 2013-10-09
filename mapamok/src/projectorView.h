@@ -16,6 +16,10 @@ public:
 	projectorView()
 	{
 		projConfiguration = NULL;
+		fillColor.a = 255;
+		fillColor.r = 0;
+		fillColor.g = 0;
+		fillColor.b = 0;
 	}
 	void setConfiguration(projectorConfiguration* projConfig)
 	{
@@ -50,5 +54,7 @@ public:
 
 	virtual void draw(ofxControlPanel& panel, float mouseX, float mouseY, showSegment* currentShowSegment); //ofImage& customPicture, ofxThreadedVideo& mappingMovie);
 	//virtual void draw(ofxControlPanel& panel, float mouseX, float mouseY, ofLight& light, ofShader& shader, ofImage& customPicture, ofVideoPlayer& mappingMovie);
+
+	ofColor fillColor;
 };
 
