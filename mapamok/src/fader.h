@@ -9,7 +9,7 @@ public:
 		fadeDuration = 1.f;
 		currentValue = 0.f;
 		in = false;
-		fading = false;
+		fading = false; // fading and fadeComplete are redundant..
 		fadeComplete = true;
 	}
 	void setup(float duration)

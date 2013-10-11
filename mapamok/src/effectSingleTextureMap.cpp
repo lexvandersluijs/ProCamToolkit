@@ -3,6 +3,8 @@
 
 void effectSingleTextureMap::setupControlPanel(ofxAutoControlPanel& panel)
 {
+	controlPanel = &panel;
+
 	showDefinition* show = showDefinition::getInstance();
 
 	for(int i=0; i<show->movies.size(); i++)
@@ -142,9 +144,12 @@ void effectSingleTextureMap::updateCurrentTexture(ofxAutoControlPanel& panel)
 	if(currentResource != NULL)
 	{
 		currentResource->update();
+		currentTexture = getCurrentTexture();
 	}
+	else
+		currentTexture = NULL;
 
-	currentTexture = getCurrentTexture();
+	
 }
 
 ofTexture* effectSingleTextureMap::getCurrentTexture()
@@ -159,6 +164,11 @@ void effectSingleTextureMap::stop()
 {
 	if(currentResource != NULL)
 		currentResource->goOutOfView();
+
+	currentResource = NULL;
+	currentTexture = NULL;
+
+	updateSelectedResourceCheckbox(*controlPanel);
 }
 
 void effectSingleTextureMap::render(ofxAutoControlPanel& panel, ofxAssimpModelLoader* model, ofMesh* mesh)

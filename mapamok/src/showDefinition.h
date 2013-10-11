@@ -22,6 +22,7 @@ public:
 		movie = NULL;
 	}
 	~movieResource();
+	void stopCloseDeleteMovie();
 
 	void load();
 

@@ -137,6 +137,23 @@ int main( int argc,      // Number of strings in array argv
 			show.showSegments.push_back(segment);
 
 			segment = new showSegment();
+			segment->name = "Woord";
+			tmef = new effectSingleTextureMap();
+			tmef->addSelectedResourceName("preekpunt0");
+			tmef->addSelectedResourceName("preekpunt1");
+			tmef->addSelectedResourceName("preekpunt2");
+			tmef->addSelectedResourceName("preekpunt3");
+			tmef->addSelectedResourceName("preekpunt4");
+			tmef->addSelectedResourceName("preekpunt5");
+			tmef->addSelectedResourceName("preekpunt6");
+			tmef->addSelectedResourceName("preekpunt7");
+			tmef->addSelectedResourceName("preekpunt8");
+			tmef->addSelectedResourceName("preekpunt9");
+			tmef->addSelectedResourceName("preekpunt10");
+			segment->effects.push_back(tmef);
+			show.showSegments.push_back(segment);
+
+			segment = new showSegment();
 			segment->name = "Meidendans 2 (eind)";
 			tmef = new effectSingleTextureMap();
 			tmef->addSelectedResourceName("einddans");

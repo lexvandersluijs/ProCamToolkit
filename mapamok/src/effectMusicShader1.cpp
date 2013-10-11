@@ -26,7 +26,18 @@ effectMusicShader1::effectMusicShader1()
 	initialLightPositions[2].y = 300.0f;
 	initialLightPositions[2].z = -200.0f;
 
+	picture1 = NULL;
+	heart = NULL;
+	stars = NULL;
+
 	prevLightStepIndex = 0;
+	lightBarLowY = 0.f;
+	lightBarHighY = 0.f;
+
+	mainLightsLevel = 1.f;
+	centralPatternLevel = 1.f;
+
+	controlPanel = NULL; 
 }
 
 void effectMusicShader1::setupControlPanel(ofxAutoControlPanel& panel)
@@ -81,12 +92,14 @@ void effectMusicShader1::setCentralPatternMotion(int motionIndex) // 0=none, 1=t
 void effectMusicShader1::update(ofxAutoControlPanel& panel)
 {
 	reloadShaderIfNeeded(panel);
+	
+	const float MAX_PULSE_DURATION = 5.f;
 
 	float t = ofGetElapsedTimef();
 	for(int i=0; i<nrOfPulseTimes; i++)
 	{
 		float timeDif = t - pulseTimes[i];
-		if(timeDif > 0)
+		if(timeDif > 0 && timeDif < MAX_PULSE_DURATION)
 			pulseFactors[i] = pow(0.001f, timeDif * 2); // exponential decay.. 
 		else
 			pulseFactors[i] = 0;

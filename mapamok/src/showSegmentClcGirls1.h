@@ -38,4 +38,5 @@ protected:
 	fader centralPatternFader;
 	fader lightsFader;
 
+	bool overrideLightsFader;
 };

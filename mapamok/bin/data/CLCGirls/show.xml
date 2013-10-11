@@ -6,6 +6,17 @@
   <movies>
     <movie file="movies/CLC_TRAP_UV_2048_waterval2.mov" name="waterval"></movie>
     <movie file="movies/CLC_TRAP_UV_2048_einddans.mov" name="einddans"></movie>
+    <movie file="movies/preekpunt0.mov" name="preekpunt0"></movie>
+    <movie file="movies/preekpunt1.mov" name="preekpunt1"></movie>
+    <movie file="movies/preekpunt2.mov" name="preekpunt2"></movie>
+    <movie file="movies/preekpunt3.mov" name="preekpunt3"></movie>
+    <movie file="movies/preekpunt4.mov" name="preekpunt4"></movie>
+    <movie file="movies/preekpunt5.mov" name="preekpunt5"></movie>
+    <movie file="movies/preekpunt6.mov" name="preekpunt6"></movie>
+    <movie file="movies/preekpunt7.mov" name="preekpunt7"></movie>
+    <movie file="movies/preekpunt8.mov" name="preekpunt8"></movie>
+    <movie file="movies/preekpunt9.mov" name="preekpunt9"></movie>
+    <movie file="movies/preekpunt10.mov" name="preekpunt10"></movie>
   </movies>
   <pictures>
     <picture file="pictures/CLC_TRAP_UV_2048_calibration.png" name="calibration"></picture>

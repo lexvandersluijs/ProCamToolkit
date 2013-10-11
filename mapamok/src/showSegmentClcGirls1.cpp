@@ -49,6 +49,7 @@ void showSegmentClcGirls1::setup()
 	heartFadeInTrigger.setup(159.f);
 	heartFadeOutTrigger.setup(160.5f);
 
+	overrideLightsFader = false;
 }
 
 void showSegmentClcGirls1::start()
@@ -68,6 +69,8 @@ void showSegmentClcGirls1::start()
 	endSongTrigger.reset();
 	heartFadeInTrigger.reset();
 	heartFadeOutTrigger.reset();
+
+	overrideLightsFader = false;
 }
 
 void showSegmentClcGirls1::end()
@@ -107,13 +110,18 @@ void showSegmentClcGirls1::update()
 		// -------------- update faders and change high-level settings -------------
 		float timeInSegment = t - segmentStartTime;
 		if(startTrigger.evaluate(timeInSegment))
+		{
 			lightsFader.fadeIn();
+			overrideLightsFader = true;
+			musicShader->setMainLightsLevel(1.5f);
+		}
 
 		if(startMelodyTrigger.evaluate(timeInSegment))
 		{
 			musicShader->setCentralPattern(1); // thumping heart
 			musicShader->setCentralPatternMotion(1);
 			centralPatternFader.fadeIn();
+			musicShader->setMainLightsLevel(0.f);
 		}
 
 		if(midSectionTrigger1.evaluate(timeInSegment))
@@ -121,6 +129,7 @@ void showSegmentClcGirls1::update()
 			musicShader->setCentralPattern(0); // rotating flowers
 			musicShader->setLightingMode(1); // bars moving upward
 			musicShader->setCentralPatternMotion(2);
+			musicShader->setMainLightsLevel(0.5f);
 		}
 		if(midSectionTrigger2.evaluate(timeInSegment))
 		{
@@ -145,6 +154,7 @@ void showSegmentClcGirls1::update()
 			musicShader->setCentralPattern(1); // heart
 			musicShader->setCentralPatternMotion(1); // thumping
 			musicShader->setLightingMode(0); // stars
+			overrideLightsFader = false;
 		}
 
 		// 1:40 -> clapping section, 15 seconds
@@ -185,10 +195,13 @@ void showSegmentClcGirls1::update()
 			centralPatternFader.fadeOut();
 		}
 		centralPatternFader.update();
-		lightsFader.update();
-
-		musicShader->setMainLightsLevel(lightsFader.getCurrentValue());
 		musicShader->setCentralPatternLevel(centralPatternFader.getCurrentValue());
+
+		lightsFader.update();
+		if(!overrideLightsFader)
+			musicShader->setMainLightsLevel(lightsFader.getCurrentValue());
+
+
 
 		if(snd.getIsPlaying())
 		{

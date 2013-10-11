@@ -19,18 +19,25 @@ bool showResource::isSelected(ofxControlPanel& panel)
 // ---------------------- movieResource ------------------
 movieResource::~movieResource()
 {
+	stopCloseDeleteMovie();
+}
+
+void movieResource::stopCloseDeleteMovie()
+{
 	if(movie != NULL)
 	{
 		if(movie->isPlaying() || movie->isPaused())
 			movie->stop();
 		movie->close();
 		delete movie;
+		movie = NULL;
 	}
 }
 void movieResource::load()
 {
-	movie = new ofxThreadedVideo();
-	movie->loadMovie(filePath);
+	//movie = new ofxThreadedVideo();
+	//movie->loadMovie(filePath);
+	//movie->setLoopState(OF_LOOP_NORMAL);
 }
 ofTexture* movieResource::getTexturePtr()
 { 
@@ -39,24 +46,41 @@ ofTexture* movieResource::getTexturePtr()
 
 void movieResource::comeIntoView()
 {
-	if(movie->isPlaying() == false)
+	ofLogNotice("mapamok") << "movie " << name << " comes into view";
+
+	if (movie != NULL)
+		ofLogError("mapamok") << "movieResource::comeIntoView, movie is not NULL !";
+
+	movie = new ofxThreadedVideo();
+	movie->loadMovie(filePath);
+	movie->setLoopState(OF_LOOP_NORMAL);
+
+	//if(movie->isPlaying() == false)
 		movie->play();
-	else
-		if(movie->isPaused())
-			movie->setPaused(false); 
+	//else
+	//	if(movie->isPaused())
+	//		movie->setPaused(false); 
 }
 
 void movieResource::goOutOfView()
 {
-	if(movie->isPlaying() == true)
+	ofLogNotice("mapamok") << "movie " << name << " goes out of view";
+
+	if(movie != NULL)
 	{
-		movie->setPaused(true); //.stop();
+		if(movie->isPlaying() == true)
+		{
+			movie->stop();
+		}
+
+		stopCloseDeleteMovie();
 	}
 }
 void movieResource::update()
 {
-	if(movie->isPlaying())
-		movie->update();
+	if(movie != NULL)
+		if(movie->isPlaying())
+			movie->update();
 }
 // ----------------------- pictureResource ------------------
 void pictureResource::load()

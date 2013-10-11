@@ -33,5 +33,7 @@ protected:
 
 	showResource* currentResource;
 	ofTexture* currentTexture;
+
+	ofxAutoControlPanel* controlPanel;
 };
 
