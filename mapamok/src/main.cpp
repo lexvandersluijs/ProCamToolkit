@@ -94,7 +94,7 @@ int main( int argc,      // Number of strings in array argv
 			show.addMovie("movies/fingers.mov", "fingers");
 			show.addPicture("pictures/oefentrap-stonesandgrass.png", "stone and grass");
 		}
-		else
+		else if (configName == "CLCGirls")
 		{
 			projConfig.initialize(primaryScreenWidth, primaryScreenHeight, virtualScreenWidth, virtualScreenHeight);
 			projConfig.loadConfiguration(configName);
@@ -161,6 +161,34 @@ int main( int argc,      // Number of strings in array argv
 
 			show.showSegments.push_back(segment);
 
+		}
+		else if (configName == "Easter2014")
+		{
+			projConfig.initialize(primaryScreenWidth, primaryScreenHeight, virtualScreenWidth, virtualScreenHeight);
+			projConfig.loadConfiguration(configName);
+			show.load(configName);
+
+			showSegment* segment = new showSegment();
+			segment->name = "Calibration";
+			effectSingleTextureMap* calibmap = new effectSingleTextureMap();
+			calibmap->addSelectedResourceName("calibration");
+			segment->effects.push_back(calibmap);
+			show.showSegments.push_back(segment);
+
+			segment = new showSegment();
+			segment->name = "Default";
+			effect* ef = new effectDefaultShader();
+			segment->effects.push_back(ef);
+			show.showSegments.push_back(segment);
+
+			segment = new showSegment();
+			segment->name = "Mapping videos";
+			effectSingleTextureMap* tmef = new effectSingleTextureMap();
+			tmef = new effectSingleTextureMap();
+			tmef->addSelectedResourceName("mapping1");
+			tmef->addSelectedResourceName("mapping2");
+			segment->effects.push_back(tmef);
+			show.showSegments.push_back(segment);
 		}
 	}
 

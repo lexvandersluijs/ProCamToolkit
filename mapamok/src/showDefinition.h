@@ -78,6 +78,7 @@ public:
 	void addPicture(string filePath, string name);
 	pictureResource* findPictureByName(string name);
 	showResource* findResourceByName(string name);
+	std::string getModelLocation() { return modelLocation; }
 
 	std::vector<movieResource*> movies;
 	std::vector<pictureResource*> pictures;
@@ -92,6 +93,7 @@ public:
 
 private:
 	static showDefinition* instance;
+	std::string modelLocation;
 
 	void loadResources();
 

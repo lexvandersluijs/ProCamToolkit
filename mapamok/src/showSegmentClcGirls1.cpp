@@ -140,7 +140,7 @@ void showSegmentClcGirls1::update()
 		if(midSectionTrigger3.evaluate(timeInSegment))
 		{
 			musicShader->setLightingMode(1); // bars moving upward
-			centralPatternFader.fadeOut(); // don't show central pattern together with heart, looks 'blocked'
+			centralPatternFader.fadeOut(); // don't show central pattern together with horizontal bars, looks 'blocked'
 		}
 		if(midSectionTrigger4.evaluate(timeInSegment))
 		{

@@ -470,12 +470,9 @@ void testApp::mouseReleased(int x, int y, int button) {
 	setb("dragging", false);
 }
 
-void testApp::setupMesh() {
-	//model.loadModel("model.dae");
-	//model.loadModel("movicolon-box.dae");
-	//model.loadModel("oefentrap.obj");
-	//model.loadModel("oefentrap.dae");
-	model.loadModel("models/stairs.dae");
+void testApp::setupMesh() 
+{
+	model.loadModel(show.getModelLocation());
 	
 	// LS: note: stuff breaks down when there is more than one submesh in the model
 	objectMesh = model.getMesh(0);

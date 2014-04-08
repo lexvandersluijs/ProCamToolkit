@@ -239,7 +239,24 @@ void showDefinition::load(string configName)
 	Poco::XML::InputSource src(configFile);
 	Poco::XML::DOMParser parser;
 	Poco::AutoPtr<Poco::XML::Document> pDoc = parser.parse(&src);
-			
+	
+	// ----------- get the 3D model location and set it ------------
+	Poco::XML::Node* modelNode = pDoc->getNodeByPath("/show/model");
+	if(modelNode != NULL)
+	{
+		Poco::XML::NamedNodeMap* modelNodeAttribs = modelNode->attributes();
+		for(int i=0; i<modelNodeAttribs->length(); i++)
+		{
+			Poco::XML::Node* attribute = NULL;
+			attribute = modelNodeAttribs->item(i);
+
+			if(attribute->nodeName() == "file")
+				modelLocation = attribute->nodeValue();
+		}
+	}
+	else
+		cout << "Error: no 3D model was defined in the show definition Xml file" << endl;
+
 	// -------------- add all movies -------------
 	Poco::XML::Node* moviesNode = pDoc->getNodeByPath("/show/movies");
 	Poco::XML::NodeList* movList = moviesNode->childNodes();
