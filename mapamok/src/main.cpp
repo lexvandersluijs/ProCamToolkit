@@ -185,8 +185,9 @@ int main( int argc,      // Number of strings in array argv
 			segment->name = "Mapping videos";
 			effectSingleTextureMap* tmef = new effectSingleTextureMap();
 			tmef = new effectSingleTextureMap();
-			tmef->addSelectedResourceName("mapping1");
-			tmef->addSelectedResourceName("mapping2");
+			tmef->addSelectedResourceName("Intro");
+			tmef->addSelectedResourceName("Dans");
+			tmef->addSelectedResourceName("Girliezz");
 			segment->effects.push_back(tmef);
 			show.showSegments.push_back(segment);
 		}

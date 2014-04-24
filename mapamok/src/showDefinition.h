@@ -20,6 +20,7 @@ public:
 	movieResource()
 	{
 		movie = NULL;
+		player = NULL;
 	}
 	~movieResource();
 	void stopCloseDeleteMovie();
@@ -34,6 +35,7 @@ public:
 
 private:
 	ofxThreadedVideo*	movie;
+	ofxGstStandaloneVideoPlayer* player;
 };
 
 class pictureResource : public showResource

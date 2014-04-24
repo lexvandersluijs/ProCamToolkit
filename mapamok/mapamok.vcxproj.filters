@@ -196,6 +196,15 @@
     <ClCompile Include="src\effectMultiTextureShader.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxGstStandaloneVideo\src\ofxGstStandaloneUtils.cpp">
+      <Filter>addons\ofxGstStandaloneVideo\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxGstStandaloneVideo\src\ofxGstStandaloneVideoGrabber.cpp">
+      <Filter>addons\ofxGstStandaloneVideo\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxGstStandaloneVideo\src\ofxGstStandaloneVideoPlayer.cpp">
+      <Filter>addons\ofxGstStandaloneVideo\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -314,6 +323,12 @@
     </Filter>
     <Filter Include="addons\ofxOnsetDetection\src\OnsetDS">
       <UniqueIdentifier>{be010d0a-8909-434a-9269-41d188eb3eb3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxGstStandaloneVideo">
+      <UniqueIdentifier>{c9e1aef8-d01a-46bf-b871-79b4b585c1f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxGstStandaloneVideo\src">
+      <UniqueIdentifier>{c51ae4f0-f6c6-4b4f-b1d3-06df6e344e19}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -781,6 +796,15 @@
     </ClInclude>
     <ClInclude Include="src\effectMultiTextureShader.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxGstStandaloneVideo\src\ofxGstStandaloneUtils.h">
+      <Filter>addons\ofxGstStandaloneVideo\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxGstStandaloneVideo\src\ofxGstStandaloneVideoGrabber.h">
+      <Filter>addons\ofxGstStandaloneVideo\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxGstStandaloneVideo\src\ofxGstStandaloneVideoPlayer.h">
+      <Filter>addons\ofxGstStandaloneVideo\src</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -7,6 +7,7 @@
 #include "ofxProCamToolkit.h"
 #include "ofxAutoControlPanel.h"
 #include "ofxThreadedVideo.h"
+#include "ofxGstStandaloneVideoPlayer.h"
 #include "LineArt.h"
 #include "mainControlPanel.h"
 #include "projector.h"

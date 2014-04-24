@@ -32,6 +32,15 @@ void movieResource::stopCloseDeleteMovie()
 		delete movie;
 		movie = NULL;
 	}
+
+	if(player != NULL)
+	{
+		if(player->isPlaying() || player->isPaused())
+			player->stop();
+		player->close();
+		delete player;
+		player = NULL;
+	}
 }
 void movieResource::load()
 {
@@ -41,25 +50,47 @@ void movieResource::load()
 }
 ofTexture* movieResource::getTexturePtr()
 { 
-	return &movie->getTextureReference(); 
+	//return &movie->getTextureReference(); 
+	return player->getGstVideoUtils()->getTexturePtr();
 }
 
 void movieResource::comeIntoView()
 {
 	ofLogNotice("mapamok") << "movie " << name << " comes into view";
 
-	if (movie != NULL)
-		ofLogError("mapamok") << "movieResource::comeIntoView, movie is not NULL !";
 
-	movie = new ofxThreadedVideo();
-	movie->loadMovie(filePath);
-	movie->setLoopState(OF_LOOP_NORMAL);
+	bool useThreadedVideoPlayer = false;
+	if(useThreadedVideoPlayer)
+	{
+		if (movie != NULL)
+		{
+			ofLogError("mapamok") << "movieResource::comeIntoView, movie should be NULL but it is not!";
+			return;
+		}
 
-	//if(movie->isPlaying() == false)
+		movie = new ofxThreadedVideo();
+		movie->loadMovie(filePath);
+		movie->setLoopState(OF_LOOP_NORMAL);
 		movie->play();
-	//else
-	//	if(movie->isPaused())
-	//		movie->setPaused(false); 
+	}
+	else // use gstreamer
+	{
+		if (player != NULL)
+		{
+			ofLogError("mapamok") << "movieResource::comeIntoView, player should be NULL but it is not!";
+			return;
+		}
+		player = new ofxGstStandaloneVideoPlayer();
+
+		std::string file = ofFilePath::getAbsolutePath(filePath, true);
+		std::replace(file.begin(), file.end(), '\\', '/');
+		file = "file:///" + file;
+
+		player->setPixelFormat(OF_PIXELS_RGB);
+		player->loadMovie(file);
+		player->setLoopState(OF_LOOP_NORMAL);
+		player->play();
+	}
 }
 
 void movieResource::goOutOfView()
@@ -75,12 +106,25 @@ void movieResource::goOutOfView()
 
 		stopCloseDeleteMovie();
 	}
+
+	if(player != NULL)
+	{
+		if(player->isPlaying())
+		{
+			player->stop();
+		}
+		stopCloseDeleteMovie();
+	}
 }
 void movieResource::update()
 {
 	if(movie != NULL)
 		if(movie->isPlaying())
 			movie->update();
+
+	if(player != NULL)
+		if(player->isPlaying())
+			player->update();
 }
 // ----------------------- pictureResource ------------------
 void pictureResource::load()
