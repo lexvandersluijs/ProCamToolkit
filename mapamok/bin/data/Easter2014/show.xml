@@ -1,0 +1,15 @@
+<show>
+  <model file="models/Easter2014_updated.dae"></model>
+  <shaders>
+    <shader name="demo" frag="shader.frag" vert="shader.vert"></shader>
+  </shaders>
+  <movies>
+    <movie file="movies/PasenMetBoxSides_1024x948.mov" name="Intro"></movie>
+    <movie file="movies/CLC_TRAP_UV_2048_einddans.mov" name="Dans"></movie>
+    <movie file="movies/Box_tijdens_girliezz.mov.mov" name="Girliezz"></movie>
+  </movies>
+  <pictures>
+    <picture file="pictures/EasterCalibration.png" name="calibration"></picture>
+    
+  </pictures>
+</show>

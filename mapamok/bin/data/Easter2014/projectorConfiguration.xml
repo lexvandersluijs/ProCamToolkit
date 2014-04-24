@@ -1,0 +1,7 @@
+<projectorConfiguration>
+  <window width="4864" height="1080"></window>
+  <viewports>
+  <projectorView x="1920" y="0" width="1920" height="1080" name="LettersProjector"></projectorView>
+  <projectorView x="3840" y="0" width="1024" height="768" name="BoxProjector"></projectorView>
+    </viewports>
+</projectorConfiguration>
