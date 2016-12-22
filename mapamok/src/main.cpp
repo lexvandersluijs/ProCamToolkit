@@ -60,8 +60,16 @@ int main( int argc,      // Number of strings in array argv
 		projConfig.getProjView(0).index = 0;
 		projConfig.getProjView(0).setViewport(0, 0, primaryScreenWidth, primaryScreenHeight);
 
+		show.setModelLocation("models/oefentrap.dae");
 		show.addMovie("movies/oefentrap-uvtemplate_2.mov", "oefentrap");
 		show.addPicture("pictures/oefentrap-stonesandgrass.png", "stone and grass");
+
+		showSegment* segment = new showSegment();
+		segment->name = "Calibration";
+		effectSingleTextureMap* calibmap = new effectSingleTextureMap();
+		calibmap->addSelectedResourceName("stone and grass");
+		segment->effects.push_back(calibmap);
+		show.showSegments.push_back(segment);
 	}
 	else
 	{
@@ -188,6 +196,42 @@ int main( int argc,      // Number of strings in array argv
 			tmef->addSelectedResourceName("Intro");
 			tmef->addSelectedResourceName("Dans");
 			tmef->addSelectedResourceName("Girliezz");
+			segment->effects.push_back(tmef);
+			show.showSegments.push_back(segment);
+		}
+		else if(configName == "Christmas2016")
+		{
+			projConfig.initialize(primaryScreenWidth, primaryScreenHeight, virtualScreenWidth, virtualScreenHeight);
+			projConfig.loadConfiguration(configName);
+			show.load(configName);
+
+			showSegment* segment = new showSegment();
+			segment->name = "Calibration";
+			effectSingleTextureMap* calibmap = new effectSingleTextureMap();
+			calibmap->addSelectedResourceName("calibration");
+			segment->effects.push_back(calibmap);
+			show.showSegments.push_back(segment);
+
+			segment = new showSegment();
+			segment->name = "Default";
+			effect* ef = new effectDefaultShader();
+			segment->effects.push_back(ef);
+			show.showSegments.push_back(segment);
+
+			segment = new showSegment();
+			segment->name = "Mapping videos";
+			effectSingleTextureMap* tmef = new effectSingleTextureMap();
+			tmef->addSelectedResourceName("deur_met_begroeing");
+			tmef->addSelectedResourceName("Deur_basis_blauw");
+			tmef->addSelectedResourceName("Deur_basis_geel");
+			tmef->addSelectedResourceName("Deur_basis_groen");
+			tmef->addSelectedResourceName("Deur_basis_paars");
+			tmef->addSelectedResourceName("Deur_basis_rood");
+			tmef->addSelectedResourceName("Scene_2_Heartbeat_loop");
+			tmef->addSelectedResourceName("Scene_3_Open");
+			tmef->addSelectedResourceName("Scene_4_Open2");
+			tmef->addSelectedResourceName("Scene_5_Krimpen");
+			tmef->addSelectedResourceName("Scene_6_Groeien");
 			segment->effects.push_back(tmef);
 			show.showSegments.push_back(segment);
 		}
