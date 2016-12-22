@@ -12,7 +12,7 @@ void main()
 {
 	vec4 c = vec4(0.0, 0.0, 0.0, 1.0);
 
-	vec2 pos = gl_TexCoord[0].st * 2048.0;
+	vec2 pos = vec2(gl_TexCoord[0].s * 1536.0, gl_TexCoord[0].t * 2048.0);
 
 	// simply copy background, with fadefactor
 	vec4 bgColor = vec4(texture2DRect( background, pos ).rgb * fadeFactor, 1.0);

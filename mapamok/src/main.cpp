@@ -221,6 +221,7 @@ int main( int argc,      // Number of strings in array argv
 			segment = new showSegment();
 			segment->name = "Mapping videos";
 			effectSingleTextureMap* tmef = new effectSingleTextureMap();
+			tmef->SetFadeParameters(true, true, 0.5f);
 			tmef->addSelectedResourceName("deur_met_begroeing");
 			tmef->addSelectedResourceName("Deur_basis_blauw");
 			tmef->addSelectedResourceName("Deur_basis_geel");

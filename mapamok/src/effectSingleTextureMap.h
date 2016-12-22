@@ -12,7 +12,8 @@ public:
 		shaderPartialFilePath = "shaders/singletexture_fade";
 
 		currentResource = NULL;
-		currentTexture = NULL;
+		nextResource = NULL;
+		//currentTexture = NULL;
 
 		fadeState = FadeState::Idle;
 		fadeIn = false;
@@ -24,6 +25,7 @@ public:
 	virtual void render(ofxAutoControlPanel& panel, ofxAssimpModelLoader* model, ofMesh* mesh);
 	virtual void stop();
 
+	void SetFadeParameters(bool fadeIn, bool fadeOut, float fadeTime);
 	void SwitchState(FadeState newState);
 
 	void updateSelectedResourceCheckbox(ofxAutoControlPanel& panel);
@@ -43,10 +45,12 @@ protected:
 	std::vector<std::string> selectedResourceNames;
 
 	showResource* currentResource;
-	ofTexture* currentTexture;
+	showResource* nextResource; // the one we want after the current fade-out is done
+	//ofTexture* currentTexture;
 
 	ofxAutoControlPanel* controlPanel;
 
+	fader textureFader;
 	bool fadeIn;
 	bool fadeOut;
 	FadeState fadeState;

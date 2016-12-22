@@ -1,5 +1,12 @@
 #include "testApp.h"
 
+void effectSingleTextureMap::SetFadeParameters(bool in, bool out, float time)
+{
+	fadeIn = in;
+	fadeOut = out;
+	fadeTime = time;
+	textureFader.setup(fadeTime);
+}
 
 void effectSingleTextureMap::setupControlPanel(ofxAutoControlPanel& panel)
 {
@@ -74,11 +81,11 @@ void effectSingleTextureMap::updateSelectedResourceCheckbox(ofxAutoControlPanel&
 
 	for(std::vector<movieResource*>::iterator mit = show->movies.begin(); mit != show->movies.end(); ++mit)
 	{
-		if(currentResource == NULL)
+		if(nextResource == NULL)
 			panel.setValueB((*mit)->makeGuiName(), false);
 		else
 		{
-			if((*mit)->filePath == currentResource->filePath)
+			if((*mit)->filePath == nextResource->filePath)
 				panel.setValueB((*mit)->makeGuiName(), true);
 			else
 				panel.setValueB((*mit)->makeGuiName(), false);
@@ -87,11 +94,11 @@ void effectSingleTextureMap::updateSelectedResourceCheckbox(ofxAutoControlPanel&
 
 	for(std::vector<pictureResource*>::iterator pit = show->pictures.begin(); pit != show->pictures.end(); ++pit) 
 	{
-		if(currentResource == NULL)
+		if(nextResource == NULL)
 			panel.setValueB((*pit)->makeGuiName(), false);
 		else
 		{
-			if((*pit)->filePath == currentResource->filePath)
+			if((*pit)->filePath == nextResource->filePath)
 				panel.setValueB((*pit)->makeGuiName(), true);
 			else
 				panel.setValueB((*pit)->makeGuiName(), false);
@@ -107,58 +114,128 @@ void effectSingleTextureMap::updateSelectedResourceCheckbox(ofxAutoControlPanel&
 // controls to start, pause, rewind (etc) the video
 void effectSingleTextureMap::updateCurrentTexture(ofxAutoControlPanel& panel)
 {
-	showResource* prevResource = currentResource;
-
-	bool anySelectionMade = false;
-	showResource* newSelection = findNewSelectedResource(panel, anySelectionMade);
-
-
-	if(anySelectionMade == false) // no selection was made
-		currentResource = NULL;
-	else
+	// update the fader if we are in that state
+	if(fadeState == FadeState::FadingIn || fadeState == FadeState::FadingOut)
 	{
-		if(newSelection != NULL) // there was a selection, and it's new
-			currentResource = newSelection;
-		else // there was a selection, but it's the same as before
+		textureFader.update();
+
+		// we always complete a fade before switching to a new state
+		if(textureFader.isFading())
 		{
-			// keep current resource as it is
+			cout << "Waiting until fade is done, fadeState=" << fadeState << endl;
+		}
+		else
+		{
+			// apparently we *just* stopped fading, so complete the action
+			if(fadeState == FadeState::FadingOut)
+			{
+				currentResource->goOutOfView();
+				SwitchState(FadeState::Idle);
+
+				// if a next resource is already in waiting, set that pointer
+				// and fade it in (if fadeIn was set)
+				currentResource = nextResource;
+
+				if(currentResource != NULL)
+				{
+					if(fadeIn)
+						SwitchState(FadeState::FadingIn);
+
+					currentResource->comeIntoView();
+				}
+			}
+			else
+			{
+				// fade in is done
+				SwitchState(FadeState::Idle);
+			}
 		}
 	}
 
-	// find selected resource
-	// if different from what we had 
-	if(prevResource != currentResource)
+	if(!textureFader.isFading())
 	{
-		//   disable the toggle of the previous one
-		if(prevResource != NULL)
+		//showResource* prevResource = currentResource;
+
+		bool anySelectionMade = false;
+		showResource* newSelection = findNewSelectedResource(panel, anySelectionMade);
+
+
+		if(anySelectionMade == false) // no selection was made
+			nextResource = NULL;
+		else
 		{
-			prevResource->goOutOfView();
+			if(newSelection != NULL) // there was a selection, and it's new
+				nextResource = newSelection;
+			else // there was a selection, but it's the same as before
+			{
+				// keep current resource as it is
+			}
 		}
 
-		if(currentResource != NULL)
+		// find selected resource
+		// if different from what we had 
+		if(currentResource != nextResource)
 		{
-			currentResource->comeIntoView();
+			if(fadeOut && currentResource != NULL)
+			{
+				SwitchState(FadeState::FadingOut);
+
+				// If we need to fade out and also in, then the fade in
+				// will be delayed until the fade out is done. This is handled
+				// at the top of this function.
+				// 'nextResource' has already been set properly, we keep 'currentResource' as it is
+			}
+			else
+			{
+				if(currentResource != NULL)
+					currentResource->goOutOfView();
+
+				currentResource = nextResource;
+
+				if(fadeIn)
+				{
+					SwitchState(FadeState::FadingIn);
+				}
+				else
+				{
+					// no fading, switch immediately
+				}
+
+				if(currentResource != NULL)
+				{
+					currentResource->comeIntoView();
+				}
+			}
 		}
+
+		updateSelectedResourceCheckbox(panel);
 	}
 
-	updateSelectedResourceCheckbox(panel);
-
+	// also while fading we need to call this, so outside of the if(!fading) block
 	if(currentResource != NULL)
 	{
+		//cout << "Updating currentResource" << endl;
 		currentResource->update();
-		currentTexture = getCurrentTexture();
 	}
-	else
-		currentTexture = NULL;	
 }
 
 
 void effectSingleTextureMap::SwitchState(FadeState newState)
 {
-	if(newState == fadeState)
+	if(newState == fadeState) // no change
 		return;
 
+	cout << "SwitchState() newState=" << newState << endl;
 
+	if(newState == FadeState::FadingIn)
+	{
+		textureFader.fadeIn();
+	}
+	else if(newState == FadeState::FadingOut)
+	{
+		textureFader.fadeOut();
+	}
+	fadeState = newState;
 }
 
 ofTexture* effectSingleTextureMap::getCurrentTexture()
@@ -175,7 +252,6 @@ void effectSingleTextureMap::stop()
 		currentResource->goOutOfView();
 
 	currentResource = NULL;
-	currentTexture = NULL;
 
 	updateSelectedResourceCheckbox(*controlPanel);
 }
@@ -203,11 +279,19 @@ void effectSingleTextureMap::render(ofxAutoControlPanel& panel, ofxAssimpModelLo
 
 	// set up shader
 
-	if(currentTexture != NULL)
+	if(currentResource != NULL)
 	{
 		shader.begin();
-		shader.setUniform1f("fadeFactor", 0.5f);
-		shader.setUniformTexture("background", *currentTexture, 1);
+
+		float fadeFactor = 1;
+		if(fadeState == FadeState::FadingIn || fadeState == FadeState::FadingOut)
+		{
+			fadeFactor = textureFader.getCurrentValue();
+			cout << "fadeFactor=" << fadeFactor << endl;
+		}
+
+		shader.setUniform1f("fadeFactor", fadeFactor);
+		shader.setUniformTexture("background", *currentResource->getTexturePtr(), 1);
 		shader.end();
 
 		shader.begin();
@@ -222,6 +306,8 @@ void effectSingleTextureMap::render(ofxAutoControlPanel& panel, ofxAssimpModelLo
 
 		shader.end();
 	}
+	else
+		cout << "Cannot render, currentResource is NULL" << endl;
 
 	glPopAttrib();
 
@@ -255,7 +341,7 @@ void effectSingleTextureMap::drawModel(ofPolyRenderMode renderType, ofxAssimpMod
 		//ofMultMatrix(mesh->matrix);
 
 		// if no texture override is specified then try to use the texture from the mesh definition
-		if(currentTexture == NULL)
+		if(currentResource == NULL)
 		{
 			//if(model.bUsingTextures){
 				if(mesh.hasTexture()) {
@@ -295,7 +381,7 @@ void effectSingleTextureMap::drawModel(ofPolyRenderMode renderType, ofxAssimpMod
 		}
 #endif
 
-		if(currentTexture == NULL)
+		if(currentResource == NULL)
 		{
 			//if(bUsingTextures){
 				if(mesh.hasTexture()) {
