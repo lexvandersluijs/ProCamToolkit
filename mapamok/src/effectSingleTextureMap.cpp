@@ -29,6 +29,8 @@ void effectSingleTextureMap::setupControlPanel(ofxAutoControlPanel& panel)
 
 void effectSingleTextureMap::update(ofxAutoControlPanel& panel)
 {
+	reloadShaderIfNeeded(panel);
+
 	// TODO: get selected texture from control panel, update currentResource pointer
 	// check the status of the GUI, change the texture if necessary
 	// if a movie is playing, update that movie
@@ -147,9 +149,16 @@ void effectSingleTextureMap::updateCurrentTexture(ofxAutoControlPanel& panel)
 		currentTexture = getCurrentTexture();
 	}
 	else
-		currentTexture = NULL;
+		currentTexture = NULL;	
+}
 
-	
+
+void effectSingleTextureMap::SwitchState(FadeState newState)
+{
+	if(newState == fadeState)
+		return;
+
+
 }
 
 ofTexture* effectSingleTextureMap::getCurrentTexture()
@@ -192,15 +201,26 @@ void effectSingleTextureMap::render(ofxAutoControlPanel& panel, ofxAssimpModelLo
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
 	glEnable(GL_DEPTH_TEST);
 
+	// set up shader
+
 	if(currentTexture != NULL)
 	{
+		shader.begin();
+		shader.setUniform1f("fadeFactor", 0.5f);
+		shader.setUniformTexture("background", *currentTexture, 1);
+		shader.end();
+
+		shader.begin();
+
 		//ofTexture& pictureTexture = customPicture.getTextureReference();
 		//pictureTexture.bind();
 		//drawModel(OF_MESH_FILL, &pictureTexture);
 		//pictureTexture.unbind();
-		currentTexture->bind();
+		//currentTexture->bind();
 		drawModel(OF_MESH_FILL, model);
-		currentTexture->unbind();
+		//currentTexture->unbind();
+
+		shader.end();
 	}
 
 	glPopAttrib();

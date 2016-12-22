@@ -9,6 +9,8 @@ class effectSingleTextureMap : public effect
 public:
 	effectSingleTextureMap()
 	{
+		shaderPartialFilePath = "shaders/singletexture_fade";
+
 		currentResource = NULL;
 		currentTexture = NULL;
 
