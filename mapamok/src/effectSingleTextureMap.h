@@ -2,6 +2,8 @@
 
 class showResource;
 
+enum FadeState { Idle, FadingIn, FadingOut };
+
 class effectSingleTextureMap : public effect
 {
 public:
@@ -9,11 +11,18 @@ public:
 	{
 		currentResource = NULL;
 		currentTexture = NULL;
+
+		fadeState = FadeState::Idle;
+		fadeIn = false;
+		fadeOut = false;
+		fadeTime = 1.0f;
 	}
 	virtual void setupControlPanel(ofxAutoControlPanel& panel);
 	virtual void update(ofxAutoControlPanel& panel);
 	virtual void render(ofxAutoControlPanel& panel, ofxAssimpModelLoader* model, ofMesh* mesh);
 	virtual void stop();
+
+	void SwitchState(FadeState newState);
 
 	void updateSelectedResourceCheckbox(ofxAutoControlPanel& panel);
 	showResource* findNewSelectedResource(ofxAutoControlPanel& panel, bool& anySelectionMade);
@@ -35,5 +44,10 @@ protected:
 	ofTexture* currentTexture;
 
 	ofxAutoControlPanel* controlPanel;
+
+	bool fadeIn;
+	bool fadeOut;
+	FadeState fadeState;
+	float fadeTime;
 };
 

@@ -80,6 +80,7 @@ public:
 	void addPicture(string filePath, string name);
 	pictureResource* findPictureByName(string name);
 	showResource* findResourceByName(string name);
+	void setModelLocation(const std::string& modelLoc) { modelLocation = modelLoc; }
 	std::string getModelLocation() { return modelLocation; }
 
 	std::vector<movieResource*> movies;
