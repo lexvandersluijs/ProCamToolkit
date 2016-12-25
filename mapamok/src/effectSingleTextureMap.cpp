@@ -139,14 +139,16 @@ void effectSingleTextureMap::updateCurrentTexture(ofxAutoControlPanel& panel)
 				if(currentResource != NULL)
 				{
 					if(fadeIn)
+					{
+						cout << "Automatically starting fade-in after fade-out is complete" << endl;
 						SwitchState(FadeState::FadingIn);
-
+					}
 					currentResource->comeIntoView();
 				}
 			}
 			else
 			{
-				// fade in is done
+				// fade in or out is done
 				SwitchState(FadeState::Idle);
 			}
 		}
@@ -199,6 +201,7 @@ void effectSingleTextureMap::updateCurrentTexture(ofxAutoControlPanel& panel)
 				else
 				{
 					// no fading, switch immediately
+					SwitchState(FadeState::Idle);
 				}
 
 				if(currentResource != NULL)
@@ -207,15 +210,17 @@ void effectSingleTextureMap::updateCurrentTexture(ofxAutoControlPanel& panel)
 				}
 			}
 		}
-
-		updateSelectedResourceCheckbox(panel);
 	}
+	updateSelectedResourceCheckbox(panel);
 
 	// also while fading we need to call this, so outside of the if(!fading) block
 	if(currentResource != NULL)
 	{
 		//cout << "Updating currentResource" << endl;
 		currentResource->update();
+
+		// try to 'warm up' the GPU state by loading the texture now instead of in render
+		getCurrentTexture();
 	}
 }
 
@@ -306,8 +311,8 @@ void effectSingleTextureMap::render(ofxAutoControlPanel& panel, ofxAssimpModelLo
 
 		shader.end();
 	}
-	else
-		cout << "Cannot render, currentResource is NULL" << endl;
+//	else
+//		cout << "Cannot render, currentResource is NULL" << endl;
 
 	glPopAttrib();
 

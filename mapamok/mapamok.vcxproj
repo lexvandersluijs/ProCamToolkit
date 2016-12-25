@@ -158,6 +158,7 @@
     <ClCompile Include="src\effectMultiTextureShader.cpp" />
     <ClCompile Include="src\effectMusicShader1.cpp" />
     <ClCompile Include="src\effectSingleTextureMap.cpp" />
+    <ClCompile Include="src\fader.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\mainControlPanel.cpp" />
     <ClCompile Include="src\meshView.cpp" />

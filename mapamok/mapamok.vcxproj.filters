@@ -205,6 +205,9 @@
     <ClCompile Include="..\..\..\addons\ofxGstStandaloneVideo\src\ofxGstStandaloneVideoPlayer.cpp">
       <Filter>addons\ofxGstStandaloneVideo\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\fader.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">

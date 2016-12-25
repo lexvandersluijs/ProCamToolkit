@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+
 class fader
 {
 public:
@@ -9,9 +11,11 @@ public:
 		fadeDuration = 1.f;
 		currentValue = 0.f;
 		in = false;
+		smooth = true;
 		fading = false; // fading and fadeComplete are redundant..
 		fadeComplete = true;
 	}
+
 	void setup(float duration)
 	{
 		fadeDuration = duration;
@@ -34,45 +38,8 @@ public:
 	{
 		return fading;
 	}
-	void update()
-	{
-		if(fading)
-		{
-			float t = ofGetElapsedTimef();
-			float dif = t - fadeStartTime;
-
-			if( dif >= 0 )
-			{
-				if(dif < fadeDuration)
-				{
-					float fraction = dif / fadeDuration;
-					if(in)
-					{
-						// for now: just linear interp..
-						currentValue = fraction;
-					}
-					else // fade out
-					{
-						currentValue = 1.f - fraction;
-					}
-				}
-				else
-				{
-					fading = false;
-					fadeComplete = true;
-					if(in)
-					{
-						currentValue = 1.f;
-					}
-					else
-					{
-						currentValue = 0.f;
-					}
-				}
-			}
-		}
-	}
-
+	void update();
+	
 	bool canFadeIn()
 	{
 		return (fading == false) && (fadeComplete == true) && (in == false);
@@ -91,6 +58,7 @@ protected:
 	float fadeDuration;
 	float currentValue;
 	bool in;
+	bool smooth;
 	bool fading;
 	bool fadeComplete;
 };
